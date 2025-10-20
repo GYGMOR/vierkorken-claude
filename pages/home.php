@@ -58,7 +58,7 @@ if ($result) {
         
         <?php editable_textarea('hero_subtitle', $hero_subtitle, 'p', ['hero-subtitle']); ?>
         
-        <?php editable_button('hero_button_text', get_setting('hero_button_text', 'Jetzt zum Shop'), 'btn btn-primary', "window.location='?page=shop'"); ?>
+        <a href="?page=shop" class="btn btn-primary"><?php echo get_setting('hero_button_text', 'Jetzt zum Shop'); ?></a>
     </div>
 </div>
 
