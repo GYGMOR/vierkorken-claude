@@ -89,7 +89,7 @@ function editable_button($key, $text, $class = 'btn btn-primary', $onclick = '')
 function edit_badge($label = 'Edit me') {
     global $EDIT_MODE;
     if ($EDIT_MODE) {
-        echo '<span class="edit-badge">✏️ ' . htmlspecialchars($label) . '</span>';
+        echo '<span class="edit-badge">' . htmlspecialchars($label) . '</span>';
     }
 }
 

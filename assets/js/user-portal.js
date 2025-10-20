@@ -1,5 +1,23 @@
 // assets/js/user-portal.js - FINAL VERSION
 
+// Helper function to generate star icons
+function generateStars(rating, max = 5) {
+    const starIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+    const emptyStarIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+
+    let html = '<span style="color: #ffc107;">';
+    for (let i = 0; i < rating; i++) {
+        html += starIcon;
+    }
+    html += '</span>';
+    html += '<span style="color: #ddd;">';
+    for (let i = rating; i < max; i++) {
+        html += emptyStarIcon;
+    }
+    html += '</span>';
+    return html;
+}
+
 function showNotification(message, type = 'info') {
     const notif = document.createElement('div');
     notif.className = `notification notification-${type}`;
@@ -43,7 +61,7 @@ function loadUserRatings() {
                             <p class="rating-date">${r.date}</p>
                         </div>
                         <div class="rating-stars-display">
-                            ${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}
+                            ${generateStars(r.rating)}
                         </div>
                     </div>
                     ${r.review ? `<p class="rating-text">"${r.review}"</p>` : ''}
@@ -96,7 +114,7 @@ function loadUserFavorites() {
             container.innerHTML = data.favorites.map(w => `
                 <div class="wine-card-favorite">
                     <div class="wine-image-container">
-                        ${w.image_url ? `<img src="${w.image_url}" alt="${w.name}">` : '<div style="font-size: 3rem;">🍷</div>'}
+                        ${w.image_url ? `<img src="${w.image_url}" alt="${w.name}">` : '<div style="font-size: 3rem;"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M8 2h8l1 9H7l1-9z"></path><path d="M7 11v11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V11"></path></svg></div>'}
                     </div>
                     <div class="wine-info">
                         <h4><a href="?page=product&id=${w.id}">${w.name}</a></h4>
@@ -435,7 +453,7 @@ function createModal(title, content) {
         <div class="modal-content">
             <div class="modal-header">
                 <h3>${title}</h3>
-                <button onclick="this.closest('.modal-backdrop').remove()" class="modal-close">✕</button>
+                <button onclick="this.closest('.modal-backdrop').remove()" class="modal-close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <div class="modal-body">${content}</div>
         </div>

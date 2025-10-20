@@ -85,7 +85,7 @@ window.addEventListener('storage', updateCartCount);
 
 const scrollToTopBtn = document.createElement('button');
 scrollToTopBtn.id = 'scroll-to-top';
-scrollToTopBtn.innerHTML = '⬆️';
+scrollToTopBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>';
 scrollToTopBtn.style.cssText = `
     position: fixed;
     bottom: 30px;
@@ -181,7 +181,7 @@ function showLoading(show = true) {
     if (show && !loader) {
         loader = document.createElement('div');
         loader.id = 'loader';
-        loader.innerHTML = '⏳ Lädt...';
+        loader.innerHTML = 'Lädt...';
         loader.style.cssText = `
             position: fixed;
             top: 50%;

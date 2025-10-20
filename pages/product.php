@@ -140,7 +140,7 @@ $category = get_category_name($wine['category_id']);
                             <input type="number" id="quantity" name="quantity" min="1" max="<?php echo $wine['stock']; ?>" value="1">
                         </div>
                         <button type="button" class="btn btn-primary btn-large" onclick="addToCart(<?php echo $wine_id; ?>, '<?php echo addslashes($wine['name']); ?>', <?php echo $wine['price']; ?>, document.getElementById('quantity').value); document.getElementById('quantity').value = 1;">
-                            🛒 In den Warenkorb
+                            <?php echo get_icon('cart', 18); ?> In den Warenkorb
                         </button>
                     </div>
 
@@ -161,8 +161,8 @@ $category = get_category_name($wine['category_id']);
 
             <!-- VERSANDINFO -->
             <div class="product-shipping-info">
-                <p>📦 <strong>Versand:</strong> <?php echo get_setting('shipping_days', '2-3 Arbeitstage'); ?></p>
-                <p>💳 <strong>Versandkosten:</strong> CHF <?php echo get_setting('shipping_cost', '15.00'); ?></p>
+                <p><span class="icon-text"><?php echo get_icon('package', 16, 'icon-primary'); ?> <strong>Versand:</strong> <?php echo get_setting('shipping_days', '2-3 Arbeitstage'); ?></span></p>
+                <p><strong>Versandkosten:</strong> CHF <?php echo get_setting('shipping_cost', '15.00'); ?></p>
             </div>
         </div>
     </div>
@@ -477,7 +477,7 @@ function toggleFavorite(wineId) {
     .then(r => r.json())
     .then(d => {
         if (d.success) {
-            icon.textContent = '❌ Aus Favoriten';
+            icon.innerHTML = '<?php echo addslashes(get_icon('heart', 18)); ?> Aus Favoriten';
         }
     })
     .catch(e => console.error('Fehler:', e));

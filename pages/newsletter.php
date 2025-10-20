@@ -71,9 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <h3>Was du erhältst:</h3>
                 <ul>
                     <li><span class="icon-text"><?php echo get_icon('wine', 18, 'icon-primary'); ?> Wein-Empfehlungen & Neuheiten</span></li>
-                    <li>🎁 Exklusive Angebote & Rabatte</li>
-                    <li>📚 Tipps & Tricks rund um Wein</li>
-                    <li>📅 Event-Ankündigungen</li>
+                    <li><span class="icon-text"><?php echo get_icon('gift', 18, 'icon-primary'); ?> Exklusive Angebote & Rabatte</span></li>
+                    <li><span class="icon-text"><?php echo get_icon('list', 18, 'icon-primary'); ?> Tipps & Tricks rund um Wein</span></li>
+                    <li><span class="icon-text"><?php echo get_icon('calendar', 18, 'icon-primary'); ?> Event-Ankündigungen</span></li>
                 </ul>
             </div>
         </div>

@@ -156,7 +156,9 @@ if ($category_id > 0) {
                 <!-- Keine Weine gefunden -->
                 <div class="no-results">
                     <div class="no-results-content">
-                        <p class="no-results-emoji">😢</p>
+                        <div class="no-results-icon">
+                            <?php echo get_icon('search', 60, 'icon-secondary'); ?>
+                        </div>
                         <h3>Keine Weine gefunden</h3>
                         <p>
                             <?php 

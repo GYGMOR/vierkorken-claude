@@ -96,10 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         <!-- TABS -->
         <div class="auth-tabs">
             <a href="?modal=login&tab=login" class="auth-tab <?php echo $active_tab === 'login' ? 'active' : ''; ?>">
-                🔒 Anmelden
+                <span class="icon-text"><?php echo get_icon('user', 18); ?> Anmelden</span>
             </a>
             <a href="?modal=login&tab=register" class="auth-tab <?php echo $active_tab === 'register' ? 'active' : ''; ?>">
-                ➕ Registrieren
+                <span class="icon-text"><?php echo get_icon('plus', 18); ?> Registrieren</span>
             </a>
         </div>
 
@@ -111,13 +111,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                 <?php if ($login_error): ?>
                     <div class="alert alert-error" style="margin-bottom: 1.5rem;">
-                        ❌ <?php echo safe_output($login_error); ?>
+                        <span class="icon-text"><?php echo get_icon('warning', 16, 'icon-error'); ?> <?php echo safe_output($login_error); ?></span>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($register_success): ?>
                     <div class="alert alert-success" style="margin-bottom: 1.5rem;">
-                        ✅ <?php echo safe_output($register_success); ?>
+                        <span class="icon-text"><?php echo get_icon('check', 16, 'icon-success'); ?> <?php echo safe_output($register_success); ?></span>
                     </div>
                 <?php endif; ?>
 
@@ -127,21 +127,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <div class="login-type-selector">
                         <label class="login-type-option">
                             <input type="radio" name="login_type" value="user" checked>
-                            <span>👤 User-Login</span>
+                            <span class="icon-text"><?php echo get_icon('user', 16); ?> User-Login</span>
                         </label>
                         <label class="login-type-option">
                             <input type="radio" name="login_type" value="admin">
-                            <span>🔑 Admin-Login</span>
+                            <span class="icon-text"><?php echo get_icon('star', 16); ?> Admin-Login</span>
                         </label>
                     </div>
 
                     <div class="form-group">
-                        <label>📧 E-Mail</label>
+                        <label>E-Mail</label>
                         <input type="email" name="email" placeholder="deine@email.ch" required autofocus>
                     </div>
 
                     <div class="form-group">
-                        <label>🔐 Passwort</label>
+                        <label>Passwort</label>
                         <input type="password" name="password" placeholder="Passwort" required>
                     </div>
 
@@ -168,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                 <?php if ($register_error): ?>
                     <div class="alert alert-error" style="margin-bottom: 1.5rem;">
-                        ❌ <?php echo safe_output($register_error); ?>
+                        <span class="icon-text"><?php echo get_icon('warning', 16, 'icon-error'); ?> <?php echo safe_output($register_error); ?></span>
                     </div>
                 <?php endif; ?>
 
@@ -176,22 +176,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <input type="hidden" name="action" value="register">
 
                     <div class="form-group">
-                        <label>👤 Name</label>
+                        <label>Name</label>
                         <input type="text" name="reg_first_name" placeholder="Dein Name" required>
                     </div>
 
                     <div class="form-group">
-                        <label>📧 E-Mail</label>
+                        <label>E-Mail</label>
                         <input type="email" name="reg_email" placeholder="deine@email.ch" required>
                     </div>
 
                     <div class="form-group">
-                        <label>🔐 Passwort</label>
+                        <label>Passwort</label>
                         <input type="password" name="reg_password" placeholder="Min. 6 Zeichen" required>
                     </div>
 
                     <div class="form-group">
-                        <label>🔐 Passwort wiederholen</label>
+                        <label>Passwort wiederholen</label>
                         <input type="password" name="reg_password_confirm" placeholder="Passwort wiederholen" required>
                     </div>
 
@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         <?php endif; ?>
 
         <!-- CLOSE BUTTON -->
-        <button type="button" class="auth-modal-close" onclick="closeAuthModal()">✕</button>
+        <button type="button" class="auth-modal-close" onclick="closeAuthModal()"><?php echo get_icon('close', 20); ?></button>
     </div>
 </div>
 

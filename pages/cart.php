@@ -53,14 +53,14 @@
             </div>
 
             <div class="info-box">
-                <h4>📦 Versand</h4>
+                <h4><span class="icon-text"><?php echo get_icon('package', 18, 'icon-primary'); ?> Versand</span></h4>
                 <p>Versandkosten: <strong>CHF 15.00</strong></p>
                 <p><small>Lieferzeit: 2-3 Arbeitstage</small></p>
             </div>
 
             <div class="info-box">
-                <h4>🔒 Sicherheit</h4>
-                <p><small>✅ Sichere Zahlung mit SSL<br>✅ Datenschutz gewährleistet<br>✅ Kostenlose Rücksendung</small></p>
+                <h4>Sicherheit</h4>
+                <p><small>Sichere Zahlung mit SSL<br>Datenschutz gewährleistet<br>Kostenlose Rücksendung</small></p>
             </div>
         </aside>
     </div>
@@ -357,11 +357,17 @@ function renderCartPage() {
     if (cart.items.length === 0) {
         container.innerHTML = `
             <div class="cart-empty">
-                <div class="cart-empty-emoji">😢</div>
+                <div class="cart-empty-icon">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </div>
                 <h3>Ihr Warenkorb ist leer</h3>
                 <p>Entdecken Sie unsere Weinauswahl!</p>
                 <a href="?page=shop" class="btn btn-primary" style="margin-top: 1rem;">
-                    🛍️ Zum Shop
+                    Zum Shop
                 </a>
             </div>
         `;
@@ -380,7 +386,7 @@ function renderCartPage() {
                         <h4>${item.name}</h4>
                         <p class="cart-item-price">CHF ${item.price.toFixed(2)} pro Stück</p>
                     </div>
-                    <button class="cart-item-delete" onclick="cart.removeItem(${item.id}); renderCartPage();">✕ Löschen</button>
+                    <button class="cart-item-delete" onclick="cart.removeItem(${item.id}); renderCartPage();">Löschen</button>
                 </div>
                 
                 <div class="cart-item-controls">

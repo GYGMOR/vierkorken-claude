@@ -84,12 +84,12 @@ function redirect($page) {
 
 // 12. Error Message anzeigen
 function show_error($message) {
-    echo "<div class='alert alert-error'>✕ " . safe_output($message) . "</div>";
+    echo "<div class='alert alert-error'>" . safe_output($message) . "</div>";
 }
 
 // 13. Success Message anzeigen
 function show_success($message) {
-    echo "<div class='alert alert-success'>✓ " . safe_output($message) . "</div>";
+    echo "<div class='alert alert-success'>" . safe_output($message) . "</div>";
 }
 
 // 14. Slug aus Text generieren (für URLs)
