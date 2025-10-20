@@ -47,9 +47,7 @@ for ($i = 1; $i <= 5; $i++) {
                         <?php 
                         $full_stars = floor($avg_rating);
                         $half_star = ($avg_rating - $full_stars) >= 0.5 ? 1 : 0;
-                        echo str_repeat('★', $full_stars);
-                        if ($half_star) echo '½';
-                        echo str_repeat('☆', 5 - $full_stars - $half_star);
+                        echo get_rating_stars($avg_rating, 5, 24);
                         ?>
                     </span>
                 </div>
@@ -61,7 +59,7 @@ for ($i = 1; $i <= 5; $i++) {
             <div class="rating-distribution">
                 <?php for ($i = 5; $i >= 1; $i--): ?>
                     <div class="rating-bar">
-                        <span class="bar-label"><?php echo str_repeat('★', $i); ?></span>
+                        <span class="bar-label"><?php echo get_rating_stars($i, 5, 14); ?></span>
                         <div class="bar-container">
                             <div class="bar-fill" style="width: <?php echo $rating_count > 0 ? ($rating_distribution[$i] / $rating_count * 100) : 0; ?>%"></div>
                         </div>
@@ -89,7 +87,7 @@ for ($i = 1; $i <= 5; $i++) {
                                 <label class="star-label">
                                     <input type="radio" name="rating" value="<?php echo $i; ?>" 
                                            <?php echo ($user_rating && $user_rating['rating'] == $i) ? 'checked' : ''; ?>>
-                                    <span class="star-display" data-value="<?php echo $i; ?>">★</span>
+                                    <span class="star-display" data-value="<?php echo $i; ?>"><?php echo get_icon('star', 24); ?></span>
                                 </label>
                             <?php endfor; ?>
                         </div>
@@ -127,7 +125,7 @@ for ($i = 1; $i <= 5; $i++) {
                         </div>
                         <div class="review-rating">
                             <span style="color: #ffc107; font-size: 1.2rem;">
-                                <?php echo str_repeat('★', $r['rating']) . str_repeat('☆', 5 - $r['rating']); ?>
+                                <?php echo get_rating_stars($r['rating'], 5, 16); ?>
                             </span>
                         </div>
                     </div>

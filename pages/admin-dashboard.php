@@ -188,7 +188,7 @@ $settings = get_all_settings();
 <div class="admin-dashboard-mega">
     <!-- Mobile Toggle Button -->
     <button class="admin-mobile-toggle" id="admin-menu-toggle" aria-label="Menü">
-        ☰
+        <?php echo get_icon('menu', 24, 'icon-white'); ?>
     </button>
     <div class="admin-overlay" id="admin-overlay"></div>
 

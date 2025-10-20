@@ -34,7 +34,7 @@ $category = get_category_name($wine['category_id']);
                 <?php if (!empty($wine['image_url'])): ?>
                     <img src="<?php echo safe_output($wine['image_url']); ?>" alt="<?php echo safe_output($wine['name']); ?>" class="product-image">
                 <?php else: ?>
-                    <div class="product-image-placeholder">🍷</div>
+                    <div class="product-image-placeholder"><?php echo get_icon('wine', 120, 'icon-secondary'); ?></div>
                 <?php endif; ?>
             </div>
 
@@ -44,7 +44,7 @@ $category = get_category_name($wine['category_id']);
                     <div style="color: #ffc107; font-size: 1.2rem; margin-bottom: 0.5rem;">
                         <?php 
                         $full = floor($wine['avg_rating']);
-                        echo str_repeat('★', $full) . str_repeat('☆', 5 - $full);
+                        echo get_rating_stars($wine['avg_rating'], 5, 18);
                         ?>
                     </div>
                     <p style="margin: 0; color: var(--text-light);">
@@ -147,9 +147,9 @@ $category = get_category_name($wine['category_id']);
                     <!-- FAVORITE BUTTON -->
                     <button id="favorite-btn-<?php echo $wine_id; ?>" class="btn btn-secondary btn-favorite" onclick="toggleFavorite(<?php echo $wine_id; ?>)">
                         <?php if (isset($_SESSION['user_id'])): ?>
-                            <span id="favorite-icon-<?php echo $wine_id; ?>">❤️ Zu Favoriten</span>
+                            <span id="favorite-icon-<?php echo $wine_id; ?>"><?php echo get_icon('heart', 18); ?> Zu Favoriten</span>
                         <?php else: ?>
-                            <span>❤️ Zu Favoriten (Anmelden nötig)</span>
+                            <span><?php echo get_icon('heart', 18); ?> Zu Favoriten (Anmelden nötig)</span>
                         <?php endif; ?>
                     </button>
                 <?php else: ?>
@@ -195,14 +195,14 @@ $category = get_category_name($wine['category_id']);
             <div class="wines-grid">
                 <?php foreach ($similar as $w): ?>
                     <div class="wine-card">
-                        <div class="wine-image-placeholder">🍷</div>
+                        <div class="wine-image-placeholder"><?php echo get_icon('wine', 40, 'icon-secondary'); ?></div>
                         <div class="wine-info">
                             <h4><?php echo safe_output($w['name']); ?></h4>
                             <p class="wine-producer"><?php echo safe_output($w['producer'] ?? 'Schweizer Wein'); ?></p>
                             
                             <?php if ($w['avg_rating']): ?>
                                 <div style="color: #ffc107; font-size: 0.9rem; margin: 0.5rem 0;">
-                                    ★ <?php echo number_format($w['avg_rating'], 1); ?> (<?php echo $w['rating_count']; ?>)
+                                    <?php echo get_icon('star', 14, 'star-filled'); ?> <?php echo number_format($w['avg_rating'], 1); ?> (<?php echo $w['rating_count']; ?>)
                                 </div>
                             <?php endif; ?>
                             

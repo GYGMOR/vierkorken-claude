@@ -37,7 +37,7 @@ if ($category_id > 0) {
 <div class="shop-container">
     <!-- Shop Header -->
     <div class="shop-header">
-        <h1>🍷 Unser Weinangebot</h1>
+        <h1><span class="icon-text"><?php echo get_icon('wine', 28, 'icon-primary'); ?> Unser Weinangebot</span></h1>
         <p class="shop-subtitle">
             <?php 
             if ($search) {
@@ -57,9 +57,9 @@ if ($category_id > 0) {
             <input type="hidden" name="page" value="shop">
             <input type="text" name="search" placeholder="Nach Wein, Produzent suchen..." 
                    value="<?php echo safe_output($search); ?>" class="search-input">
-            <button type="submit" class="btn btn-primary">🔍 Suchen</button>
+            <button type="submit" class="btn btn-primary"><?php echo get_icon('search', 18); ?> Suchen</button>
             <?php if ($search || $category_id > 0): ?>
-                <a href="?page=shop" class="btn btn-secondary">✕ Filter zurücksetzen</a>
+                <a href="?page=shop" class="btn btn-secondary"><?php echo get_icon('close', 18); ?> Filter zurücksetzen</a>
             <?php endif; ?>
         </form>
     </div>
@@ -70,7 +70,7 @@ if ($category_id > 0) {
             <h3>Kategorien</h3>
             <div class="category-list">
                 <a href="?page=shop" class="cat-link <?php echo ($category_id == 0 && !$search) ? 'active' : ''; ?>">
-                    📋 Alle Weine
+                    <span class="icon-text"><?php echo get_icon('list', 18); ?> Alle Weine</span>
                 </a>
                 
                 <?php foreach ($categories as $cat): 
@@ -100,10 +100,10 @@ if ($category_id > 0) {
                                 <?php if (!empty($wine['image_url'])): ?>
                                     <img src="<?php echo safe_output($wine['image_url']); ?>" alt="<?php echo safe_output($wine['name']); ?>" class="wine-image">
                                 <?php else: ?>
-                                    <div class="wine-image-placeholder">🍷</div>
+                                    <div class="wine-image-placeholder"><?php echo get_icon('wine', 60, 'icon-secondary'); ?></div>
                                 <?php endif; ?>
                                 <?php if ($wine['stock'] <= 5): ?>
-                                    <div class="stock-badge">⚠️ Nur noch <?php echo $wine['stock']; ?></div>
+                                    <div class="stock-badge"><?php echo get_icon('warning', 16); ?> Nur noch <?php echo $wine['stock']; ?></div>
                                 <?php endif; ?>
                             </div>
 
@@ -112,34 +112,27 @@ if ($category_id > 0) {
                                 <h4 class="wine-name"><?php echo safe_output($wine['name']); ?></h4>
                                 
                                 <?php if (!empty($wine['producer'])): ?>
-                                    <p class="wine-producer">👤 <?php echo safe_output($wine['producer']); ?></p>
+                                    <p class="wine-producer"><span class="icon-text"><?php echo get_icon('user', 14); ?> <?php echo safe_output($wine['producer']); ?></span></p>
                                 <?php endif; ?>
                                 
                                 <!-- RATING ANZEIGE -->
                                 <?php if ($wine['avg_rating']): ?>
                                     <div class="wine-rating-mini">
-                                        <span class="rating-stars">
-                                            <?php 
-                                            $full = floor($wine['avg_rating']);
-                                            echo str_repeat('★', $full);
-                                            if ($wine['avg_rating'] - $full >= 0.5) echo '½';
-                                            echo str_repeat('☆', 5 - $full - ($wine['avg_rating'] - $full >= 0.5 ? 1 : 0));
-                                            ?>
-                                        </span>
+                                        <?php echo get_rating_stars($wine['avg_rating'], 5, 14); ?>
                                         <span class="rating-text"><?php echo number_format($wine['avg_rating'], 1); ?> (<?php echo $wine['rating_count']; ?>)</span>
                                     </div>
                                 <?php endif; ?>
                                 
                                 <?php if (!empty($wine['vintage'])): ?>
-                                    <p class="wine-vintage">📅 Jahrgang <?php echo $wine['vintage']; ?></p>
+                                    <p class="wine-vintage"><span class="icon-text"><?php echo get_icon('calendar', 14); ?> Jahrgang <?php echo $wine['vintage']; ?></span></p>
                                 <?php endif; ?>
-                                
+
                                 <?php if (!empty($wine['region'])): ?>
-                                    <p class="wine-region">🗺️ <?php echo safe_output($wine['region']); ?></p>
+                                    <p class="wine-region"><span class="icon-text"><?php echo get_icon('map', 14); ?> <?php echo safe_output($wine['region']); ?></span></p>
                                 <?php endif; ?>
-                                
+
                                 <?php if (!empty($wine['alcohol_content'])): ?>
-                                    <p class="wine-alcohol">🔥 <?php echo number_format($wine['alcohol_content'], 1); ?>% Vol.</p>
+                                    <p class="wine-alcohol"><span class="icon-text"><?php echo get_icon('droplet', 14); ?> <?php echo number_format($wine['alcohol_content'], 1); ?>% Vol.</span></p>
                                 <?php endif; ?>
                                 
                                 <!-- Preis & Action -->

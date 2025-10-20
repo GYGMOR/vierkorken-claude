@@ -7,6 +7,7 @@ session_start();
 require_once 'config/database.php';
 require_once 'includes/functions.php';
 require_once 'includes/editable.php';
+require_once 'includes/icons.php';
 
 if (isset($_GET['logout'])) {
     session_destroy();
@@ -71,6 +72,7 @@ $theme_colors = get_all_theme_settings();
     
     <!-- CSS in der richtigen Reihenfolge -->
     <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/icons.css">
     <link rel="stylesheet" href="assets/css/dynamic-colors.php">
     <link rel="stylesheet" href="assets/css/responsive.css">
     

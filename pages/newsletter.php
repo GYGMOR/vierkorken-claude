@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <div class="newsletter-benefits">
                 <h3>Was du erhältst:</h3>
                 <ul>
-                    <li>🍷 Wein-Empfehlungen & Neuheiten</li>
+                    <li><span class="icon-text"><?php echo get_icon('wine', 18, 'icon-primary'); ?> Wein-Empfehlungen & Neuheiten</span></li>
                     <li>🎁 Exklusive Angebote & Rabatte</li>
                     <li>📚 Tipps & Tricks rund um Wein</li>
                     <li>📅 Event-Ankündigungen</li>

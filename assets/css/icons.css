@@ -1,0 +1,145 @@
+/* =========================================
+   PROFESSIONAL ICON SYSTEM
+   Digitec/Brack Style
+   ========================================= */
+
+.icon {
+    display: inline-block;
+    vertical-align: middle;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    transition: all 0.3s ease;
+}
+
+.icon-filled {
+    fill: currentColor;
+}
+
+/* Icon Sizes */
+.icon-sm {
+    width: 16px;
+    height: 16px;
+}
+
+.icon-md {
+    width: 20px;
+    height: 20px;
+}
+
+.icon-lg {
+    width: 24px;
+    height: 24px;
+}
+
+.icon-xl {
+    width: 32px;
+    height: 32px;
+}
+
+/* Icon Colors */
+.icon-primary {
+    color: var(--primary-color);
+}
+
+.icon-secondary {
+    color: var(--text-light);
+}
+
+.icon-success {
+    color: var(--success);
+}
+
+.icon-warning {
+    color: var(--warning);
+}
+
+.icon-error {
+    color: var(--error);
+}
+
+.icon-white {
+    color: white;
+}
+
+/* Icon with Text */
+.icon-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-text .icon {
+    flex-shrink: 0;
+}
+
+/* Button Icons */
+.btn .icon {
+    margin-right: 0.5rem;
+}
+
+.btn-icon-only {
+    padding: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon-only .icon {
+    margin: 0;
+}
+
+/* Rating Stars */
+.rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.rating-stars .icon {
+    color: #ffc107;
+}
+
+.rating-stars .star-empty {
+    color: #ddd;
+}
+
+.rating-stars .star-filled {
+    fill: #ffc107;
+}
+
+/* Icon Hover Effects */
+a:hover .icon,
+button:hover .icon {
+    transform: scale(1.1);
+}
+
+/* Icon Loading Animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.icon-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Icon Pulse Animation */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.icon-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}

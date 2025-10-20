@@ -4,14 +4,14 @@
 
 <div class="cart-page">
     <div class="cart-header">
-        <h1>🛒 Ihr Warenkorb</h1>
+        <h1><span class="icon-text"><?php echo get_icon('cart', 28, 'icon-primary'); ?> Ihr Warenkorb</span></h1>
     </div>
 
     <!-- Warenkorb Inhalt -->
     <div class="cart-content">
         <div id="cart-items-container" class="cart-items-container">
             <div style="text-align: center; padding: 3rem;">
-                <p>⏳ Warenkorb wird geladen...</p>
+                <p class="icon-text"><?php echo get_icon('search', 24, 'icon-secondary'); ?> Warenkorb wird geladen...</p>
             </div>
         </div>
 
@@ -38,17 +38,17 @@
                 </div>
                 
                 <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 1rem;">
-                    ➜ Zur Kasse
+                    <?php echo get_icon('arrow-right', 18); ?> Zur Kasse
                 </button>
                 
                 <a href="?page=shop" class="btn btn-secondary" style="width: 100%; margin-top: 0.8rem; padding: 1rem; text-align: center; display: block;">
                     Weiter einkaufen
                 </a>
                 
-                <button onclick="cart.clearCart(); renderCartPage();" 
-                        class="btn btn-secondary" 
+                <button onclick="cart.clearCart(); renderCartPage();"
+                        class="btn btn-secondary"
                         style="width: 100%; margin-top: 0.8rem; padding: 1rem; background: #ffebee; color: #c0392b;">
-                    🗑️ Warenkorb leeren
+                    <?php echo get_icon('trash', 18); ?> Warenkorb leeren
                 </button>
             </div>
 

@@ -82,7 +82,7 @@ if ($result) {
                             <?php if (!empty($wine['image_url'])): ?>
                                 <img src="<?php echo safe_output($wine['image_url']); ?>" alt="<?php echo safe_output($wine['name']); ?>">
                             <?php else: ?>
-                                <div class="wine-image-placeholder">🍷</div>
+                                <div class="wine-image-placeholder"><?php echo get_icon('wine', 60, 'icon-secondary'); ?></div>
                             <?php endif; ?>
                         </div>
                         
@@ -103,14 +103,7 @@ if ($result) {
                             <!-- RATING ANZEIGE -->
                             <?php if ($wine['avg_rating']): ?>
                                 <div class="wine-rating-news">
-                                    <span class="rating-stars-news">
-                                        <?php 
-                                        $full = floor($wine['avg_rating']);
-                                        echo str_repeat('★', $full);
-                                        if ($wine['avg_rating'] - $full >= 0.5) echo '½';
-                                        echo str_repeat('☆', 5 - $full - ($wine['avg_rating'] - $full >= 0.5 ? 1 : 0));
-                                        ?>
-                                    </span>
+                                    <?php echo get_rating_stars($wine['avg_rating'], 5, 16); ?>
                                     <span class="rating-text-news"><?php echo number_format($wine['avg_rating'], 1); ?> (<?php echo $wine['rating_count']; ?>)</span>
                                 </div>
                             <?php endif; ?>
@@ -186,7 +179,7 @@ if ($result) {
                         <?php if ($EDIT_MODE): ?>
                             <p>Bild hochladen</p>
                         <?php else: ?>
-                            <p>🍷</p>
+                            <p><?php echo get_icon('wine', 48, 'icon-secondary'); ?></p>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
@@ -264,16 +257,16 @@ if ($result) {
                     <div class="category-icon">
                         <?php
                         $icons = [
-                            'Schaumwein' => '🍾',
-                            'Rosé' => '🌸',
-                            'Weißwein' => '🥂',
-                            'Rotwein' => '🍇',
-                            'Dessertwein' => '🍯',
-                            'Alkoholfreie Weine' => '✨',
-                            'Geschenk-Gutscheine' => '🎁',
-                            'Diverses' => '📦'
+                            'Schaumwein' => get_icon('champagne', 48, 'icon-primary'),
+                            'Rosé' => get_icon('flower', 48, 'icon-primary'),
+                            'Weißwein' => get_icon('champagne', 48, 'icon-primary'),
+                            'Rotwein' => get_icon('grapes', 48, 'icon-primary'),
+                            'Dessertwein' => get_icon('droplet', 48, 'icon-primary'),
+                            'Alkoholfreie Weine' => get_icon('sparkles', 48, 'icon-primary'),
+                            'Geschenk-Gutscheine' => get_icon('gift', 48, 'icon-primary'),
+                            'Diverses' => get_icon('package', 48, 'icon-primary')
                         ];
-                        echo $icons[$cat['name']] ?? '🍷';
+                        echo $icons[$cat['name']] ?? get_icon('wine', 48, 'icon-primary');
                         ?>
                     </div>
                     <h3><?php echo safe_output($cat['name']); ?></h3>
