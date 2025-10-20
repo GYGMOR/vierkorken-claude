@@ -682,8 +682,18 @@
         grid-template-columns: 1fr;
     }
 
+    /* Stats Grid - 2 Spalten statt 3 */
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-card {
+        padding: 1.5rem;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
     }
 
     .rating-header {
@@ -695,6 +705,10 @@
     }
 
     .portal-content {
+        padding: 1.5rem;
+    }
+
+    .quick-links {
         padding: 1.5rem;
     }
 }
@@ -712,26 +726,35 @@
         padding: 1rem;
     }
 
+    /* Portal Content - Kompakter */
     .portal-content {
         padding: 1rem;
     }
 
     .portal-content h1 {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
+        padding-bottom: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Stats Grid - 2 Spalten für bessere Nutzung des Platzes */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
         margin-bottom: 1.5rem;
     }
 
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
+    /* Stat Cards - Kompakter */
     .stat-card {
-        padding: 1.5rem;
+        padding: 1rem;
     }
 
     .stat-number {
-        font-size: 2rem;
+        font-size: 1.6rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
     }
 
     #favorites-container {
@@ -743,8 +766,19 @@
         grid-template-columns: 1fr;
     }
 
+    /* Quick Links - Kompakter */
     .quick-links {
         padding: 1rem;
+    }
+
+    .quick-links h2 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .quick-link {
+        padding: 0.8rem;
+        font-size: 0.9rem;
     }
 
     .profile-section {
