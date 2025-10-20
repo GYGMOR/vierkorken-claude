@@ -124,12 +124,41 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                 </svg>
             </button>
             <ul class="submenu" id="categories">
-                <li><a href="?page=shop&category=0">Alle Weine</a></li>
-                <?php foreach ($all_categories as $cat): ?>
+                <!-- Hauptkategorie: Weine -->
+                <li class="submenu-header">Weine</li>
+                <?php
+                $wine_categories = ['Rotwein', 'Weißwein', 'Rosé', 'Schaumwein', 'Dessertwein', 'Alkoholfreie Weine'];
+                $categories_by_name = [];
+                foreach ($all_categories as $cat) {
+                    $categories_by_name[$cat['name']] = $cat;
+                }
+                foreach ($wine_categories as $cat_name):
+                    if (isset($categories_by_name[$cat_name])):
+                        $cat = $categories_by_name[$cat_name];
+                ?>
                     <li><a href="?page=shop&category=<?php echo $cat['id']; ?>">
                         <?php echo safe_output($cat['name']); ?>
                     </a></li>
-                <?php endforeach; ?>
+                <?php
+                    endif;
+                endforeach;
+                ?>
+
+                <!-- Andere Produkte -->
+                <li class="submenu-header">Andere Produkte</li>
+                <?php
+                $other_categories = ['Geschenk-Gutscheine', 'Diverses'];
+                foreach ($other_categories as $cat_name):
+                    if (isset($categories_by_name[$cat_name])):
+                        $cat = $categories_by_name[$cat_name];
+                ?>
+                    <li><a href="?page=shop&category=<?php echo $cat['id']; ?>">
+                        <?php echo safe_output($cat['name']); ?>
+                    </a></li>
+                <?php
+                    endif;
+                endforeach;
+                ?>
             </ul>
         </div>
 
@@ -344,17 +373,18 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         position: fixed;
         left: 0;
         top: 0;
-        width: 75%;
-        max-width: 300px;
+        width: 80%;
+        max-width: 350px;
         height: 100vh;
-        background: var(--header-bg);
+        background: linear-gradient(180deg, var(--header-bg) 0%, #5a2d0f 100%);
         color: white;
         transform: translateX(-100%);
-        transition: transform 0.3s;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1100;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
+        box-shadow: 5px 0 25px rgba(0,0,0,0.4);
     }
 
     .mobile-menu.active {
@@ -365,13 +395,18 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 1.5rem 1.5rem;
+        border-bottom: 2px solid rgba(255,255,255,0.15);
+        background: rgba(0,0,0,0.2);
+        backdrop-filter: blur(10px);
     }
 
     .menu-header h2 {
         margin: 0;
-        font-size: 1.1rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--header-accent);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     .close-menu {
@@ -400,15 +435,20 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 
     .menu-nav a {
         display: block;
-        padding: 0.75rem 1.5rem;
+        padding: 1rem 1.5rem;
         color: white;
         text-decoration: none;
         transition: all 0.3s;
+        font-weight: 500;
+        font-size: 1rem;
+        border-left: 3px solid transparent;
     }
 
     .menu-nav a:hover {
-        background: rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.15);
         padding-left: 2rem;
+        border-left-color: var(--header-accent);
+        color: var(--header-accent);
     }
 
     /* Menu Sections */
@@ -464,6 +504,23 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 
     .submenu li {
         list-style: none;
+    }
+
+    .submenu-header {
+        padding: 1rem 1.5rem 0.5rem 1.5rem !important;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--header-accent) !important;
+        background: rgba(0,0,0,0.2);
+        margin-top: 0.5rem;
+        border-left: 3px solid var(--header-accent);
+        display: block !important;
+    }
+
+    .submenu-header:first-child {
+        margin-top: 0;
     }
 
     .submenu li a {

@@ -66,8 +66,9 @@ if ($result) {
 <section class="news-section">
     <div class="container">
         <h2>News / Neuheiten</h2>
-        
-        <div class="news-grid">
+
+        <div class="news-scroll-container">
+            <div class="news-grid-horizontal">
             <?php if (!empty($featured_wines)): ?>
                 <?php foreach ($featured_wines as $wine): ?>
                     <a href="?page=product&id=<?php echo $wine['id']; ?>" class="news-card news-card-link">
@@ -121,8 +122,9 @@ if ($result) {
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
+            </div>
         </div>
-        
+
         <!-- Admin: Neuheiten-Management -->
         <?php if ($EDIT_MODE): ?>
             <div class="featured-wines-admin" style="margin-top: 3rem; background: #f0f0f0; padding: 2rem; border-radius: 10px;">
@@ -245,38 +247,81 @@ if ($result) {
 <section class="categories-preview">
     <div class="container">
         <h2>Entdecken Sie unsere Kategorien</h2>
-        
-        <div class="categories-grid">
-            <?php 
-            $categories = get_all_categories();
-            foreach ($categories as $cat):
-                $wine_count = count_wines_in_category($cat['id']);
-                if ($wine_count > 0):
-            ?>
-                <div class="category-card">
-                    <div class="category-icon">
-                        <?php
-                        $icons = [
-                            'Schaumwein' => get_icon('champagne', 48, 'icon-primary'),
-                            'Rosé' => get_icon('flower', 48, 'icon-primary'),
-                            'Weißwein' => get_icon('champagne', 48, 'icon-primary'),
-                            'Rotwein' => get_icon('grapes', 48, 'icon-primary'),
-                            'Dessertwein' => get_icon('droplet', 48, 'icon-primary'),
-                            'Alkoholfreie Weine' => get_icon('sparkles', 48, 'icon-primary'),
-                            'Geschenk-Gutscheine' => get_icon('gift', 48, 'icon-primary'),
-                            'Diverses' => get_icon('package', 48, 'icon-primary')
-                        ];
-                        echo $icons[$cat['name']] ?? get_icon('wine', 48, 'icon-primary');
-                        ?>
+
+        <div class="categories-scroll-container">
+            <div class="categories-grid-horizontal">
+                <?php
+                // Definiere die gewünschte Reihenfolge
+                $wine_categories_order = ['Rotwein', 'Weißwein', 'Rosé', 'Schaumwein', 'Dessertwein', 'Alkoholfreie Weine'];
+                $other_categories_order = ['Geschenk-Gutscheine', 'Diverses'];
+
+                $all_categories = get_all_categories();
+
+                // Erstelle assoziatives Array für schnellen Zugriff
+                $categories_by_name = [];
+                foreach ($all_categories as $cat) {
+                    $categories_by_name[$cat['name']] = $cat;
+                }
+
+                // Icons Definition
+                $icons = [
+                    'Schaumwein' => get_icon('champagne', 48, 'icon-primary'),
+                    'Rosé' => get_icon('flower', 48, 'icon-primary'),
+                    'Weißwein' => get_icon('champagne', 48, 'icon-primary'),
+                    'Rotwein' => get_icon('grapes', 48, 'icon-primary'),
+                    'Dessertwein' => get_icon('droplet', 48, 'icon-primary'),
+                    'Alkoholfreie Weine' => get_icon('sparkles', 48, 'icon-primary'),
+                    'Geschenk-Gutscheine' => get_icon('gift', 48, 'icon-primary'),
+                    'Diverses' => get_icon('package', 48, 'icon-primary')
+                ];
+
+                // Header: Hauptkategorie Weine
+                echo '<div class="category-header-card"><h3>Weine</h3></div>';
+
+                // Wein-Kategorien
+                foreach ($wine_categories_order as $cat_name):
+                    if (isset($categories_by_name[$cat_name])):
+                        $cat = $categories_by_name[$cat_name];
+                        $wine_count = count_wines_in_category($cat['id']);
+                        if ($wine_count > 0):
+                ?>
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <?php echo $icons[$cat_name] ?? get_icon('wine', 48, 'icon-primary'); ?>
+                        </div>
+                        <h3><?php echo safe_output($cat['name']); ?></h3>
+                        <p class="category-count"><?php echo $wine_count; ?> Weine</p>
+                        <a href="?page=shop&category=<?php echo $cat['id']; ?>" class="btn btn-secondary">Anschauen</a>
                     </div>
-                    <h3><?php echo safe_output($cat['name']); ?></h3>
-                    <p class="category-count"><?php echo $wine_count; ?> Weine</p>
-                    <a href="?page=shop&category=<?php echo $cat['id']; ?>" class="btn btn-secondary">Anschauen</a>
-                </div>
-            <?php 
-                endif;
-            endforeach; 
-            ?>
+                <?php
+                        endif;
+                    endif;
+                endforeach;
+
+                // Header: Andere Produkte
+                echo '<div class="category-header-card"><h3>Andere Produkte</h3></div>';
+
+                // Andere Kategorien
+                foreach ($other_categories_order as $cat_name):
+                    if (isset($categories_by_name[$cat_name])):
+                        $cat = $categories_by_name[$cat_name];
+                        $wine_count = count_wines_in_category($cat['id']);
+                        if ($wine_count > 0):
+                ?>
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <?php echo $icons[$cat_name] ?? get_icon('wine', 48, 'icon-primary'); ?>
+                        </div>
+                        <h3><?php echo safe_output($cat['name']); ?></h3>
+                        <p class="category-count"><?php echo $wine_count; ?> Produkte</p>
+                        <a href="?page=shop&category=<?php echo $cat['id']; ?>" class="btn btn-secondary">Anschauen</a>
+                    </div>
+                <?php
+                        endif;
+                    endif;
+                endforeach;
+                ?>
+            </div>
         </div>
     </div>
 </section>
@@ -413,6 +458,40 @@ if ($result) {
     border-bottom: 3px solid var(--accent-gold);
 }
 
+/* News Horizontal Scroll Container */
+.news-scroll-container {
+    margin-top: 2rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) #f0f0f0;
+}
+
+.news-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.news-scroll-container::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+.news-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+.news-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-gold);
+}
+
+.news-grid-horizontal {
+    display: flex;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+}
+
 .news-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -430,6 +509,9 @@ if ($result) {
     flex-direction: column;
     text-decoration: none;
     color: inherit;
+    min-width: 280px;
+    max-width: 280px;
+    flex-shrink: 0;
 }
 
 .news-card-link {
@@ -690,11 +772,66 @@ if ($result) {
     margin-bottom: 3rem;
 }
 
+/* Categories Horizontal Scroll Container */
+.categories-scroll-container {
+    margin-top: 2rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) #f0f0f0;
+}
+
+.categories-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.categories-scroll-container::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+.categories-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+.categories-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-gold);
+}
+
+.categories-grid-horizontal {
+    display: flex;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+}
+
 .categories-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 2rem;
     margin-top: 2rem;
+}
+
+.category-header-card {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #8b3a3a 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    max-width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.category-header-card h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
 .category-card {
@@ -704,6 +841,9 @@ if ($result) {
     text-align: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
+    min-width: 220px;
+    max-width: 220px;
+    flex-shrink: 0;
 }
 
 .category-card:hover {
