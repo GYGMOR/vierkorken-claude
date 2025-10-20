@@ -1,0 +1,183 @@
+<?php
+// includes/footer.php - Sticky Footer (bleibt am unteren Ende)
+?>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <!-- Kontakt Info -->
+            <div class="footer-section">
+                <h4>Kontakt</h4>
+                <p>
+                    📍 <?php echo safe_output(get_setting('footer_address', 'Weinstrasse 123, 8000 Zürich')); ?><br>
+                    📞 <?php echo safe_output(get_setting('footer_phone', '+41 43 123 45 67')); ?><br>
+                    📧 <a href="mailto:<?php echo safe_output(get_setting('footer_email', 'info@vierkorken.ch')); ?>">
+                        <?php echo safe_output(get_setting('footer_email', 'info@vierkorken.ch')); ?>
+                    </a>
+                </p>
+            </div>
+
+            <!-- Öffnungszeiten -->
+            <div class="footer-section">
+                <h4>Öffnungszeiten</h4>
+                <p>
+                    Mo-Fr: <?php echo safe_output(get_setting('footer_open_mo_fr', '09:00 - 18:00 Uhr')); ?><br>
+                    Sa: <?php echo safe_output(get_setting('footer_open_sa', '09:00 - 17:00 Uhr')); ?><br>
+                    So: <?php echo safe_output(get_setting('footer_open_su', '10:00 - 16:00 Uhr')); ?>
+                </p>
+            </div>
+
+            <!-- Links -->
+            <div class="footer-section">
+                <h4>Service</h4>
+                <ul>
+                    <li><a href="?page=shop">Shop</a></li>
+                    <li><a href="?page=contact">Kontakt</a></li>
+                    <li><a href="?page=impressum">Impressum</a></li>
+                    <li><a href="?page=agb">AGB</a></li>
+                    <li><a href="?page=datenschutz">Datenschutz</a></li>
+                </ul>
+            </div>
+
+            <!-- Social -->
+            <div class="footer-section">
+                <h4>Folgen Sie uns</h4>
+                <p>
+                    <a href="<?php echo safe_output(get_setting('social_instagram', '#')); ?>" target="_blank">Instagram</a><br>
+                    <a href="<?php echo safe_output(get_setting('social_facebook', '#')); ?>" target="_blank">Facebook</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- COPYRIGHT - Unten zentriert -->
+        <div class="footer-bottom">
+            <p>&copy; <?php echo date('Y'); ?> Vier Korken. Alle Rechte vorbehalten.</p>
+        </div>
+    </footer>
+
+    <style>
+    /* Footer Fix - Überschreibe die vorhandenen Styles */
+    .footer {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 3rem 0 0;
+        border-top: 3px solid var(--accent-gold);
+        margin-top: auto;
+        width: 100%;
+    }
+
+    .footer-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        padding-top: 3rem;
+        padding-bottom: 2rem;
+    }
+
+    .footer-section h4 {
+        color: var(--accent-gold);
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+
+    .footer-section p {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .footer-section a {
+        color: var(--accent-gold);
+        text-decoration: none;
+        transition: opacity 0.3s;
+    }
+
+    .footer-section a:hover {
+        opacity: 0.7;
+        text-decoration: underline;
+    }
+
+    .footer-section ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-section ul li {
+        margin-bottom: 0.5rem;
+    }
+
+    /* COPYRIGHT - WICHTIGSTER PART */
+    .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 2rem 0;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.1);
+        width: 100%;
+    }
+
+    .footer-bottom p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .footer {
+            padding: 2rem 0 0;
+        }
+
+        .footer-content {
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 2rem 1rem 1rem;
+        }
+
+        .footer-section h4 {
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-section p {
+            font-size: 0.85rem;
+        }
+
+        .footer-bottom {
+            padding: 1.5rem 1rem;
+        }
+
+        .footer-bottom p {
+            font-size: 0.85rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .footer-content {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding: 1.5rem 1rem 1rem;
+        }
+
+        .footer-section h4 {
+            font-size: 0.95rem;
+        }
+
+        .footer-bottom {
+            padding: 1rem;
+        }
+
+        .footer-bottom p {
+            font-size: 0.8rem;
+        }
+    }
+    </style>
+
+  </body>
+</html>
