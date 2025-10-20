@@ -653,6 +653,55 @@
 }
 
 /* ============================================
+   RESPONSIVE - DESKTOP (769px+)
+   ============================================ */
+@media (min-width: 769px) {
+    /* Desktop: Größere Werte wiederherstellen */
+    .portal-content {
+        padding: 2.5rem;
+    }
+
+    .portal-content h1 {
+        font-size: 1.8rem;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        padding: 2rem;
+    }
+
+    .stat-number {
+        font-size: 2.8rem;
+    }
+
+    .stat-label {
+        font-size: 0.95rem;
+    }
+
+    .quick-links {
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .quick-links h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .quick-link {
+        padding: 1.2rem;
+        font-size: 1rem;
+    }
+}
+
+/* ============================================
    RESPONSIVE - TABLET (481px - 768px)
    ============================================ */
 @media (max-width: 768px) {
@@ -682,34 +731,12 @@
         grid-template-columns: 1fr;
     }
 
-    /* Stats Grid - 2 Spalten statt 3 */
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-
-    .stat-card {
-        padding: 1.5rem;
-    }
-
-    .stat-number {
-        font-size: 2.2rem;
-    }
-
     .rating-header {
         grid-template-columns: 1fr;
     }
 
     .order-header {
         grid-template-columns: 1fr;
-    }
-
-    .portal-content {
-        padding: 1.5rem;
-    }
-
-    .quick-links {
-        padding: 1.5rem;
     }
 }
 
@@ -726,37 +753,6 @@
         padding: 1rem;
     }
 
-    /* Portal Content - Kompakter */
-    .portal-content {
-        padding: 1rem;
-    }
-
-    .portal-content h1 {
-        font-size: 1.3rem;
-        padding-bottom: 0.8rem;
-        margin-bottom: 1rem;
-    }
-
-    /* Stats Grid - 2 Spalten für bessere Nutzung des Platzes */
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.8rem;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Stat Cards - Kompakter */
-    .stat-card {
-        padding: 1rem;
-    }
-
-    .stat-number {
-        font-size: 1.6rem;
-    }
-
-    .stat-label {
-        font-size: 0.75rem;
-    }
-
     #favorites-container {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -764,21 +760,6 @@
 
     #addresses-container {
         grid-template-columns: 1fr;
-    }
-
-    /* Quick Links - Kompakter */
-    .quick-links {
-        padding: 1rem;
-    }
-
-    .quick-links h2 {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-    }
-
-    .quick-link {
-        padding: 0.8rem;
-        font-size: 0.9rem;
     }
 
     .profile-section {
@@ -894,11 +875,11 @@
 }
 
 /* ============================================
-   MAIN CONTENT
+   MAIN CONTENT - Mobile First!
    ============================================ */
 .portal-content {
     background: white;
-    padding: 2.5rem;
+    padding: 1rem; /* Mobile: weniger Padding */
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     border: 1px solid #f0f0f0;
@@ -906,27 +887,27 @@
 
 .portal-content h1 {
     border: none;
-    padding-bottom: 1.5rem;
-    margin-bottom: 2rem;
+    padding-bottom: 0.8rem; /* Mobile: weniger Padding */
+    margin-bottom: 1rem; /* Mobile: weniger Margin */
     border-bottom: 2px solid var(--accent-gold);
     color: var(--primary-color);
-    font-size: 1.8rem;
+    font-size: 1.3rem; /* Mobile: kleiner Font */
 }
 
 /* ============================================
-   STATS GRID
+   STATS GRID - Mobile First!
    ============================================ */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 3rem;
+    grid-template-columns: repeat(2, 1fr); /* Mobile: 2 Spalten statt 3 */
+    gap: 0.8rem; /* Mobile: kleiner Gap */
+    margin-bottom: 1.5rem; /* Mobile: weniger Margin */
 }
 
 .stat-card {
     background: linear-gradient(135deg, var(--primary-color) 0%, rgba(105, 58, 21, 0.8) 100%);
     color: white;
-    padding: 2rem;
+    padding: 1rem; /* Mobile: weniger Padding */
     border-radius: 12px;
     text-align: center;
     box-shadow: 0 4px 12px rgba(105, 58, 21, 0.15);
@@ -939,25 +920,25 @@
 }
 
 .stat-number {
-    font-size: 2.8rem;
+    font-size: 1.6rem; /* Mobile: kleiner Font */
     font-weight: 700;
     margin-bottom: 0.5rem;
 }
 
 .stat-label {
-    font-size: 0.95rem;
+    font-size: 0.75rem; /* Mobile: kleiner Font */
     opacity: 0.95;
     font-weight: 500;
 }
 
 /* ============================================
-   QUICK LINKS
+   QUICK LINKS - Mobile First!
    ============================================ */
 .quick-links {
     background: #f8f9fa;
-    padding: 2rem;
+    padding: 1rem; /* Mobile: weniger Padding */
     border-radius: 12px;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem; /* Mobile: weniger Margin */
     border: 1px solid #e0e0e0;
 }
 
@@ -965,14 +946,16 @@
     margin-top: 0;
     border: none;
     color: var(--primary-color);
-    margin-bottom: 1.5rem;
+    font-size: 1.1rem; /* Mobile: kleiner Font */
+    margin-bottom: 1rem; /* Mobile: weniger Margin */
 }
 
 .quick-link {
     display: block;
-    padding: 1.2rem;
+    padding: 0.8rem; /* Mobile: weniger Padding */
     background: white;
     border: 2px solid var(--primary-color);
     color: var(--primary-color);
     text-decoration: none;
+    font-size: 0.9rem; /* Mobile: kleiner Font */
     border-radius:

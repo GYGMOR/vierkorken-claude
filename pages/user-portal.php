@@ -15,7 +15,7 @@ $orders_count = $db->query("SELECT COUNT(*) as c FROM orders WHERE user_id = $us
 $ratings_count = $db->query("SELECT COUNT(*) as c FROM wine_ratings WHERE user_id = $user_id")->fetch_assoc()['c'];
 ?>
 
-<link rel="stylesheet" href="assets/css/user-portal-extended.css">
+<link rel="stylesheet" href="assets/css/user-portal-extended.css?v=<?php echo time(); ?>">
 
 <div class="user-portal-container">
     <aside class="portal-sidebar">
