@@ -281,8 +281,8 @@ document.getElementById('register-form').addEventListener('submit', function(e) 
             sessionStorage.removeItem('last_order_address');
             sessionStorage.removeItem('offer_account_creation');
 
-            // Show success message
-            showSuccessMessage();
+            // Show success message with linked orders info
+            showSuccessMessage(d.linked_orders || 0);
         } else {
             alert('Fehler: ' + (d.error || 'Registrierung fehlgeschlagen'));
             submitBtn.disabled = false;
@@ -297,17 +297,26 @@ document.getElementById('register-form').addEventListener('submit', function(e) 
     });
 });
 
-function showSuccessMessage() {
+function showSuccessMessage(linkedOrders) {
     const container = document.querySelector('.register-card');
+
+    let ordersMessage = '';
+    if (linkedOrders > 0) {
+        ordersMessage = `<p style="font-size: 1rem; color: #28a745; margin-bottom: 1rem; font-weight: 600;">
+            ✓ ${linkedOrders} frühere Bestellung${linkedOrders > 1 ? 'en' : ''} wurde${linkedOrders > 1 ? 'n' : ''} deinem Account zugeordnet!
+        </p>`;
+    }
+
     container.innerHTML = `
         <div style="padding: 4rem 2rem; text-align: center;">
             <div style="font-size: 5rem; margin-bottom: 1rem;">🎉</div>
             <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Konto erfolgreich erstellt!</h2>
+            ${ordersMessage}
             <p style="font-size: 1.1rem; color: var(--text-light); margin-bottom: 2rem;">
                 Du kannst dich jetzt anmelden und deine Bestellungen verwalten.
             </p>
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="?page=user-portal" class="btn btn-primary">Zum Portal</a>
+                <a href="?page=user-portal&tab=orders" class="btn btn-primary">Meine Bestellungen</a>
                 <a href="?page=shop" class="btn btn-secondary">Weiter einkaufen</a>
             </div>
         </div>

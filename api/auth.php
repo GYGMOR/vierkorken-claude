@@ -60,16 +60,27 @@ if ($action === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($db->query($sql)) {
         $user_id = $db->insert_id;
 
+        // Link all guest orders with this email to the new account
+        $link_orders_sql = "UPDATE orders SET user_id = $user_id WHERE (guest_email = '$email_safe' OR delivery_email = '$email_safe') AND user_id IS NULL";
+        $link_result = $db->query($link_orders_sql);
+        $linked_orders_count = $db->affected_rows;
+
         // Auto-login after registration
         $_SESSION['user_id'] = $user_id;
         $_SESSION['email'] = $email;
         $_SESSION['first_name'] = $first_name;
         $_SESSION['last_name'] = $last_name;
 
+        $message = 'Account erfolgreich erstellt!';
+        if ($linked_orders_count > 0) {
+            $message .= ' ' . $linked_orders_count . ' frühere Bestellung(en) wurden deinem Account zugeordnet.';
+        }
+
         echo json_encode([
             'success' => true,
-            'message' => 'Account erfolgreich erstellt!',
-            'user_id' => $user_id
+            'message' => $message,
+            'user_id' => $user_id,
+            'linked_orders' => $linked_orders_count
         ]);
     } else {
         http_response_code(500);
@@ -99,18 +110,34 @@ elseif ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $result->fetch_assoc();
 
         if (password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
+            $user_id = $user['id'];
+
+            // Link all guest orders with this email to the account
+            $link_orders_sql = "UPDATE orders SET user_id = $user_id WHERE (guest_email = '$email_safe' OR delivery_email = '$email_safe') AND user_id IS NULL";
+            $link_result = $db->query($link_orders_sql);
+            $linked_orders_count = $db->affected_rows;
+
+            $_SESSION['user_id'] = $user_id;
             $_SESSION['email'] = $user['email'];
             $_SESSION['first_name'] = $user['first_name'];
             $_SESSION['last_name'] = $user['last_name'];
 
             // Check if admin
-            $admin_check = $db->query("SELECT id FROM admins WHERE user_id = {$user['id']}");
+            $admin_check = $db->query("SELECT id FROM admins WHERE user_id = $user_id");
             if ($admin_check && $admin_check->num_rows > 0) {
                 $_SESSION['is_admin'] = true;
             }
 
-            echo json_encode(['success' => true, 'message' => 'Login erfolgreich']);
+            $message = 'Login erfolgreich';
+            if ($linked_orders_count > 0) {
+                $message .= '. ' . $linked_orders_count . ' frühere Bestellung(en) wurden deinem Account zugeordnet.';
+            }
+
+            echo json_encode([
+                'success' => true,
+                'message' => $message,
+                'linked_orders' => $linked_orders_count
+            ]);
         } else {
             http_response_code(401);
             echo json_encode(['success' => false, 'error' => 'Falsches Passwort']);
