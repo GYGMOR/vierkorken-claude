@@ -1016,10 +1016,10 @@ $settings = get_all_settings();
             <?php
             $event_id = isset($_GET['event_id']) ? (int)$_GET['event_id'] : 0;
             $event = get_event_by_id($event_id);
-            if (!$event) {
-                echo '<div class="alert alert-error">Event nicht gefunden</div>';
-            } else:
+            if (!$event):
             ?>
+                <div class="alert alert-error">Event nicht gefunden</div>
+            <?php else: ?>
             <form method="POST" class="admin-form-mega" id="edit-event-form">
                 <input type="hidden" name="action" value="edit_event">
                 <input type="hidden" name="event_id" value="<?php echo $event['id']; ?>">
