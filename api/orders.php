@@ -379,6 +379,85 @@ try {
             echo json_encode(['success' => true, 'orders' => $orders]);
             break;
 
+        case 'get_order_details_admin':
+            // Admin only - get full order details
+            if (!isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Keine Berechtigung']);
+                break;
+            }
+
+            $order_id = (int)($_GET['order_id'] ?? 0);
+            if ($order_id <= 0) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Ungültige Bestellnummer']);
+                break;
+            }
+
+            // Get order details
+            $order_result = $db->query("SELECT * FROM orders WHERE id = $order_id");
+            if (!$order_result || $order_result->num_rows === 0) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Bestellung nicht gefunden']);
+                break;
+            }
+            $order = $order_result->fetch_assoc();
+
+            // Get order items with product details
+            $items_result = $db->query("
+                SELECT oi.*,
+                       oi.product_name as name,
+                       w.producer,
+                       w.vintage,
+                       w.region,
+                       c.name as category
+                FROM order_items oi
+                LEFT JOIN wines w ON oi.wine_id = w.id AND oi.item_type = 'wine'
+                LEFT JOIN categories c ON w.category_id = c.id
+                WHERE oi.order_id = $order_id
+            ");
+
+            $items = $items_result ? $items_result->fetch_all(MYSQLI_ASSOC) : [];
+
+            echo json_encode([
+                'success' => true,
+                'order' => $order,
+                'items' => $items
+            ]);
+            break;
+
+        case 'delete_order':
+            // Admin only - delete/cancel order
+            if (!isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Keine Berechtigung']);
+                break;
+            }
+
+            $order_id = (int)($_POST['order_id'] ?? 0);
+            if ($order_id <= 0) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Ungültige Bestellnummer']);
+                break;
+            }
+
+            // Check if order exists
+            $order_check = $db->query("SELECT id, order_status FROM orders WHERE id = $order_id");
+            if (!$order_check || $order_check->num_rows === 0) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Bestellung nicht gefunden']);
+                break;
+            }
+
+            // Delete order (cascade will delete order_items)
+            if ($db->query("DELETE FROM orders WHERE id = $order_id")) {
+                echo json_encode(['success' => true, 'message' => 'Bestellung gelöscht']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Fehler beim Löschen: ' . $db->error]);
+            }
+            break;
+
         default:
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Ungültige Aktion']);

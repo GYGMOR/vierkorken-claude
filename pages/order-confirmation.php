@@ -481,6 +481,130 @@ $payment_labels = [
         width: 100%;
     }
 }
+
+/* Account Creation Modal */
+.account-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.account-modal-backdrop.active {
+    opacity: 1;
+}
+
+.account-modal {
+    background: white;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.account-modal-backdrop.active .account-modal {
+    transform: scale(1);
+}
+
+.account-modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+}
+
+.modal-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.account-modal-header h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.8rem;
+    border: none;
+    color: white;
+}
+
+.modal-subtitle {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1rem;
+}
+
+.account-modal-body {
+    padding: 2rem;
+}
+
+.benefits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+}
+
+.benefits-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 0;
+    font-size: 1.05rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.benefits-list li:last-child {
+    border-bottom: none;
+}
+
+.benefit-icon {
+    font-size: 1.5rem;
+    width: 35px;
+    text-align: center;
+}
+
+.modal-note {
+    background: #e8f5e9;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 0;
+    text-align: center;
+    color: #2e7d32;
+}
+
+.account-modal-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 0 2rem 2rem;
+}
+
+.account-modal-actions .btn {
+    flex: 1;
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+    .account-modal {
+        width: 95%;
+    }
+
+    .account-modal-actions {
+        flex-direction: column;
+    }
+
+    .account-modal-actions .btn {
+        width: 100%;
+    }
+}
 </style>
 
 <script>
@@ -493,17 +617,67 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear the flag
         sessionStorage.removeItem('offer_account_creation');
 
-        // Show account creation prompt after a short delay
+        // Show account creation modal after a short delay
         setTimeout(function() {
-            if (confirm('Möchtest du ein Konto erstellen?\n\n' +
-                       'Mit einem Konto kannst du:\n' +
-                       '• Deine Bestellungen verfolgen\n' +
-                       '• Adressen speichern\n' +
-                       '• Schneller bestellen\n\n' +
-                       'Deine Daten werden automatisch übernommen!')) {
-                window.location.href = '?modal=register&from_order=1&tab=register';
-            }
+            showAccountCreationModal();
         }, 1500);
     }
 });
+
+// Show styled account creation modal
+function showAccountCreationModal() {
+    const modal = document.createElement('div');
+    modal.className = 'account-modal-backdrop';
+    modal.innerHTML = `
+        <div class="account-modal">
+            <div class="account-modal-header">
+                <div class="modal-icon">✨</div>
+                <h2>Konto erstellen?</h2>
+                <p class="modal-subtitle">Verwalte deine Bestellungen ganz einfach!</p>
+            </div>
+            <div class="account-modal-body">
+                <ul class="benefits-list">
+                    <li>
+                        <span class="benefit-icon">📦</span>
+                        <span>Deine Bestellungen verfolgen</span>
+                    </li>
+                    <li>
+                        <span class="benefit-icon">📍</span>
+                        <span>Adressen speichern</span>
+                    </li>
+                    <li>
+                        <span class="benefit-icon">⚡</span>
+                        <span>Schneller bestellen</span>
+                    </li>
+                    <li>
+                        <span class="benefit-icon">🎉</span>
+                        <span>Exklusive Angebote erhalten</span>
+                    </li>
+                </ul>
+                <p class="modal-note"><strong>Deine Daten werden automatisch übernommen!</strong></p>
+            </div>
+            <div class="account-modal-actions">
+                <button onclick="closeAccountModal()" class="btn btn-secondary">Zurzeit nicht</button>
+                <button onclick="proceedToRegister()" class="btn btn-primary">Jetzt Konto erstellen</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Add fade-in animation
+    setTimeout(() => modal.classList.add('active'), 10);
+}
+
+function closeAccountModal() {
+    const modal = document.querySelector('.account-modal-backdrop');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+function proceedToRegister() {
+    window.location.href = '?page=register-after-order';
+}
 </script>

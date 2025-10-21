@@ -721,10 +721,60 @@ function updateDeliveryMethod() {
     updateOrderSummary();
 }
 
+// Load saved addresses list
+function loadSavedAddresses() {
+    const addressContent = document.getElementById('address-content');
+
+    fetch('api/user-portal.php?action=get_addresses')
+        .then(r => r.json())
+        .then(d => {
+            if (!d.success || d.addresses.length === 0) {
+                // No addresses, show form
+                showAddAddressForm();
+                return;
+            }
+
+            let html = '<p class="info-text" id="address-info-text">Wähle eine gespeicherte Adresse oder füge eine neue hinzu:</p>';
+            html += '<div class="address-list">';
+
+            d.addresses.forEach((addr, index) => {
+                html += `
+                    <label class="address-option">
+                        <input type="radio" name="address_id" value="${addr.id}" ${index === 0 ? 'checked' : ''}>
+                        <div class="address-card">
+                            ${addr.is_default ? '<span class="badge-default">Standard</span>' : ''}
+                            <div><strong>${addr.first_name} ${addr.last_name}</strong></div>
+                            <div>${addr.street}</div>
+                            <div>${addr.postal_code} ${addr.city}</div>
+                            <div>${addr.phone || ''}</div>
+                        </div>
+                    </label>
+                `;
+            });
+
+            html += '</div>';
+            html += '<button onclick="showAddAddressForm()" class="btn btn-secondary" style="margin-top: 1rem;">';
+            html += '<?php echo get_icon("plus", 18); ?> Neue Adresse hinzufügen';
+            html += '</button>';
+
+            addressContent.innerHTML = html;
+        })
+        .catch(e => {
+            console.error('Error loading addresses:', e);
+            showAddAddressForm();
+        });
+}
+
 // Show add address form
 function showAddAddressForm() {
     const addressContent = document.getElementById('address-content');
+    const isLoggedIn = <?php echo $is_logged_in ? 'true' : 'false'; ?>;
+
     addressContent.innerHTML = `
+        <div class="alert alert-info" id="address-alert-text">
+            Bitte gib deine ${document.querySelector('input[name="delivery_method"]:checked')?.value === 'pickup' ? 'Kontaktdaten' : 'Lieferadresse'} ein:
+        </div>
+
         <form id="new-address-form" class="address-form">
             <div class="form-row">
                 <div class="form-group">
@@ -736,11 +786,11 @@ function showAddAddressForm() {
                     <input type="text" name="last_name" required>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="street-field">
                 <label>Strasse & Hausnummer *</label>
                 <input type="text" name="street" required>
             </div>
-            <div class="form-row">
+            <div class="form-row" id="postal-city-fields">
                 <div class="form-group">
                     <label>PLZ *</label>
                     <input type="text" name="postal_code" required>
@@ -756,15 +806,11 @@ function showAddAddressForm() {
             </div>
             <div class="form-group">
                 <label>E-Mail *</label>
-                <input type="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="save_address" value="1">
-                    Adresse für zukünftige Bestellungen speichern
-                </label>
+                <input type="email" name="email" required value="<?php echo $is_logged_in ? safe_output($_SESSION['email'] ?? '') : ''; ?>">
             </div>
         </form>
+
+        ${isLoggedIn ? '<button onclick="loadSavedAddresses()" class="btn btn-secondary" style="margin-top: 1rem;">« Zurück zur Adressauswahl</button>' : ''}
     `;
 }
 
@@ -836,10 +882,11 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
 
     // Get address data
     let addressData = {};
+    let selectedAddressId = null; // Track if user selected existing address
 
     if (deliveryMethod === 'delivery') {
         // Check if using saved address or new address
-        const selectedAddressId = document.querySelector('input[name="address_id"]:checked')?.value;
+        selectedAddressId = document.querySelector('input[name="address_id"]:checked')?.value;
 
         if (selectedAddressId) {
             // Parse from selected address card
@@ -883,7 +930,7 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
         }
     } else {
         // Pickup - get data from form (same as delivery)
-        const selectedAddressId = document.querySelector('input[name="address_id"]:checked')?.value;
+        selectedAddressId = document.querySelector('input[name="address_id"]:checked')?.value;
 
         if (selectedAddressId) {
             // Parse from selected address card
@@ -978,6 +1025,24 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
 
             // Check if user is logged in
             const isLoggedIn = <?php echo $is_logged_in ? 'true' : 'false'; ?>;
+
+            // Auto-save address for logged-in users if they entered a new address
+            if (isLoggedIn && !selectedAddressId) {
+                const saveAddressData = new FormData();
+                saveAddressData.append('action', 'add_address');
+                saveAddressData.append('first_name', addressData.first_name);
+                saveAddressData.append('last_name', addressData.last_name);
+                saveAddressData.append('street', addressData.street || '');
+                saveAddressData.append('postal_code', addressData.postal_code || '');
+                saveAddressData.append('city', addressData.city || '');
+                saveAddressData.append('country', 'Schweiz');
+                saveAddressData.append('label', deliveryMethod === 'pickup' ? 'Kontaktdaten' : 'Lieferadresse');
+                // Don't wait for response, save in background
+                fetch('api/user-portal.php', {
+                    method: 'POST',
+                    body: saveAddressData
+                }).catch(e => console.log('Address auto-save skipped:', e));
+            }
 
             // Redirect to order confirmation page
             window.location.href = '?page=order-confirmation&order=' + encodeURIComponent(d.order_number);

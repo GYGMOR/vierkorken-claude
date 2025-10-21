@@ -198,9 +198,9 @@ elseif ($action === 'remove_favorite' && $_SERVER['REQUEST_METHOD'] === 'POST') 
 // ============================================
 elseif ($action === 'get_orders' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     require_login();
-    
+
     $result = $db->query("
-        SELECT o.id, o.order_number, o.total_price, o.status, o.created_at, o.shipping_city,
+        SELECT o.id, o.order_number, o.total_amount, o.order_status, o.created_at, o.delivery_city,
                COUNT(oi.id) as item_count
         FROM orders o
         LEFT JOIN order_items oi ON o.id = oi.order_id
@@ -208,23 +208,23 @@ elseif ($action === 'get_orders' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         GROUP BY o.id
         ORDER BY o.created_at DESC
     ");
-    
+
     $orders = [];
     if ($result) {
         while ($row = $result->fetch_assoc()) {
             $orders[] = [
                 'id' => (int)$row['id'],
                 'number' => $row['order_number'],
-                'total' => (float)$row['total_price'],
-                'status' => $row['status'],
+                'total' => (float)$row['total_amount'],
+                'status' => $row['order_status'],
                 'items_count' => (int)$row['item_count'],
-                'city' => $row['shipping_city'],
+                'city' => $row['delivery_city'],
                 'date' => date('d.m.Y', strtotime($row['created_at'])),
                 'time' => date('H:i', strtotime($row['created_at']))
             ];
         }
     }
-    
+
     echo json_encode(['success' => true, 'orders' => $orders, 'count' => count($orders)]);
     exit;
 }
@@ -247,10 +247,11 @@ elseif ($action === 'get_order_details' && $_SERVER['REQUEST_METHOD'] === 'GET')
     $o = $order->fetch_assoc();
     
     $items = $db->query("
-        SELECT oi.*, w.name, w.producer, c.name as category
+        SELECT oi.*, oi.product_name as name, oi.quantity, oi.unit_price as price_at_purchase, oi.total_price as subtotal,
+               w.producer, c.name as category
         FROM order_items oi
-        JOIN wines w ON oi.wine_id = w.id
-        JOIN categories c ON w.category_id = c.id
+        LEFT JOIN wines w ON oi.wine_id = w.id AND oi.item_type = 'wine'
+        LEFT JOIN categories c ON w.category_id = c.id
         WHERE oi.order_id = $order_id
     ");
     

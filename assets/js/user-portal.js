@@ -207,22 +207,30 @@ function viewOrderDetails(orderId) {
             const o = data.order;
             const items = data.items;
             
+            const deliveryMethodLabel = o.delivery_method === 'pickup' ? 'Abholung' : 'Lieferung';
+            const addressLabel = o.delivery_method === 'pickup' ? 'Kontaktdaten' : 'Lieferadresse';
+            const paymentMethodLabel = o.payment_method === 'card' ? 'Karte' : o.payment_method === 'twint' ? 'TWINT' : 'Barzahlung';
+
             const modal = createModal('Bestelldetails', `
                 <div class="order-detail-modal">
                     <div class="detail-group">
                         <h4>Bestellstatus</h4>
-                        <span class="status-badge status-${o.status}">${o.status === 'pending' ? 'Ausstehend' : o.status === 'paid' ? 'Bezahlt' : o.status === 'shipped' ? 'Versendet' : o.status === 'delivered' ? 'Zugestellt' : 'Storniert'}</span>
+                        <span class="status-badge status-${o.order_status}">${o.order_status === 'pending' ? 'Ausstehend' : o.order_status === 'processing' ? 'In Bearbeitung' : o.order_status === 'shipped' ? 'Versendet' : o.order_status === 'delivered' ? 'Zugestellt' : 'Storniert'}</span>
                     </div>
-                    
+
                     <div class="detail-group">
-                        <h4>Versandadresse</h4>
-                        <p>${o.shipping_address}<br>${o.shipping_postal_code} ${o.shipping_city}<br>${o.shipping_country}</p>
+                        <h4>${addressLabel}</h4>
+                        <p>${o.delivery_first_name} ${o.delivery_last_name}<br>${o.delivery_street}<br>${o.delivery_postal_code} ${o.delivery_city}</p>
+                        <p><strong>Methode:</strong> ${deliveryMethodLabel}</p>
+                        <p><strong>Telefon:</strong> ${o.delivery_phone}</p>
+                        <p><strong>E-Mail:</strong> ${o.delivery_email}</p>
                     </div>
-                    
+
                     <div class="detail-group">
                         <h4>Zahlungsinformation</h4>
-                        <p><strong>Methode:</strong> ${o.payment_method || 'N/A'}</p>
-                        <p><strong>Gesamtbetrag:</strong> CHF ${parseFloat(o.total_price).toFixed(2)}</p>
+                        <p><strong>Methode:</strong> ${paymentMethodLabel}</p>
+                        <p><strong>Status:</strong> ${o.payment_status === 'pending' ? 'Ausstehend' : o.payment_status === 'completed' ? 'Abgeschlossen' : o.payment_status === 'failed' ? 'Fehlgeschlagen' : 'Rückerstattet'}</p>
+                        <p><strong>Gesamtbetrag:</strong> CHF ${parseFloat(o.total_amount).toFixed(2)}</p>
                     </div>
                     
                     <div class="detail-group">

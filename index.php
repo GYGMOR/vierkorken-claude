@@ -18,7 +18,7 @@ if (isset($_GET['logout'])) {
 $page = isset($_GET['page']) ? trim($_GET['page']) : 'home';
 
 $allowed_pages = [
-    'home', 'shop', 'product', 'cart', 'checkout', 'order-confirmation',
+    'home', 'shop', 'product', 'cart', 'checkout', 'order-confirmation', 'register-after-order',
     'events', 'event', 'order-history',
     'admin-login', 'admin-dashboard', 'admin-theme',
     'user-portal',

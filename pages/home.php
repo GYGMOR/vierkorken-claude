@@ -12,6 +12,7 @@ $hero_subtitle = get_setting('hero_subtitle', 'Die feinste Schweizer Weinauswahl
 $about_title = get_setting('about_title', 'Warum Vier Korken?');
 
 $header_banner_image = get_setting('header_banner_image', '');
+$hero_background_image = get_setting('hero_background_image', '');
 $about_image = get_setting('about_section_image', '');
 $about_text = get_setting('about_section_text', 'Willkommen bei Vier Korken, Ihrem Zugang zu den erlesenen Weinen der Schweiz.');
 $about_shop_link = get_setting('about_shop_link', '?page=shop');
@@ -52,9 +53,9 @@ unset($item); // Break reference
 <?php endif; ?>
 
 <!-- HERO SECTION -->
-<div class="home-hero <?php echo !empty($header_banner_image) ? 'has-background' : ''; ?>" 
-     <?php if (!empty($header_banner_image)): ?>
-     style="background-image: url('<?php echo safe_output($header_banner_image); ?>'); background-size: cover; background-position: center;"
+<div class="home-hero <?php echo !empty($hero_background_image) ? 'has-background' : ''; ?>"
+     <?php if (!empty($hero_background_image)): ?>
+     style="background-image: url('<?php echo safe_output($hero_background_image); ?>'); background-size: cover; background-position: center;"
      <?php endif; ?>>
     
     <div class="hero-overlay"></div>

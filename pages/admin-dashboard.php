@@ -66,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     elseif ($action === 'update_images') {
         update_setting('header_banner_image', $_POST['header_banner_image']);
+        update_setting('hero_background_image', $_POST['hero_background_image']);
         update_setting('about_section_image', $_POST['about_section_image']);
         update_setting('wine_month_image', $_POST['wine_month_image']);
         update_setting('wine_month_link', $_POST['wine_month_link']);
@@ -646,15 +647,29 @@ $settings = get_all_settings();
                 <input type="hidden" name="action" value="update_images">
 
                 <div class="form-section-mega">
-                    <h3>Header Banner</h3>
+                    <h3>Header Banner (Oben)</h3>
                     <div class="form-group-mega">
                         <label>Banner Bild URL</label>
                         <input type="text" name="header_banner_image" value="<?php echo safe_output($settings['header_banner_image'] ?? ''); ?>" placeholder="z.B. assets/images/banner.jpg">
-                        <small>Empfohlene Größe: 1920x600px</small>
+                        <small>Empfohlene Größe: 1920x600px - Dekorativer Banner ganz oben</small>
                     </div>
                     <?php if (!empty($settings['header_banner_image'])): ?>
                         <div class="image-preview">
                             <img src="<?php echo safe_output($settings['header_banner_image']); ?>" alt="Banner" style="max-width: 100%; height: auto; border-radius: 8px;">
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="form-section-mega">
+                    <h3>Hero Hintergrundbild</h3>
+                    <div class="form-group-mega">
+                        <label>Hero Background Bild URL</label>
+                        <input type="text" name="hero_background_image" value="<?php echo safe_output($settings['hero_background_image'] ?? ''); ?>" placeholder="z.B. assets/images/hero-bg.jpg">
+                        <small>Empfohlene Größe: 1920x1080px - Hintergrund für Hero-Sektion mit Text</small>
+                    </div>
+                    <?php if (!empty($settings['hero_background_image'])): ?>
+                        <div class="image-preview">
+                            <img src="<?php echo safe_output($settings['hero_background_image']); ?>" alt="Hero Background" style="max-width: 100%; height: auto; border-radius: 8px;">
                         </div>
                     <?php endif; ?>
                 </div>
@@ -2196,7 +2211,8 @@ function loadOrders(status = 'all') {
                     <td>${paymentLabels[o.payment_method]}</td>
                     <td class="table-actions">
                         <button onclick="viewAdminOrderDetails(${o.id})" class="btn-icon" title="Details">👁️</button>
-                        <button onclick="changeOrderStatus(${o.id})" class="btn-icon" title="Status ändern">📝</button>
+                        <button onclick="changeOrderStatus(${o.id}, '${o.order_status}')" class="btn-icon" title="Status ändern">📝</button>
+                        <button onclick="deleteOrder(${o.id}, '${o.order_number}')" class="btn-icon btn-danger" title="Löschen">🗑️</button>
                     </td>
                 </tr>`;
             });
@@ -2211,13 +2227,140 @@ function loadOrders(status = 'all') {
 }
 
 function viewAdminOrderDetails(orderId) {
-    // Similar to user order details modal
-    alert('Details für Bestellung ID: ' + orderId + '\n(Detail-Modal wird geladen...)');
+    fetch(`api/orders.php?action=get_order_details_admin&order_id=${orderId}`)
+        .then(r => r.json())
+        .then(d => {
+            if (!d.success) {
+                alert('Fehler: ' + d.error);
+                return;
+            }
+
+            const o = d.order;
+            const items = d.items;
+
+            const deliveryMethodLabel = o.delivery_method === 'pickup' ? 'Abholung' : 'Lieferung';
+            const addressLabel = o.delivery_method === 'pickup' ? 'Kontaktdaten' : 'Lieferadresse';
+            const paymentMethodLabel = o.payment_method === 'card' ? 'Karte' : o.payment_method === 'twint' ? 'TWINT' : 'Barzahlung';
+            const statusLabels = {
+                'pending': 'Ausstehend',
+                'processing': 'In Bearbeitung',
+                'shipped': 'Versandt',
+                'delivered': 'Zugestellt',
+                'cancelled': 'Storniert'
+            };
+            const paymentStatusLabels = {
+                'pending': 'Ausstehend',
+                'completed': 'Abgeschlossen',
+                'failed': 'Fehlgeschlagen',
+                'refunded': 'Rückerstattet'
+            };
+
+            // Build items HTML
+            let itemsHtml = '';
+            items.forEach(item => {
+                const itemIcon = item.item_type === 'event' ? '🎫' : '🍷';
+                const productDetails = item.item_type === 'wine' ?
+                    `<small>${escapeHtml(item.producer || '')}</small><br><small>${escapeHtml(item.vintage || '')} • ${escapeHtml(item.region || '')}</small>` :
+                    '';
+
+                itemsHtml += `
+                    <div class="order-item" style="display: grid; grid-template-columns: 40px 1fr auto; gap: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 5px; margin-bottom: 0.5rem;">
+                        <div style="font-size: 2rem;">${itemIcon}</div>
+                        <div>
+                            <strong>${escapeHtml(item.name)}</strong><br>
+                            ${productDetails}
+                            <br><small>Menge: ${item.quantity}x • CHF ${parseFloat(item.unit_price).toFixed(2)}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong>CHF ${parseFloat(item.total_price).toFixed(2)}</strong>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const modalHtml = `
+                <div class="admin-order-modal" style="max-width: 900px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                        <div class="detail-section">
+                            <h3 style="margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">Bestellinformationen</h3>
+                            <p><strong>Bestellnummer:</strong> ${escapeHtml(o.order_number)}</p>
+                            <p><strong>Datum:</strong> ${new Date(o.created_at).toLocaleDateString('de-CH')} ${new Date(o.created_at).toLocaleTimeString('de-CH')}</p>
+                            <p><strong>Status:</strong> <span class="badge badge-${o.order_status === 'delivered' ? 'success' : o.order_status === 'cancelled' ? 'danger' : o.order_status === 'shipped' ? 'primary' : 'warning'}">${statusLabels[o.order_status]}</span></p>
+                            ${o.user_id ? `<p><strong>Kunde-ID:</strong> ${o.user_id}</p>` : '<p><strong>Gastbestellung</strong></p>'}
+                            ${o.notes ? `<p><strong>Notizen:</strong> ${escapeHtml(o.notes)}</p>` : ''}
+                        </div>
+
+                        <div class="detail-section">
+                            <h3 style="margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">Zahlungsinformationen</h3>
+                            <p><strong>Methode:</strong> ${paymentMethodLabel}</p>
+                            <p><strong>Zahlungsstatus:</strong> <span class="badge badge-${o.payment_status === 'completed' ? 'success' : o.payment_status === 'failed' ? 'danger' : 'warning'}">${paymentStatusLabels[o.payment_status]}</span></p>
+                            ${o.payment_transaction_id ? `<p><strong>Transaktions-ID:</strong> ${escapeHtml(o.payment_transaction_id)}</p>` : ''}
+                            <div style="margin-top: 1rem; padding: 1rem; background: #e8f5e9; border-radius: 5px;">
+                                <p style="margin: 0.3rem 0;"><strong>Zwischensumme:</strong> CHF ${parseFloat(o.subtotal).toFixed(2)}</p>
+                                <p style="margin: 0.3rem 0;"><strong>Versand:</strong> CHF ${parseFloat(o.shipping_cost).toFixed(2)}</p>
+                                ${o.discount_amount > 0 ? `<p style="margin: 0.3rem 0; color: #27ae60;"><strong>Rabatt:</strong> -CHF ${parseFloat(o.discount_amount).toFixed(2)}</p>` : ''}
+                                <p style="margin: 0.3rem 0; font-size: 1.2rem; border-top: 2px solid #27ae60; padding-top: 0.5rem; margin-top: 0.5rem;"><strong>Total:</strong> CHF ${parseFloat(o.total_amount).toFixed(2)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section" style="margin-bottom: 2rem;">
+                        <h3 style="margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">${addressLabel}</h3>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px;">
+                            <p><strong>Name:</strong> ${escapeHtml(o.delivery_first_name)} ${escapeHtml(o.delivery_last_name)}</p>
+                            ${o.delivery_method === 'delivery' ? `
+                                <p><strong>Adresse:</strong> ${escapeHtml(o.delivery_street)}</p>
+                                <p><strong>Ort:</strong> ${escapeHtml(o.delivery_postal_code)} ${escapeHtml(o.delivery_city)}</p>
+                            ` : '<p><strong>Abholung in der Filiale</strong></p>'}
+                            <p><strong>Telefon:</strong> ${escapeHtml(o.delivery_phone)}</p>
+                            <p><strong>E-Mail:</strong> ${escapeHtml(o.delivery_email)}</p>
+                            <p><strong>Methode:</strong> ${deliveryMethodLabel}</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 style="margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">Bestellte Artikel</h3>
+                        ${itemsHtml}
+                    </div>
+
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button onclick="changeOrderStatus(${o.id}, '${o.order_status}')" class="btn btn-primary">Status ändern</button>
+                        <button onclick="deleteOrder(${o.id}, '${o.order_number}')" class="btn btn-danger">Bestellung löschen</button>
+                    </div>
+                </div>
+            `;
+
+            showAdminModal('Bestelldetails #' + o.order_number, modalHtml);
+        })
+        .catch(e => {
+            console.error(e);
+            alert('Fehler beim Laden der Bestelldetails');
+        });
 }
 
-function changeOrderStatus(orderId) {
-    const newStatus = prompt('Neuer Status:\npending\nprocessing\nshipped\ndelivered\ncancelled');
-    if (!newStatus) return;
+function changeOrderStatus(orderId, currentStatus) {
+    const modalHtml = `
+        <div style="padding: 1rem;">
+            <p style="margin-bottom: 1rem;">Wähle den neuen Bestellstatus:</p>
+            <select id="new-order-status" class="form-control" style="width: 100%; padding: 0.5rem; font-size: 1rem; margin-bottom: 1.5rem;">
+                <option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>Ausstehend</option>
+                <option value="processing" ${currentStatus === 'processing' ? 'selected' : ''}>In Bearbeitung</option>
+                <option value="shipped" ${currentStatus === 'shipped' ? 'selected' : ''}>Versandt</option>
+                <option value="delivered" ${currentStatus === 'delivered' ? 'selected' : ''}>Zugestellt</option>
+                <option value="cancelled" ${currentStatus === 'cancelled' ? 'selected' : ''}>Storniert</option>
+            </select>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button onclick="closeAdminModal()" class="btn btn-secondary">Abbrechen</button>
+                <button onclick="submitStatusChange(${orderId})" class="btn btn-primary">Status aktualisieren</button>
+            </div>
+        </div>
+    `;
+
+    showAdminModal('Bestellstatus ändern', modalHtml);
+}
+
+function submitStatusChange(orderId) {
+    const newStatus = document.getElementById('new-order-status').value;
 
     const formData = new FormData();
     formData.append('action', 'update_status');
@@ -2231,12 +2374,79 @@ function changeOrderStatus(orderId) {
     .then(r => r.json())
     .then(d => {
         if (d.success) {
-            alert(d.message);
+            showNotification('Status aktualisiert', 'success');
+            closeAdminModal();
             loadOrders(currentOrderFilter);
         } else {
-            alert('Fehler: ' + d.error);
+            showNotification('Fehler: ' + d.error, 'error');
         }
+    })
+    .catch(e => {
+        console.error(e);
+        showNotification('Fehler beim Aktualisieren', 'error');
     });
+}
+
+function deleteOrder(orderId, orderNumber) {
+    if (!confirm(`Bestellung ${orderNumber} wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden!`)) {
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'delete_order');
+    formData.append('order_id', orderId);
+
+    fetch('api/orders.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            showNotification('Bestellung gelöscht', 'success');
+            closeAdminModal();
+            loadOrders(currentOrderFilter);
+        } else {
+            showNotification('Fehler: ' + d.error, 'error');
+        }
+    })
+    .catch(e => {
+        console.error(e);
+        showNotification('Fehler beim Löschen', 'error');
+    });
+}
+
+// Admin modal helper functions
+function showAdminModal(title, content) {
+    // Remove existing modal if any
+    const existing = document.getElementById('admin-modal-backdrop');
+    if (existing) existing.remove();
+
+    const backdrop = document.createElement('div');
+    backdrop.id = 'admin-modal-backdrop';
+    backdrop.className = 'modal-backdrop';
+    backdrop.innerHTML = `
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h3 style="margin: 0;">${title}</h3>
+                <button onclick="closeAdminModal()" class="modal-close" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999;">&times;</button>
+            </div>
+            <div class="modal-body">
+                ${content}
+            </div>
+        </div>
+    `;
+
+    backdrop.addEventListener('click', function(e) {
+        if (e.target === backdrop) closeAdminModal();
+    });
+
+    document.body.appendChild(backdrop);
+}
+
+function closeAdminModal() {
+    const modal = document.getElementById('admin-modal-backdrop');
+    if (modal) modal.remove();
 }
 
 // Filter tabs
