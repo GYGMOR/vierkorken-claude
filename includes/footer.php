@@ -23,36 +23,55 @@
                     </p>
                 </div>
 
-                <!-- Standort-Karte (Google Maps Static) -->
+                <!-- Standort-Karte (Google Maps Eingebettet) -->
                 <div class="footer-map-container">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=Steinbrunnengasse+3A,5707+Seengen,Schweiz" target="_blank" class="map-link-wrapper" style="display: block; position: relative; cursor: pointer;">
-                        <img
-                            src="https://maps.googleapis.com/maps/api/staticmap?center=47.32175,8.28325&zoom=15&size=600x300&markers=color:red%7C47.32175,8.28325&key=AIzaSyB85AoOECvljXnie2nS32ErkTEJCjmFhpw"
-                            alt="Standort Karte"
-                            style="width: 100%; height: 300px; border-radius: 8px; object-fit: cover;"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                        >
-                        <div class="map-fallback" style="display: none; width: 100%; height: 300px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; align-items: center; justify-content: center; flex-direction: column; color: white; text-align: center;">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="margin-bottom: 1rem;">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem;">Unser Standort</h3>
-                            <p style="margin: 0; font-size: 1rem;">Steinbrunnengasse 3A<br>5707 Seengen</p>
-                            <p style="margin-top: 1rem; padding: 0.8rem 1.5rem; background: rgba(255,255,255,0.2); border-radius: 25px; font-weight: 600;">Route anzeigen →</p>
-                        </div>
-                        <div class="map-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0); border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: all 0.3s;">
-                            <span style="background: rgba(76, 37, 76, 0.95); color: white; padding: 1rem 2rem; border-radius: 25px; font-weight: 600; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">Route anzeigen →</span>
-                        </div>
-                    </a>
+                    <div id="google-map" style="width: 100%; height: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);"></div>
                 </div>
 
-                <style>
-                .map-link-wrapper:hover .map-overlay {
-                    opacity: 1 !important;
-                    background: rgba(0,0,0,0.2) !important;
+                <script>
+                function initMap() {
+                    // Koordinaten für Steinbrunnengasse 3A, 5707 Seengen
+                    const vierKorkenLocation = { lat: 47.32175, lng: 8.28325 };
+
+                    // Karte erstellen
+                    const map = new google.maps.Map(document.getElementById('google-map'), {
+                        center: vierKorkenLocation,
+                        zoom: 16,
+                        mapTypeControl: true,
+                        streetViewControl: true,
+                        fullscreenControl: true,
+                        zoomControl: true,
+                        styles: [
+                            {
+                                featureType: "poi",
+                                elementType: "labels",
+                                stylers: [{ visibility: "off" }]
+                            }
+                        ]
+                    });
+
+                    // Marker hinzufügen
+                    const marker = new google.maps.Marker({
+                        position: vierKorkenLocation,
+                        map: map,
+                        title: 'Vier Korken Wein Boutique',
+                        animation: google.maps.Animation.DROP
+                    });
+
+                    // Info-Fenster für den Marker
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: '<div style="padding: 10px;"><strong>Vier Korken Wein Boutique</strong><br>Steinbrunnengasse 3A<br>5707 Seengen<br><a href="https://www.google.com/maps/dir/?api=1&destination=47.32175,8.28325" target="_blank" style="color: #4c254c; font-weight: 600; margin-top: 8px; display: inline-block;">Route anzeigen</a></div>'
+                    });
+
+                    // Klick auf Marker öffnet Info-Fenster
+                    marker.addListener('click', function() {
+                        infoWindow.open(map, marker);
+                    });
                 }
-                </style>
+                </script>
+
+                <!-- Google Maps API laden -->
+                <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB85AoOECvljXnie2nS32ErkTEJCjmFhpw&callback=initMap" async defer></script>
             </div>
 
             <!-- BOTTOM GRID - Öffnungszeiten & Links -->
