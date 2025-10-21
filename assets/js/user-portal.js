@@ -359,7 +359,7 @@ function addAddressForm() {
 }
 
 function editAddress(addressId) {
-    console.log('Edit address clicked, ID:', addressId);
+    console.log('Edit address clicked, ID:', addressId, 'Type:', typeof addressId);
 
     fetch(`${API_BASE}?action=get_addresses`)
         .then(r => r.json())
@@ -371,9 +371,14 @@ function editAddress(addressId) {
                 return;
             }
 
-            const addr = data.addresses.find(a => a.id === addressId);
+            // Convert addressId to number for comparison
+            const idToFind = parseInt(addressId);
+            console.log('Looking for ID:', idToFind, 'in addresses:', data.addresses.map(a => ({id: a.id, type: typeof a.id})));
+
+            const addr = data.addresses.find(a => parseInt(a.id) === idToFind);
             if (!addr) {
-                showNotification('Adresse nicht gefunden', 'error');
+                showNotification('Adresse nicht gefunden (ID: ' + idToFind + ')', 'error');
+                console.error('Address not found. Looking for:', idToFind, 'Available IDs:', data.addresses.map(a => a.id));
                 return;
             }
 
