@@ -739,6 +739,9 @@ unset($item); // Break reference
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    z-index: 1;
+    text-decoration: none;
 }
 
 .about-showcase-image {
@@ -763,6 +766,7 @@ unset($item); // Break reference
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    pointer-events: none;
 }
 
 .about-image-link:hover .about-image-overlay {
