@@ -288,8 +288,13 @@ function loadUserAddresses() {
             container.innerHTML = data.addresses.map(a => `
                 <div class="address-card ${a.is_default ? 'is-default' : ''}">
                     ${a.is_default ? '<span class="badge-default">Standardadresse</span>' : ''}
-                    <h4>${a.label}</h4>
-                    <p>${a.first_name} ${a.last_name}<br>${a.street}<br>${a.postal_code} ${a.city}<br>${a.country}</p>
+                    <h4>${a.label || 'Adresse'}</h4>
+                    <p>
+                        <strong>${a.first_name} ${a.last_name}</strong><br>
+                        ${a.street}<br>
+                        ${a.postal_code} ${a.city}<br>
+                        ${a.phone ? `Tel: ${a.phone}<br>` : ''}
+                    </p>
                     <div class="address-actions">
                         <button onclick="editAddress(${a.id})" class="btn btn-secondary btn-small">Bearbeiten</button>
                         <button onclick="deleteAddress(${a.id})" class="btn btn-delete btn-small">Löschen</button>
@@ -309,16 +314,16 @@ function addAddressForm() {
                     <input type="text" name="first_name" required>
                 </div>
                 <div class="form-group">
-                    <label>Nachname</label>
-                    <input type="text" name="last_name">
+                    <label>Nachname *</label>
+                    <input type="text" name="last_name" required>
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label>Straße & Hausnummer *</label>
                 <input type="text" name="street" required>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label>Postleitzahl *</label>
@@ -329,24 +334,24 @@ function addAddressForm() {
                     <input type="text" name="city" required>
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group">
-                    <label>Land</label>
-                    <input type="text" name="country" value="Schweiz">
+                    <label>Telefon *</label>
+                    <input type="tel" name="phone" required>
                 </div>
                 <div class="form-group">
                     <label>Label</label>
-                    <input type="text" name="label" value="Hauptadresse">
+                    <input type="text" name="label" placeholder="z.B. Zuhause, Büro">
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label>
                     <input type="checkbox" name="is_default"> Als Standardadresse festlegen
                 </label>
             </div>
-            
+
             <button type="submit" class="btn btn-primary">Adresse hinzufügen</button>
         </form>
     `);
@@ -363,23 +368,23 @@ function editAddress(addressId) {
             const modal = createModal('Adresse bearbeiten', `
                 <form class="form-address" onsubmit="event.preventDefault(); saveAddress(this, 'update')">
                     <input type="hidden" name="address_id" value="${addressId}">
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label>Vorname *</label>
                             <input type="text" name="first_name" value="${addr.first_name}" required>
                         </div>
                         <div class="form-group">
-                            <label>Nachname</label>
-                            <input type="text" name="last_name" value="${addr.last_name || ''}">
+                            <label>Nachname *</label>
+                            <input type="text" name="last_name" value="${addr.last_name || ''}" required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Straße & Hausnummer *</label>
                         <input type="text" name="street" value="${addr.street}" required>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label>Postleitzahl *</label>
@@ -390,24 +395,24 @@ function editAddress(addressId) {
                             <input type="text" name="city" value="${addr.city}" required>
                         </div>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Land</label>
-                            <input type="text" name="country" value="${addr.country}">
+                            <label>Telefon *</label>
+                            <input type="tel" name="phone" value="${addr.phone || ''}" required>
                         </div>
                         <div class="form-group">
                             <label>Label</label>
-                            <input type="text" name="label" value="${addr.label}">
+                            <input type="text" name="label" value="${addr.label || ''}" placeholder="z.B. Zuhause, Büro">
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>
                             <input type="checkbox" name="is_default" ${addr.is_default ? 'checked' : ''}> Als Standardadresse festlegen
                         </label>
                     </div>
-                    
+
                     <button type="submit" class="btn btn-primary">Speichern</button>
                 </form>
             `);

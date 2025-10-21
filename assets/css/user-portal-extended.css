@@ -615,13 +615,15 @@
 .notification {
     position: fixed;
     bottom: 2rem;
-    right: 1rem;
-    padding: 1rem 1.5rem;
+    right: 2rem;
+    padding: 0.875rem 1.25rem;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     max-width: 400px;
+    min-width: 280px;
     z-index: 2001;
     animation: slideIn 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 
 @keyframes slideIn {
@@ -636,20 +638,27 @@
 }
 
 .notification-success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    background: linear-gradient(135deg, #28a745, #218838);
+    color: white;
+    border: none;
 }
 
 .notification-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    border: none;
+}
+
+.notification-info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+    border: none;
 }
 
 .notification p {
     margin: 0;
     font-weight: 500;
+    font-size: 0.95rem;
 }
 
 /* ============================================
