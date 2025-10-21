@@ -27,7 +27,7 @@
                 <div class="footer-map-container">
                     <a href="https://www.google.com/maps/dir/?api=1&destination=Steinbrunnengasse+3A,5707+Seengen,Schweiz" target="_blank" class="map-link-wrapper" style="display: block; position: relative; cursor: pointer;">
                         <img
-                            src="https://maps.googleapis.com/maps/api/staticmap?center=47.32175,8.28325&zoom=15&size=600x300&markers=color:red%7C47.32175,8.28325&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8"
+                            src="https://maps.googleapis.com/maps/api/staticmap?center=47.32175,8.28325&zoom=15&size=600x300&markers=color:red%7C47.32175,8.28325&key=AIzaSyB85AoOECvljXnie2nS32ErkTEJCjmFhpw"
                             alt="Standort Karte"
                             style="width: 100%; height: 300px; border-radius: 8px; object-fit: cover;"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
