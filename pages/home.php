@@ -227,13 +227,21 @@ unset($item); // Break reference
                         </div>
                     </a>
                 <?php else: ?>
-                    <div class="about-image-placeholder">
-                        <?php if ($EDIT_MODE): ?>
-                            <p>Bild hochladen</p>
-                        <?php else: ?>
-                            <p><?php echo get_icon('wine', 48, 'icon-secondary'); ?></p>
+                    <a href="<?php echo safe_output($about_shop_link); ?>" class="about-image-link">
+                        <div class="about-image-placeholder">
+                            <?php if ($EDIT_MODE): ?>
+                                <p>Bild hochladen</p>
+                            <?php else: ?>
+                                <p><?php echo get_icon('wine', 64, 'icon-secondary'); ?></p>
+                                <p style="margin-top: 1rem; font-size: 1.1rem; color: var(--primary-color); font-weight: 600;">Zum Shop</p>
+                            <?php endif; ?>
+                        </div>
+                        <?php if (!$EDIT_MODE): ?>
+                        <div class="about-image-overlay">
+                            <span class="about-image-cta">Zum Shop →</span>
+                        </div>
                         <?php endif; ?>
-                    </div>
+                    </a>
                 <?php endif; ?>
                 
                 <?php if ($EDIT_MODE): ?>
