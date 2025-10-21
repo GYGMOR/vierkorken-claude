@@ -23,23 +23,9 @@
                     </p>
                 </div>
 
-                <!-- Standort-Karte (OpenStreetMap Alternative) -->
+                <!-- Standort-Karte (Google Maps) -->
                 <div class="footer-map-container">
-                    <iframe
-                        width="100%"
-                        height="300"
-                        frameborder="0"
-                        scrolling="no"
-                        marginheight="0"
-                        marginwidth="0"
-                        src="https://www.openstreetmap.org/export/embed.html?bbox=8.278%2C47.319%2C8.288%2C47.325&layer=mapnik&marker=47.32175%2C8.28325"
-                        style="border: 0; border-radius: 8px;">
-                    </iframe>
-                    <div style="margin-top: 0.5rem; text-align: center;">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=47.32175,8.28325" target="_blank" style="display: inline-block; background: var(--accent-gold); color: var(--primary-dark); padding: 0.6rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 600; transition: all 0.3s;">
-                            Route in Google Maps anzeigen
-                        </a>
-                    </div>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2704.5696982429417!2d8.203439876516912!3d47.3227442711652!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4790176f522c0001%3A0x4147a7d66e7b57ad!2sSteinbrunnengasse%203a%2C%205707%20Seengen!5e0!3m2!1sde!2sch!4v1761070294996!5m2!1sde!2sch" width="100%" height="300" style="border:0; border-radius: 8px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
 
