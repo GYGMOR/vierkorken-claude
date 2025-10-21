@@ -268,6 +268,10 @@ $settings = get_all_settings();
             <a href="?page=admin-dashboard&tab=events" class="<?php echo $tab === 'events' ? 'active' : ''; ?>">Events verwalten</a>
             <a href="?page=admin-dashboard&tab=add-event" class="<?php echo $tab === 'add-event' ? 'active' : ''; ?>">Event hinzufügen</a>
 
+            <div class="nav-divider">BESTELLUNGEN</div>
+            <a href="?page=admin-dashboard&tab=orders" class="<?php echo $tab === 'orders' ? 'active' : ''; ?>">Bestellungen</a>
+            <a href="?page=admin-dashboard&tab=coupons" class="<?php echo $tab === 'coupons' ? 'active' : ''; ?>">Gutscheine</a>
+
             <div class="nav-divider"></div>
             <a href="?page=home" class="nav-home">Zur Webseite</a>
         </nav>
@@ -1091,6 +1095,107 @@ $settings = get_all_settings();
             </form>
             <?php endif; ?>
 
+        <?php elseif ($tab === 'coupons'): ?>
+            <h2>Gutscheine verwalten</h2>
+
+            <button onclick="showAddCouponForm()" class="btn btn-primary" style="margin-bottom: 1.5rem;">
+                + Neuer Gutschein
+            </button>
+
+            <div id="coupon-form-container" style="display: none; margin-bottom: 2rem;">
+                <div class="card">
+                    <h3 id="coupon-form-title">Neuer Gutschein</h3>
+                    <form id="coupon-form">
+                        <input type="hidden" id="coupon-id" name="id">
+
+                        <div class="form-row-2">
+                            <div class="form-group-admin">
+                                <label>Code *</label>
+                                <input type="text" id="coupon-code" name="code" required style="text-transform: uppercase;">
+                            </div>
+                            <div class="form-group-admin">
+                                <label>Rabatt-Typ *</label>
+                                <select id="coupon-discount-type" name="discount_type" required>
+                                    <option value="percentage">Prozentual (%)</option>
+                                    <option value="fixed">Fixer Betrag (CHF)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group-admin">
+                                <label>Rabatt-Wert *</label>
+                                <input type="number" id="coupon-discount-value" name="discount_value" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group-admin">
+                                <label>Mindestbestellwert (CHF)</label>
+                                <input type="number" id="coupon-min-order" name="min_order_amount" step="0.01" min="0" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group-admin">
+                            <label>Beschreibung</label>
+                            <input type="text" id="coupon-description" name="description">
+                        </div>
+
+                        <div class="form-row-3">
+                            <div class="form-group-admin">
+                                <label>Max. Rabatt (CHF)</label>
+                                <input type="number" id="coupon-max-discount" name="max_discount_amount" step="0.01" min="0">
+                                <small>Optional: Maximale Rabatthöhe bei %-Rabatten</small>
+                            </div>
+                            <div class="form-group-admin">
+                                <label>Verwendungslimit</label>
+                                <input type="number" id="coupon-usage-limit" name="usage_limit" min="1">
+                                <small>Optional: Wie oft kann der Code verwendet werden</small>
+                            </div>
+                            <div class="form-group-admin">
+                                <label>
+                                    <input type="checkbox" id="coupon-active" name="is_active" checked>
+                                    Aktiv
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group-admin">
+                                <label>Gültig ab</label>
+                                <input type="datetime-local" id="coupon-valid-from" name="valid_from">
+                            </div>
+                            <div class="form-group-admin">
+                                <label>Gültig bis</label>
+                                <input type="datetime-local" id="coupon-valid-until" name="valid_until">
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-success">Speichern</button>
+                            <button type="button" class="btn btn-secondary" onclick="hideCouponForm()">Abbrechen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="coupons-list" class="data-table-container">
+                <p>Lade Gutscheine...</p>
+            </div>
+
+        <?php elseif ($tab === 'orders'): ?>
+            <h2>Bestellungen verwalten</h2>
+
+            <div class="filter-tabs" style="margin-bottom: 1.5rem;">
+                <button class="filter-tab active" data-status="all">Alle</button>
+                <button class="filter-tab" data-status="pending">Ausstehend</button>
+                <button class="filter-tab" data-status="processing">In Bearbeitung</button>
+                <button class="filter-tab" data-status="shipped">Versandt</button>
+                <button class="filter-tab" data-status="delivered">Zugestellt</button>
+                <button class="filter-tab" data-status="cancelled">Storniert</button>
+            </div>
+
+            <div id="orders-list" class="data-table-container">
+                <p>Lade Bestellungen...</p>
+            </div>
+
         <?php else: ?>
             <div class="coming-soon">
                 <h2>Diese Seite wird vorbereitet</h2>
@@ -1872,7 +1977,323 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+// ========== COUPON MANAGEMENT ==========
+function loadCoupons() {
+    fetch('api/coupons.php?action=get_all')
+        .then(r => r.json())
+        .then(d => {
+            if (!d.success) {
+                document.getElementById('coupons-list').innerHTML = '<p style="color: #c62828;">Fehler beim Laden</p>';
+                return;
+            }
+
+            if (d.coupons.length === 0) {
+                document.getElementById('coupons-list').innerHTML = '<p>Keine Gutscheine vorhanden</p>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr>';
+            html += '<th>Code</th><th>Typ</th><th>Wert</th><th>Verwendet</th><th>Status</th><th>Gültig bis</th><th>Aktionen</th>';
+            html += '</tr></thead><tbody>';
+
+            d.coupons.forEach(c => {
+                const discountDisplay = c.discount_type === 'percentage'
+                    ? c.discount_value + '%'
+                    : 'CHF ' + parseFloat(c.discount_value).toFixed(2);
+
+                const usageDisplay = c.usage_limit
+                    ? `${c.used_count}/${c.usage_limit}`
+                    : c.used_count;
+
+                const validUntil = c.valid_until
+                    ? new Date(c.valid_until).toLocaleDateString('de-CH')
+                    : '-';
+
+                html += `<tr>
+                    <td><strong>${escapeHtml(c.code)}</strong><br><small>${escapeHtml(c.description || '')}</small></td>
+                    <td>${c.discount_type === 'percentage' ? 'Prozentual' : 'Fix'}</td>
+                    <td>${discountDisplay}</td>
+                    <td>${usageDisplay}</td>
+                    <td><span class="badge ${c.is_active ? 'badge-success' : 'badge-secondary'}">${c.is_active ? 'Aktiv' : 'Inaktiv'}</span></td>
+                    <td>${validUntil}</td>
+                    <td class="table-actions">
+                        <button onclick="editCoupon(${c.id})" class="btn-icon" title="Bearbeiten">✏️</button>
+                        <button onclick="toggleCouponActive(${c.id})" class="btn-icon" title="Aktivieren/Deaktivieren">⏸️</button>
+                        <button onclick="deleteCoupon(${c.id}, '${escapeHtml(c.code)}')" class="btn-icon" title="Löschen">🗑️</button>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('coupons-list').innerHTML = html;
+        })
+        .catch(e => {
+            console.error(e);
+            document.getElementById('coupons-list').innerHTML = '<p style="color: #c62828;">Fehler beim Laden</p>';
+        });
+}
+
+function showAddCouponForm() {
+    document.getElementById('coupon-form-title').textContent = 'Neuer Gutschein';
+    document.getElementById('coupon-form').reset();
+    document.getElementById('coupon-id').value = '';
+    document.getElementById('coupon-form-container').style.display = 'block';
+    document.getElementById('coupon-code').disabled = false;
+}
+
+function hideCouponForm() {
+    document.getElementById('coupon-form-container').style.display = 'none';
+}
+
+function editCoupon(id) {
+    fetch(`api/coupons.php?action=get_all`)
+        .then(r => r.json())
+        .then(d => {
+            const coupon = d.coupons.find(c => c.id == id);
+            if (!coupon) return;
+
+            document.getElementById('coupon-form-title').textContent = 'Gutschein bearbeiten';
+            document.getElementById('coupon-id').value = coupon.id;
+            document.getElementById('coupon-code').value = coupon.code;
+            document.getElementById('coupon-code').disabled = true;
+            document.getElementById('coupon-discount-type').value = coupon.discount_type;
+            document.getElementById('coupon-discount-value').value = coupon.discount_value;
+            document.getElementById('coupon-min-order').value = coupon.min_order_amount;
+            document.getElementById('coupon-description').value = coupon.description || '';
+            document.getElementById('coupon-max-discount').value = coupon.max_discount_amount || '';
+            document.getElementById('coupon-usage-limit').value = coupon.usage_limit || '';
+            document.getElementById('coupon-active').checked = coupon.is_active == 1;
+            document.getElementById('coupon-valid-from').value = coupon.valid_from ? coupon.valid_from.slice(0,16) : '';
+            document.getElementById('coupon-valid-until').value = coupon.valid_until ? coupon.valid_until.slice(0,16) : '';
+            document.getElementById('coupon-form-container').style.display = 'block';
+        });
+}
+
+document.getElementById('coupon-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const id = document.getElementById('coupon-id').value;
+    formData.append('action', id ? 'update' : 'create');
+
+    fetch('api/coupons.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            alert(d.message);
+            hideCouponForm();
+            loadCoupons();
+        } else {
+            alert('Fehler: ' + d.error);
+        }
+    })
+    .catch(e => {
+        console.error(e);
+        alert('Fehler beim Speichern');
+    });
+});
+
+function deleteCoupon(id, code) {
+    if (!confirm(`Gutschein "${code}" wirklich löschen?`)) return;
+
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('id', id);
+
+    fetch('api/coupons.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            alert(d.message);
+            loadCoupons();
+        } else {
+            alert('Fehler: ' + d.error);
+        }
+    });
+}
+
+function toggleCouponActive(id) {
+    const formData = new FormData();
+    formData.append('action', 'toggle_active');
+    formData.append('id', id);
+
+    fetch('api/coupons.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            loadCoupons();
+        } else {
+            alert('Fehler: ' + d.error);
+        }
+    });
+}
+
+// ========== ORDER MANAGEMENT ==========
+let currentOrderFilter = 'all';
+
+function loadOrders(status = 'all') {
+    currentOrderFilter = status;
+    const url = status === 'all'
+        ? 'api/orders.php?action=get_all_orders'
+        : `api/orders.php?action=get_all_orders&status=${status}`;
+
+    fetch(url)
+        .then(r => r.json())
+        .then(d => {
+            if (!d.success) {
+                document.getElementById('orders-list').innerHTML = '<p style="color: #c62828;">Fehler beim Laden</p>';
+                return;
+            }
+
+            if (d.orders.length === 0) {
+                document.getElementById('orders-list').innerHTML = '<p>Keine Bestellungen gefunden</p>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr>';
+            html += '<th>Bestellnr.</th><th>Datum</th><th>Kunde</th><th>Artikel</th><th>Betrag</th><th>Status</th><th>Zahlung</th><th>Aktionen</th>';
+            html += '</tr></thead><tbody>';
+
+            d.orders.forEach(o => {
+                const statusLabels = {
+                    'pending': 'Ausstehend',
+                    'processing': 'In Bearbeitung',
+                    'shipped': 'Versandt',
+                    'delivered': 'Zugestellt',
+                    'cancelled': 'Storniert'
+                };
+
+                const statusColors = {
+                    'pending': 'badge-warning',
+                    'processing': 'badge-info',
+                    'shipped': 'badge-primary',
+                    'delivered': 'badge-success',
+                    'cancelled': 'badge-danger'
+                };
+
+                const paymentLabels = {
+                    'card': 'Karte',
+                    'twint': 'TWINT',
+                    'cash': 'Bar'
+                };
+
+                html += `<tr>
+                    <td><strong>${o.order_number}</strong></td>
+                    <td>${new Date(o.created_at).toLocaleDateString('de-CH')}</td>
+                    <td>${escapeHtml(o.delivery_first_name + ' ' + o.delivery_last_name)}<br><small>${escapeHtml(o.delivery_email)}</small></td>
+                    <td>${o.item_count} Artikel</td>
+                    <td><strong>CHF ${parseFloat(o.total_amount).toFixed(2)}</strong></td>
+                    <td><span class="badge ${statusColors[o.order_status]}">${statusLabels[o.order_status]}</span></td>
+                    <td>${paymentLabels[o.payment_method]}</td>
+                    <td class="table-actions">
+                        <button onclick="viewAdminOrderDetails(${o.id})" class="btn-icon" title="Details">👁️</button>
+                        <button onclick="changeOrderStatus(${o.id})" class="btn-icon" title="Status ändern">📝</button>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('orders-list').innerHTML = html;
+        })
+        .catch(e => {
+            console.error(e);
+            document.getElementById('orders-list').innerHTML = '<p style="color: #c62828;">Fehler beim Laden</p>';
+        });
+}
+
+function viewAdminOrderDetails(orderId) {
+    // Similar to user order details modal
+    alert('Details für Bestellung ID: ' + orderId + '\n(Detail-Modal wird geladen...)');
+}
+
+function changeOrderStatus(orderId) {
+    const newStatus = prompt('Neuer Status:\npending\nprocessing\nshipped\ndelivered\ncancelled');
+    if (!newStatus) return;
+
+    const formData = new FormData();
+    formData.append('action', 'update_status');
+    formData.append('id', orderId);
+    formData.append('status', newStatus);
+
+    fetch('api/orders.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            alert(d.message);
+            loadOrders(currentOrderFilter);
+        } else {
+            alert('Fehler: ' + d.error);
+        }
+    });
+}
+
+// Filter tabs
+document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        loadOrders(this.dataset.status);
+    });
+});
+
+// Load data on tab change
+if (window.location.search.includes('tab=coupons')) {
+    loadCoupons();
+} else if (window.location.search.includes('tab=orders')) {
+    loadOrders();
+}
 </script>
+
+<style>
+.filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    padding: 0.5rem 1rem;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-tab.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.filter-tab:hover:not(.active) {
+    background: #e0e0e0;
+}
+
+.badge {
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-success { background: #d4edda; color: #155724; }
+.badge-warning { background: #fff3cd; color: #856404; }
+.badge-info { background: #d1ecf1; color: #0c5460; }
+.badge-primary { background: #cfe2ff; color: #084298; }
+.badge-danger { background: #f8d7da; color: #721c24; }
+.badge-secondary { background: #e0e0e0; color: #666; }
 
 <style>
 .badge-type-wine {

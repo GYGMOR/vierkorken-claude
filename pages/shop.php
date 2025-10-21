@@ -70,22 +70,82 @@ if ($category_id > 0) {
             <h3>Kategorien</h3>
             <div class="category-list">
                 <a href="?page=shop" class="cat-link <?php echo ($category_id == 0 && !$search) ? 'active' : ''; ?>">
-                    <span class="icon-text"><?php echo get_icon('list', 18); ?> Alle Weine</span>
+                    <span class="icon-text"><?php echo get_icon('list', 18); ?> Alle Produkte</span>
                 </a>
-                
-                <?php foreach ($categories as $cat): 
-                    $wine_count = count_wines_in_category($cat['id']);
-                    if ($wine_count > 0):
+
+                <?php
+                // Kategorien nach Namen gruppieren
+                $categories_by_name = [];
+                foreach ($categories as $cat) {
+                    $categories_by_name[$cat['name']] = $cat;
+                }
+
+                // Wein-Kategorien
+                $wine_categories = ['Rotwein', 'Weißwein', 'Rosé', 'Schaumwein', 'Dessertwein', 'Alkoholfreie Weine'];
                 ?>
-                    <a href="?page=shop&category=<?php echo $cat['id']; ?>" 
+
+                <div class="cat-section-header">Weine</div>
+                <?php foreach ($wine_categories as $cat_name):
+                    if (isset($categories_by_name[$cat_name])):
+                        $cat = $categories_by_name[$cat_name];
+                        $wine_count = count_wines_in_category($cat['id']);
+                        if ($wine_count > 0):
+                ?>
+                    <a href="?page=shop&category=<?php echo $cat['id']; ?>"
                        class="cat-link <?php echo $category_id == $cat['id'] ? 'active' : ''; ?>">
                         <?php echo safe_output($cat['name']); ?>
                         <span class="cat-count">(<?php echo $wine_count; ?>)</span>
                     </a>
-                <?php 
+                <?php
+                        endif;
                     endif;
-                endforeach; 
+                endforeach;
                 ?>
+
+                <?php
+                // Andere Kategorien
+                $other_categories = ['Geschenk-Gutscheine', 'Diverses'];
+                $has_other = false;
+                foreach ($other_categories as $cat_name) {
+                    if (isset($categories_by_name[$cat_name])) {
+                        $count = count_wines_in_category($categories_by_name[$cat_name]['id']);
+                        if ($count > 0) {
+                            $has_other = true;
+                            break;
+                        }
+                    }
+                }
+
+                if ($has_other):
+                ?>
+                <div class="cat-section-header">Andere Produkte</div>
+                <?php foreach ($other_categories as $cat_name):
+                    if (isset($categories_by_name[$cat_name])):
+                        $cat = $categories_by_name[$cat_name];
+                        $wine_count = count_wines_in_category($cat['id']);
+                        if ($wine_count > 0):
+                ?>
+                    <a href="?page=shop&category=<?php echo $cat['id']; ?>"
+                       class="cat-link <?php echo $category_id == $cat['id'] ? 'active' : ''; ?>">
+                        <?php echo safe_output($cat['name']); ?>
+                        <span class="cat-count">(<?php echo $wine_count; ?>)</span>
+                    </a>
+                <?php
+                        endif;
+                    endif;
+                endforeach;
+                endif;
+
+                // Events-Kategorie
+                $upcoming_events = get_all_events(true, true);
+                if (count($upcoming_events) > 0):
+                ?>
+                <div class="cat-section-header">Events & Erlebnisse</div>
+                <a href="?page=events" class="cat-link">
+                    <?php echo get_icon('calendar', 16); ?> Events & Verkostungen
+                    <span class="cat-count">(<?php echo count($upcoming_events); ?>)</span>
+                </a>
+                <?php endif; ?>
             </div>
         </aside>
 
@@ -140,6 +200,22 @@ if ($category_id > 0) {
                                     <div class="wine-price">
                                         <span class="price-label">CHF</span>
                                         <span class="price-value"><?php echo number_format($wine['price'], 2); ?></span>
+                                    </div>
+
+                                    <div class="wine-actions">
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(<?php echo $wine['id']; ?>, '<?php echo addslashes($wine['name']); ?>', <?php echo $wine['price']; ?>);"
+                                                class="btn-icon-cart"
+                                                title="In Warenkorb">
+                                            <?php echo get_icon('shopping-cart', 20); ?>
+                                        </button>
+                                        <?php if (isset($_SESSION['user_id'])): ?>
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(<?php echo $wine['id']; ?>);"
+                                                class="btn-icon-wishlist"
+                                                id="wishlist-btn-<?php echo $wine['id']; ?>"
+                                                title="Merkliste">
+                                            <?php echo get_icon('heart', 20); ?>
+                                        </button>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -298,6 +374,22 @@ if ($category_id > 0) {
     background: rgba(255,255,255,0.3);
 }
 
+.cat-section-header {
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-light);
+    padding: 1rem 1rem 0.5rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.cat-section-header:first-of-type {
+    margin-top: 0;
+    border-top: none;
+}
+
 /* Main Content */
 .shop-main {
     min-height: 400px;
@@ -415,6 +507,9 @@ if ($category_id > 0) {
     margin-top: auto;
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .wine-price {
@@ -464,6 +559,50 @@ if ($category_id > 0) {
     color: var(--text-light);
 }
 
+/* Quick Action Buttons */
+.wine-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-icon-cart,
+.btn-icon-wishlist {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-color);
+    background: white;
+    color: var(--primary-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.btn-icon-cart:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-icon-wishlist {
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+
+.btn-icon-wishlist:hover {
+    background: #e74c3c;
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-icon-wishlist.active {
+    background: #e74c3c;
+    color: white;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .shop-layout {
@@ -503,5 +642,77 @@ if ($category_id > 0) {
     .wines-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .wine-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+
+    .btn-icon-cart,
+    .btn-icon-wishlist {
+        width: 36px;
+        height: 36px;
+    }
 }
 </style>
+
+<script>
+// Quick Add to Cart
+function quickAddToCart(wineId, wineName, price) {
+    if (typeof cart !== 'undefined') {
+        cart.addItem(wineId, wineName, price, 1);
+    } else {
+        console.error('Cart system not loaded');
+        alert('Warenkorb-System nicht verfügbar');
+    }
+}
+
+// Wishlist Toggle
+function toggleWishlist(wineId) {
+    const btn = document.getElementById('wishlist-btn-' + wineId);
+
+    fetch('api/wishlist.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'action=toggle&wine_id=' + wineId
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            if (data.added) {
+                btn.classList.add('active');
+                showNotification('Zur Merkliste hinzugefügt', 'success');
+            } else {
+                btn.classList.remove('active');
+                showNotification('Von Merkliste entfernt', 'success');
+            }
+        } else {
+            alert('Fehler: ' + (data.error || 'Unbekannter Fehler'));
+        }
+    })
+    .catch(e => {
+        console.error('Error:', e);
+        alert('Fehler beim Speichern');
+    });
+}
+
+// Load wishlist status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (isset($_SESSION['user_id'])): ?>
+    fetch('api/wishlist.php?action=get_all')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.wine_ids) {
+                data.wine_ids.forEach(wineId => {
+                    const btn = document.getElementById('wishlist-btn-' + wineId);
+                    if (btn) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        })
+        .catch(e => console.error('Error loading wishlist:', e));
+    <?php endif; ?>
+});
+</script>

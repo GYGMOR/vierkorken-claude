@@ -189,6 +189,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                 <a href="?logout=1" class="menu-logout">Abmelden</a>
             <?php elseif ($is_logged_in): ?>
                 <a href="?page=user-portal" class="menu-link">Mein Account</a>
+                <a href="?page=order-history" class="menu-link">Meine Bestellungen</a>
                 <a href="?logout=1" class="menu-logout">Abmelden</a>
             <?php else: ?>
                 <a href="?modal=login" class="menu-login">Anmelden</a>

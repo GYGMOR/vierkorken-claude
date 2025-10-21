@@ -19,7 +19,7 @@ $page = isset($_GET['page']) ? trim($_GET['page']) : 'home';
 
 $allowed_pages = [
     'home', 'shop', 'product', 'cart', 'checkout',
-    'events', 'event',
+    'events', 'event', 'order-history',
     'admin-login', 'admin-dashboard', 'admin-theme',
     'user-portal',
     'impressum', 'agb', 'datenschutz', 'newsletter', 'contact'

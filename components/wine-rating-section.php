@@ -197,8 +197,8 @@ for ($i = 1; $i <= 5; $i++) {
 
 .rating-bar {
     display: grid;
-    grid-template-columns: 30px 1fr 30px;
-    gap: 1rem;
+    grid-template-columns: 80px 1fr 40px;
+    gap: 0.8rem;
     align-items: center;
 }
 
@@ -206,6 +206,10 @@ for ($i = 1; $i <= 5; $i++) {
     color: #ffc107;
     font-weight: 600;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    white-space: nowrap;
 }
 
 .bar-container {
