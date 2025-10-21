@@ -220,14 +220,14 @@ unset($item); // Break reference
         <div class="about-showcase-grid">
             <div class="about-image-side">
                 <?php if (!empty($about_image)): ?>
-                    <a href="<?php echo safe_output($about_shop_link); ?>" class="about-image-link">
+                    <a href="?page=shop" class="about-image-link">
                         <img src="<?php echo safe_output($about_image); ?>" alt="Über uns" class="about-showcase-image">
                         <div class="about-image-overlay">
                             <span class="about-image-cta">Zum Shop →</span>
                         </div>
                     </a>
                 <?php else: ?>
-                    <a href="<?php echo safe_output($about_shop_link); ?>" class="about-image-link">
+                    <a href="?page=shop" class="about-image-link">
                         <div class="about-image-placeholder">
                             <?php if ($EDIT_MODE): ?>
                                 <p>Bild hochladen</p>
