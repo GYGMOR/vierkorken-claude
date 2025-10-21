@@ -482,13 +482,50 @@ function closeAuthModal() {
 document.addEventListener('DOMContentLoaded', function() {
     const overlay = document.getElementById('authModalOverlay');
     const container = document.querySelector('.auth-modal-container');
-    
+
     if (overlay) {
         overlay.addEventListener('click', function(e) {
             if (e.target === overlay) {
                 closeAuthModal();
             }
         });
+    }
+
+    // Pre-fill registration form if coming from order
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('from_order') === '1' && urlParams.get('tab') === 'register') {
+        // Get stored order data from sessionStorage
+        const orderEmail = sessionStorage.getItem('last_order_email');
+        const orderAddress = sessionStorage.getItem('last_order_address');
+
+        if (orderEmail) {
+            const emailInput = document.querySelector('input[name="reg_email"]');
+            if (emailInput) {
+                emailInput.value = orderEmail;
+            }
+        }
+
+        if (orderAddress) {
+            try {
+                const address = JSON.parse(orderAddress);
+                const nameInput = document.querySelector('input[name="reg_first_name"]');
+                if (nameInput && address.first_name) {
+                    nameInput.value = address.first_name + (address.last_name ? ' ' + address.last_name : '');
+                }
+            } catch (e) {
+                console.error('Error parsing address data:', e);
+            }
+        }
+
+        // Show helpful message
+        const registerForm = document.querySelector('.auth-tab-content.active');
+        if (registerForm) {
+            const helpText = document.createElement('div');
+            helpText.className = 'alert alert-info';
+            helpText.style.marginBottom = '1.5rem';
+            helpText.innerHTML = '<p style="margin:0;">✨ Erstelle jetzt ein Konto, um deine Bestellung zu verfolgen und zukünftige Bestellungen schneller abzuschließen!</p>';
+            registerForm.insertBefore(helpText, registerForm.querySelector('form'));
+        }
     }
 });
 </script>

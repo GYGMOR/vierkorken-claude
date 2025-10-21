@@ -17,6 +17,16 @@ if ($is_logged_in) {
     <div class="container">
         <h1>Zur Kasse</h1>
 
+        <?php if (!$is_logged_in): ?>
+        <div class="alert alert-info" style="margin-bottom: 1.5rem;">
+            <p style="margin: 0;">
+                <strong>Tipp:</strong> Du hast bereits ein Konto?
+                <a href="?modal=login" class="link-button">Jetzt anmelden</a>
+                um deine gespeicherten Adressen zu nutzen und schneller zu bestellen!
+            </p>
+        </div>
+        <?php endif; ?>
+
         <div class="checkout-layout">
             <!-- LEFT SIDE - Checkout Steps -->
             <div class="checkout-main">
@@ -61,12 +71,12 @@ if ($is_logged_in) {
                 <div class="checkout-step" id="step-address">
                     <div class="step-header">
                         <div class="step-number">2</div>
-                        <h2>Lieferadresse</h2>
+                        <h2 id="address-step-title">Lieferadresse</h2>
                     </div>
 
                     <div class="step-content" id="address-content">
                         <?php if ($is_logged_in && count($user_addresses) > 0): ?>
-                            <p class="info-text">Wähle eine gespeicherte Adresse oder füge eine neue hinzu:</p>
+                            <p class="info-text" id="address-info-text">Wähle eine gespeicherte Adresse oder füge eine neue hinzu:</p>
 
                             <div class="address-list">
                                 <?php foreach ($user_addresses as $index => $addr): ?>
@@ -90,7 +100,7 @@ if ($is_logged_in) {
                                 <?php echo get_icon('plus', 18); ?> Neue Adresse hinzufügen
                             </button>
                         <?php else: ?>
-                            <div class="alert alert-info">
+                            <div class="alert alert-info" id="address-alert-text">
                                 Bitte gib deine Lieferadresse ein:
                             </div>
 
@@ -106,12 +116,12 @@ if ($is_logged_in) {
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group" id="street-field">
                                     <label>Strasse & Hausnummer *</label>
                                     <input type="text" name="street" required>
                                 </div>
 
-                                <div class="form-row">
+                                <div class="form-row" id="postal-city-fields">
                                     <div class="form-group">
                                         <label>PLZ *</label>
                                         <input type="text" name="postal_code" required>
@@ -670,18 +680,42 @@ function updateOrderSummary() {
 function updateDeliveryMethod() {
     const method = document.querySelector('input[name="delivery_method"]:checked')?.value;
     const cashOption = document.getElementById('payment-option-cash');
-    const addressStep = document.getElementById('step-address');
+    const addressStepTitle = document.getElementById('address-step-title');
+    const addressAlertText = document.getElementById('address-alert-text');
+    const addressInfoText = document.getElementById('address-info-text');
 
     if (method === 'pickup') {
+        // Show cash payment option
         cashOption.style.display = 'block';
-        addressStep.style.display = 'none';
+
+        // Change titles to "Kontaktdaten" for pickup
+        if (addressStepTitle) {
+            addressStepTitle.textContent = 'Kontaktdaten';
+        }
+        if (addressAlertText) {
+            addressAlertText.textContent = 'Bitte gib deine Kontaktdaten für die Abholung ein:';
+        }
+        if (addressInfoText) {
+            addressInfoText.textContent = 'Wähle gespeicherte Kontaktdaten oder füge neue hinzu:';
+        }
     } else {
+        // Hide cash payment option
         cashOption.style.display = 'none';
         const cashRadio = document.querySelector('input[name="payment_method"][value="cash"]');
         if (cashRadio?.checked) {
             document.querySelector('input[name="payment_method"][value="card"]').checked = true;
         }
-        addressStep.style.display = 'block';
+
+        // Change titles back to "Lieferadresse"
+        if (addressStepTitle) {
+            addressStepTitle.textContent = 'Lieferadresse';
+        }
+        if (addressAlertText) {
+            addressAlertText.textContent = 'Bitte gib deine Lieferadresse ein:';
+        }
+        if (addressInfoText) {
+            addressInfoText.textContent = 'Wähle eine gespeicherte Adresse oder füge eine neue hinzu:';
+        }
     }
 
     updateOrderSummary();
@@ -907,17 +941,38 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
             // Clear cart
             cart.clearCart();
 
-            // PROVISIONAL: Payment integration comes here
-            // For now, just show success and redirect
-            alert(`✅ Bestellung erfolgreich erstellt!\n\nBestellnummer: ${d.order_number}\n\n` +
-                  `Du erhältst eine Bestätigung per E-Mail.\n\n` +
-                  `(Zahlungsintegration folgt in 2 Wochen)`);
+            // Store order data and address for potential account creation
+            sessionStorage.setItem('last_order_number', d.order_number);
+            sessionStorage.setItem('last_order_email', addressData.email);
+            sessionStorage.setItem('last_order_address', JSON.stringify(addressData));
 
-            // In production, redirect to payment gateway here:
-            // window.location.href = '/payment?order=' + d.order_number + '&method=' + paymentMethod;
+            // Check if user is logged in
+            const isLoggedIn = <?php echo $is_logged_in ? 'true' : 'false'; ?>;
 
-            // For now, redirect to home
-            window.location.href = '?page=home';
+            if (!isLoggedIn) {
+                // Guest checkout - ask if they want to create an account
+                if (confirm(`✅ Bestellung erfolgreich erstellt!\n\nBestellnummer: ${d.order_number}\n\n` +
+                           `Du erhältst eine Bestätigung per E-Mail.\n\n` +
+                           `Möchtest du ein Konto erstellen, um deine Bestellungen zu verfolgen und deine Daten zu speichern?`)) {
+                    // Redirect to account creation with pre-filled data
+                    window.location.href = '?modal=register&from_order=1';
+                } else {
+                    // Just show success and redirect to home
+                    alert('Vielen Dank für deine Bestellung!\n\n(Zahlungsintegration folgt in 2 Wochen)');
+                    window.location.href = '?page=home';
+                }
+            } else {
+                // Logged-in user
+                alert(`✅ Bestellung erfolgreich erstellt!\n\nBestellnummer: ${d.order_number}\n\n` +
+                      `Du erhältst eine Bestätigung per E-Mail.\n\n` +
+                      `(Zahlungsintegration folgt in 2 Wochen)`);
+
+                // In production, redirect to payment gateway here:
+                // window.location.href = '/payment?order=' + d.order_number + '&method=' + paymentMethod;
+
+                // For now, redirect to order history
+                window.location.href = '?page=order-history';
+            }
         } else {
             alert('Fehler: ' + (d.error || 'Unbekannter Fehler'));
             btn.disabled = false;
