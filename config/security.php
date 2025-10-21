@@ -255,14 +255,14 @@ function set_security_headers() {
     header('X-Frame-Options: SAMEORIGIN');
     header('X-XSS-Protection: 1; mode=block');
 
-    // Content Security Policy (anpassen nach Bedarf)
-    header("Content-Security-Policy: default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:;");
+    // Content Security Policy (erlaubt Google Maps iframes)
+    header("Content-Security-Policy: default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; frame-src 'self' https://www.google.com https://maps.google.com;");
 
     // Referrer Policy
     header('Referrer-Policy: strict-origin-when-cross-origin');
 
-    // Permissions Policy
-    header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+    // Permissions Policy (erlaubt geolocation für Maps)
+    header('Permissions-Policy: geolocation=(self "https://www.google.com"), microphone=(), camera=()');
 }
 
 // ============================================
