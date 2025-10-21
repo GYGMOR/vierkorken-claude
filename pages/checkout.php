@@ -915,14 +915,26 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
                 return;
             }
 
+            // Debug: Log the radio element and its attributes
+            console.log('Selected radio element:', addressRadio);
+            console.log('Radio dataset:', addressRadio.dataset);
+            console.log('All data attributes:', {
+                'data-first-name': addressRadio.getAttribute('data-first-name'),
+                'data-last-name': addressRadio.getAttribute('data-last-name'),
+                'data-street': addressRadio.getAttribute('data-street'),
+                'data-postal-code': addressRadio.getAttribute('data-postal-code'),
+                'data-city': addressRadio.getAttribute('data-city'),
+                'data-phone': addressRadio.getAttribute('data-phone')
+            });
+
             // Try to get from data attributes first (more reliable)
             addressData = {
-                first_name: addressRadio.dataset.firstName || '',
-                last_name: addressRadio.dataset.lastName || '',
-                street: addressRadio.dataset.street || '',
-                postal_code: addressRadio.dataset.postalCode || '',
-                city: addressRadio.dataset.city || '',
-                phone: addressRadio.dataset.phone || '',
+                first_name: addressRadio.getAttribute('data-first-name') || addressRadio.dataset.firstName || '',
+                last_name: addressRadio.getAttribute('data-last-name') || addressRadio.dataset.lastName || '',
+                street: addressRadio.getAttribute('data-street') || addressRadio.dataset.street || '',
+                postal_code: addressRadio.getAttribute('data-postal-code') || addressRadio.dataset.postalCode || '',
+                city: addressRadio.getAttribute('data-city') || addressRadio.dataset.city || '',
+                phone: addressRadio.getAttribute('data-phone') || addressRadio.dataset.phone || '',
                 email: '<?php echo $_SESSION['email'] ?? ''; ?>'
             };
 
@@ -949,10 +961,24 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
             }
 
             // Validate saved address data
-            if (!addressData.first_name || !addressData.last_name || !addressData.street ||
-                !addressData.postal_code || !addressData.city || !addressData.phone || !addressData.email) {
-                alert('Fehler: Fehlende Pflichtfelder in der gespeicherten Adresse. Bitte verwende eine neue Adresse.');
-                console.error('Delivery - Missing fields:', addressData);
+            const missingFields = [];
+            if (!addressData.first_name) missingFields.push('Vorname');
+            if (!addressData.last_name) missingFields.push('Nachname');
+            if (!addressData.street) missingFields.push('Straße');
+            if (!addressData.postal_code) missingFields.push('Postleitzahl');
+            if (!addressData.city) missingFields.push('Stadt');
+            if (!addressData.phone) missingFields.push('Telefon');
+            if (!addressData.email) {
+                // Try to get email from session or user profile
+                addressData.email = '<?php echo $_SESSION['email'] ?? ''; ?>';
+                if (!addressData.email) {
+                    missingFields.push('E-Mail');
+                }
+            }
+
+            if (missingFields.length > 0) {
+                alert('Fehler: Folgende Pflichtfelder fehlen in der gespeicherten Adresse:\n' + missingFields.join(', ') + '\n\nBitte bearbeite die Adresse im Adressbuch oder verwende eine neue Adresse.');
+                console.error('Delivery - Missing fields:', missingFields, 'Address data:', addressData);
                 return;
             }
         } else {
@@ -993,14 +1019,18 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
                 return;
             }
 
+            // Debug: Log the radio element and its attributes
+            console.log('Pickup - Selected radio element:', addressRadio);
+            console.log('Pickup - Radio dataset:', addressRadio.dataset);
+
             // Try to get from data attributes first (more reliable)
             addressData = {
-                first_name: addressRadio.dataset.firstName || '',
-                last_name: addressRadio.dataset.lastName || '',
-                street: addressRadio.dataset.street || '',
-                postal_code: addressRadio.dataset.postalCode || '',
-                city: addressRadio.dataset.city || '',
-                phone: addressRadio.dataset.phone || '',
+                first_name: addressRadio.getAttribute('data-first-name') || addressRadio.dataset.firstName || '',
+                last_name: addressRadio.getAttribute('data-last-name') || addressRadio.dataset.lastName || '',
+                street: addressRadio.getAttribute('data-street') || addressRadio.dataset.street || '',
+                postal_code: addressRadio.getAttribute('data-postal-code') || addressRadio.dataset.postalCode || '',
+                city: addressRadio.getAttribute('data-city') || addressRadio.dataset.city || '',
+                phone: addressRadio.getAttribute('data-phone') || addressRadio.dataset.phone || '',
                 email: '<?php echo $_SESSION['email'] ?? ''; ?>'
             };
 
@@ -1027,9 +1057,21 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
             }
 
             // Validate saved address data (for pickup, street/postal_code/city are optional)
-            if (!addressData.first_name || !addressData.last_name || !addressData.phone || !addressData.email) {
-                alert('Fehler: Fehlende Pflichtfelder in der gespeicherten Adresse. Bitte verwende eine neue Adresse.');
-                console.error('Pickup - Missing fields:', addressData);
+            const missingFieldsPickup = [];
+            if (!addressData.first_name) missingFieldsPickup.push('Vorname');
+            if (!addressData.last_name) missingFieldsPickup.push('Nachname');
+            if (!addressData.phone) missingFieldsPickup.push('Telefon');
+            if (!addressData.email) {
+                // Try to get email from session
+                addressData.email = '<?php echo $_SESSION['email'] ?? ''; ?>';
+                if (!addressData.email) {
+                    missingFieldsPickup.push('E-Mail');
+                }
+            }
+
+            if (missingFieldsPickup.length > 0) {
+                alert('Fehler: Folgende Pflichtfelder fehlen in der gespeicherten Adresse:\n' + missingFieldsPickup.join(', ') + '\n\nBitte bearbeite die Adresse im Adressbuch oder verwende eine neue Adresse.');
+                console.error('Pickup - Missing fields:', missingFieldsPickup, 'Address data:', addressData);
                 return;
             }
         } else {
