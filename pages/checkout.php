@@ -6,9 +6,14 @@ $is_logged_in = isset($_SESSION['user_id']);
 // Load user addresses if logged in
 $user_addresses = [];
 if ($is_logged_in) {
-    $result = $db->query("SELECT * FROM user_addresses WHERE user_id = $user_id ORDER BY is_default DESC");
+    $result = $db->query("SELECT id, first_name, last_name, street, postal_code, city, phone, label, is_default FROM user_addresses WHERE user_id = $user_id ORDER BY is_default DESC");
     if ($result) {
         $user_addresses = $result->fetch_all(MYSQLI_ASSOC);
+        // Debug: Log loaded addresses
+        error_log("DEBUG Checkout: Loaded " . count($user_addresses) . " addresses for user $user_id");
+        foreach ($user_addresses as $addr) {
+            error_log("DEBUG Address ID " . $addr['id'] . ": " . $addr['first_name'] . " " . ($addr['last_name'] ?? 'NO_LAST_NAME') . ", Phone: " . ($addr['phone'] ?? 'NO_PHONE'));
+        }
     }
 }
 ?>
@@ -1052,6 +1057,20 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
             }
         }
     }
+
+    // Final debug output before sending
+    console.log('=== FINAL ADDRESS DATA ===');
+    console.log('Delivery Method:', deliveryMethod);
+    console.log('Address Data:', addressData);
+    console.log('All fields present:', {
+        first_name: !!addressData.first_name,
+        last_name: !!addressData.last_name,
+        street: !!addressData.street,
+        postal_code: !!addressData.postal_code,
+        city: !!addressData.city,
+        phone: !!addressData.phone,
+        email: !!addressData.email
+    });
 
     // Calculate totals
     const subtotal = cart.getTotalPrice();
