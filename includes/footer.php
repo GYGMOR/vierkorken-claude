@@ -23,17 +23,21 @@
                     </p>
                 </div>
 
-                <!-- Google Maps Embed -->
+                <!-- Standort-Karte -->
                 <div class="footer-map-container">
                     <iframe
-                        src="https://maps.google.com/maps?q=Steinbrunnengasse+3A,+5707+Seengen,+Schweiz&t=&z=15&ie=UTF8&iwloc=&output=embed"
                         width="100%"
                         height="300"
-                        style="border:0; border-radius: 8px;"
-                        allowfullscreen=""
-                        loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade">
+                        frameborder="0"
+                        scrolling="no"
+                        marginheight="0"
+                        marginwidth="0"
+                        src="https://www.openstreetmap.org/export/embed.html?bbox=8.2765%2C47.3175%2C8.2900%2C47.3260&layer=mapnik&marker=47.32175%2C8.28325"
+                        style="border:0; border-radius: 8px;">
                     </iframe>
+                    <div style="margin-top: 0.5rem; text-align: center;">
+                        <a href="https://www.google.com/maps/search/?api=1&query=Steinbrunnengasse+3A+5707+Seengen" target="_blank" style="color: white; text-decoration: underline; font-size: 0.9rem;">In Google Maps öffnen</a>
+                    </div>
                 </div>
             </div>
 
