@@ -367,13 +367,17 @@ function showSuccessMessage(linkedOrders) {
     let ordersMessage = '';
     if (linkedOrders > 0) {
         ordersMessage = `<p style="font-size: 1rem; color: #28a745; margin-bottom: 1rem; font-weight: 600;">
-            ✓ ${linkedOrders} frühere Bestellung${linkedOrders > 1 ? 'en' : ''} wurde${linkedOrders > 1 ? 'n' : ''} deinem Account zugeordnet!
+            ${linkedOrders} frühere Bestellung${linkedOrders > 1 ? 'en' : ''} wurde${linkedOrders > 1 ? 'n' : ''} deinem Account zugeordnet!
         </p>`;
     }
 
     container.innerHTML = `
         <div style="padding: 4rem 2rem; text-align: center;">
-            <div style="font-size: 5rem; margin-bottom: 1rem;">🎉</div>
+            <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary-color);">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
             <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Konto erfolgreich erstellt!</h2>
             ${ordersMessage}
             <p style="font-size: 1.1rem; color: var(--text-light); margin-bottom: 2rem;">

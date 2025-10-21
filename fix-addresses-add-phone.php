@@ -13,14 +13,14 @@ echo "<h1>Fix User Addresses - Add Missing Phone Field</h1>";
 // Check if phone column exists
 $check = $db->query("SHOW COLUMNS FROM user_addresses LIKE 'phone'");
 if ($check && $check->num_rows > 0) {
-    echo "<p style='color: green;'>✓ Phone column already exists in user_addresses table.</p>";
+    echo "<p style='color: green;'>Phone column already exists in user_addresses table.</p>";
 } else {
     echo "<p style='color: orange;'>Phone column does not exist. Adding it now...</p>";
     $alter = $db->query("ALTER TABLE user_addresses ADD COLUMN phone VARCHAR(50) DEFAULT '' AFTER city");
     if ($alter) {
-        echo "<p style='color: green;'>✓ Phone column added successfully!</p>";
+        echo "<p style='color: green;'>Phone column added successfully!</p>";
     } else {
-        echo "<p style='color: red;'>✗ Error adding phone column: " . $db->error . "</p>";
+        echo "<p style='color: red;'>Error adding phone column: " . $db->error . "</p>";
     }
 }
 

@@ -15,7 +15,11 @@ function format_price($price) {
 // 3. Kategorie-Name abrufen
 function get_category_name($category_id) {
     global $db;
-    $result = $db->query("SELECT name FROM categories WHERE id = $category_id");
+    $category_id = (int)$category_id; // Type casting for security
+    $stmt = $db->prepare("SELECT name FROM categories WHERE id = ?");
+    $stmt->bind_param("i", $category_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     if ($result && $row = $result->fetch_assoc()) {
         return $row['name'];
     }
@@ -32,19 +36,29 @@ function get_all_categories() {
 // 5. Weine nach Kategorie abrufen
 function get_wines_by_category($category_id, $limit = 50) {
     global $db;
+    $category_id = (int)$category_id;
+    $limit = (int)$limit;
+
     if ($category_id > 0) {
-        $query = "SELECT * FROM wines WHERE category_id = $category_id AND stock > 0 ORDER BY name ASC LIMIT $limit";
+        $stmt = $db->prepare("SELECT * FROM wines WHERE category_id = ? AND stock > 0 ORDER BY name ASC LIMIT ?");
+        $stmt->bind_param("ii", $category_id, $limit);
     } else {
-        $query = "SELECT * FROM wines WHERE stock > 0 ORDER BY name ASC LIMIT $limit";
+        $stmt = $db->prepare("SELECT * FROM wines WHERE stock > 0 ORDER BY name ASC LIMIT ?");
+        $stmt->bind_param("i", $limit);
     }
-    $result = $db->query($query);
+    $stmt->execute();
+    $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
 // 6. Anzahl Weine in Kategorie
 function count_wines_in_category($category_id) {
     global $db;
-    $result = $db->query("SELECT COUNT(*) as count FROM wines WHERE category_id = $category_id AND stock > 0");
+    $category_id = (int)$category_id;
+    $stmt = $db->prepare("SELECT COUNT(*) as count FROM wines WHERE category_id = ? AND stock > 0");
+    $stmt->bind_param("i", $category_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     return $row['count'];
 }
@@ -61,8 +75,11 @@ function count_total_wines() {
 function get_wine_by_id($wine_id) {
     global $db;
     $wine_id = (int)$wine_id;
-    $result = $db->query("SELECT * FROM wines WHERE id = $wine_id");
-    return $result->fetch_assoc();
+    $stmt = $db->prepare("SELECT * FROM wines WHERE id = ?");
+    $stmt->bind_param("i", $wine_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result ? $result->fetch_assoc() : null;
 }
 
 // 10. Admin-Check
@@ -70,7 +87,10 @@ function is_admin() {
     if (isset($_SESSION['user_id'])) {
         global $db;
         $user_id = (int)$_SESSION['user_id'];
-        $result = $db->query("SELECT * FROM admins WHERE user_id = $user_id");
+        $stmt = $db->prepare("SELECT id FROM admins WHERE user_id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         return $result->num_rows > 0;
     }
     return false;
@@ -109,9 +129,11 @@ function db_error($error_msg) {
 // 16. SETTINGS MANAGEMENT
 function get_setting($key, $default = '') {
     global $db;
-    $key_safe = $db->real_escape_string($key);
-    $result = $db->query("SELECT value FROM settings WHERE key_name = '$key_safe'");
-    
+    $stmt = $db->prepare("SELECT value FROM settings WHERE key_name = ?");
+    $stmt->bind_param("s", $key);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
     if ($result && $row = $result->fetch_assoc()) {
         return $row['value'];
     }
@@ -120,15 +142,20 @@ function get_setting($key, $default = '') {
 
 function update_setting($key, $value) {
     global $db;
-    $key_safe = $db->real_escape_string($key);
-    $value_safe = $db->real_escape_string($value);
-    
-    $check = $db->query("SELECT id FROM settings WHERE key_name = '$key_safe'");
-    
+
+    $stmt = $db->prepare("SELECT id FROM settings WHERE key_name = ?");
+    $stmt->bind_param("s", $key);
+    $stmt->execute();
+    $check = $stmt->get_result();
+
     if ($check->num_rows > 0) {
-        return $db->query("UPDATE settings SET value = '$value_safe', updated_at = NOW() WHERE key_name = '$key_safe'");
+        $stmt = $db->prepare("UPDATE settings SET value = ?, updated_at = NOW() WHERE key_name = ?");
+        $stmt->bind_param("ss", $value, $key);
+        return $stmt->execute();
     } else {
-        return $db->query("INSERT INTO settings (key_name, value) VALUES ('$key_safe', '$value_safe')");
+        $stmt = $db->prepare("INSERT INTO settings (key_name, value) VALUES (?, ?)");
+        $stmt->bind_param("ss", $key, $value);
+        return $stmt->execute();
     }
 }
 
@@ -179,9 +206,11 @@ function handle_image_upload($file_input, $destination_folder) {
 // 19. THEME COLORS MANAGEMENT (NEU!)
 function get_theme_color($key, $default = '') {
     global $db;
-    $key_safe = $db->real_escape_string($key);
-    $result = $db->query("SELECT setting_value FROM theme_settings WHERE setting_key = '$key_safe'");
-    
+    $stmt = $db->prepare("SELECT setting_value FROM theme_settings WHERE setting_key = ?");
+    $stmt->bind_param("s", $key);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
     if ($result && $row = $result->fetch_assoc()) {
         return $row['setting_value'];
     }
@@ -190,15 +219,20 @@ function get_theme_color($key, $default = '') {
 
 function update_theme_color($key, $value) {
     global $db;
-    $key_safe = $db->real_escape_string($key);
-    $value_safe = $db->real_escape_string($value);
-    
-    $check = $db->query("SELECT id FROM theme_settings WHERE setting_key = '$key_safe'");
-    
+
+    $stmt = $db->prepare("SELECT id FROM theme_settings WHERE setting_key = ?");
+    $stmt->bind_param("s", $key);
+    $stmt->execute();
+    $check = $stmt->get_result();
+
     if ($check->num_rows > 0) {
-        return $db->query("UPDATE theme_settings SET setting_value = '$value_safe', updated_at = NOW() WHERE setting_key = '$key_safe'");
+        $stmt = $db->prepare("UPDATE theme_settings SET setting_value = ?, updated_at = NOW() WHERE setting_key = ?");
+        $stmt->bind_param("ss", $value, $key);
+        return $stmt->execute();
     } else {
-        return $db->query("INSERT INTO theme_settings (setting_key, setting_value) VALUES ('$key_safe', '$value_safe')");
+        $stmt = $db->prepare("INSERT INTO theme_settings (setting_key, setting_value) VALUES (?, ?)");
+        $stmt->bind_param("ss", $key, $value);
+        return $stmt->execute();
     }
 }
 
@@ -218,65 +252,78 @@ function get_all_theme_settings() {
 // 21. NEWS/NEUHEITEN MANAGEMENT
 function get_all_news_items($limit = 6, $active_only = true) {
     global $db;
-    $where = $active_only ? "WHERE is_active = 1" : "";
-    $query = "SELECT * FROM news_items $where ORDER BY display_order ASC, created_at DESC LIMIT $limit";
-    $result = $db->query($query);
+    $limit = (int)$limit;
+
+    if ($active_only) {
+        $stmt = $db->prepare("SELECT * FROM news_items WHERE is_active = 1 ORDER BY display_order ASC, created_at DESC LIMIT ?");
+        $stmt->bind_param("i", $limit);
+    } else {
+        $stmt = $db->prepare("SELECT * FROM news_items ORDER BY display_order ASC, created_at DESC LIMIT ?");
+        $stmt->bind_param("i", $limit);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
     return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 }
 
 function get_news_item_by_id($id) {
     global $db;
     $id = (int)$id;
-    $result = $db->query("SELECT * FROM news_items WHERE id = $id");
+    $stmt = $db->prepare("SELECT * FROM news_items WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     return $result ? $result->fetch_assoc() : null;
 }
 
 function create_news_item($data) {
     global $db;
-    $title = $db->real_escape_string($data['title']);
-    $content = $db->real_escape_string($data['content'] ?? '');
-    $type = $db->real_escape_string($data['type']);
-    $image_url = $db->real_escape_string($data['image_url'] ?? '');
-    $link_url = $db->real_escape_string($data['link_url'] ?? '');
-    $reference_id = isset($data['reference_id']) ? (int)$data['reference_id'] : 'NULL';
+    $title = $data['title'];
+    $content = $data['content'] ?? '';
+    $type = $data['type'];
+    $image_url = $data['image_url'] ?? '';
+    $link_url = $data['link_url'] ?? '';
+    $reference_id = isset($data['reference_id']) ? (int)$data['reference_id'] : null;
     $display_order = isset($data['display_order']) ? (int)$data['display_order'] : 0;
 
-    $sql = "INSERT INTO news_items (title, content, type, image_url, link_url, reference_id, display_order)
-            VALUES ('$title', '$content', '$type', '$image_url', '$link_url', $reference_id, $display_order)";
-
-    return $db->query($sql);
+    $stmt = $db->prepare("INSERT INTO news_items (title, content, type, image_url, link_url, reference_id, display_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssii", $title, $content, $type, $image_url, $link_url, $reference_id, $display_order);
+    return $stmt->execute();
 }
 
 function update_news_item($id, $data) {
     global $db;
     $id = (int)$id;
-    $title = $db->real_escape_string($data['title']);
-    $content = $db->real_escape_string($data['content'] ?? '');
-    $type = $db->real_escape_string($data['type']);
-    $image_url = $db->real_escape_string($data['image_url'] ?? '');
-    $link_url = $db->real_escape_string($data['link_url'] ?? '');
-    $reference_id = isset($data['reference_id']) ? (int)$data['reference_id'] : 'NULL';
+    $title = $data['title'];
+    $content = $data['content'] ?? '';
+    $type = $data['type'];
+    $image_url = $data['image_url'] ?? '';
+    $link_url = $data['link_url'] ?? '';
+    $reference_id = isset($data['reference_id']) ? (int)$data['reference_id'] : null;
     $display_order = isset($data['display_order']) ? (int)$data['display_order'] : 0;
     $is_active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
 
-    $sql = "UPDATE news_items SET
-            title = '$title',
-            content = '$content',
-            type = '$type',
-            image_url = '$image_url',
-            link_url = '$link_url',
-            reference_id = $reference_id,
-            display_order = $display_order,
-            is_active = $is_active
-            WHERE id = $id";
-
-    return $db->query($sql);
+    $stmt = $db->prepare("UPDATE news_items SET
+            title = ?,
+            content = ?,
+            type = ?,
+            image_url = ?,
+            link_url = ?,
+            reference_id = ?,
+            display_order = ?,
+            is_active = ?
+            WHERE id = ?");
+    $stmt->bind_param("sssssiiii", $title, $content, $type, $image_url, $link_url, $reference_id, $display_order, $is_active, $id);
+    return $stmt->execute();
 }
 
 function delete_news_item($id) {
     global $db;
     $id = (int)$id;
-    return $db->query("DELETE FROM news_items WHERE id = $id");
+    $stmt = $db->prepare("DELETE FROM news_items WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    return $stmt->execute();
 }
 
 // 22. EVENTS MANAGEMENT
@@ -301,7 +348,10 @@ function get_all_events($active_only = true, $future_only = false) {
 function get_event_by_id($id) {
     global $db;
     $id = (int)$id;
-    $result = $db->query("SELECT * FROM events WHERE id = $id");
+    $stmt = $db->prepare("SELECT * FROM events WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     return $result ? $result->fetch_assoc() : null;
 }
 

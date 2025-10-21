@@ -27,7 +27,7 @@ $value_safe = $db->real_escape_string($value);
 // In Settings-Tabelle speichern
 if (update_setting($key, $value)) {
     // Log speichern
-    error_log("✅ Admin Edit: $key = $value");
+    error_log("Admin Edit: $key = $value");
     
     die(json_encode(['success' => true, 'message' => 'Gespeichert!']));
 } else {

@@ -59,7 +59,7 @@ $payment_labels = [
                     <?php foreach ($order_items as $item): ?>
                         <div class="order-item-card">
                             <div class="item-icon">
-                                <?php echo $item['item_type'] === 'event' ? '🎫' : '🍷'; ?>
+                                <?php echo $item['item_type'] === 'event' ? get_icon('calendar', 24) : get_icon('wine', 24); ?>
                             </div>
                             <div class="item-details">
                                 <h4><?php echo safe_output($item['product_name']); ?></h4>
@@ -638,19 +638,19 @@ function showAccountCreationModal() {
             <div class="account-modal-body">
                 <ul class="benefits-list">
                     <li>
-                        <span class="benefit-icon">📦</span>
+                        <span class="benefit-icon"><?php echo get_icon('package', 20); ?></span>
                         <span>Deine Bestellungen verfolgen</span>
                     </li>
                     <li>
-                        <span class="benefit-icon">📍</span>
+                        <span class="benefit-icon"><?php echo get_icon('map-pin', 20); ?></span>
                         <span>Adressen speichern</span>
                     </li>
                     <li>
-                        <span class="benefit-icon">⚡</span>
+                        <span class="benefit-icon"><?php echo get_icon('zap', 20); ?></span>
                         <span>Schneller bestellen</span>
                     </li>
                     <li>
-                        <span class="benefit-icon">🎉</span>
+                        <span class="benefit-icon"><?php echo get_icon('gift', 20); ?></span>
                         <span>Exklusive Angebote erhalten</span>
                     </li>
                 </ul>

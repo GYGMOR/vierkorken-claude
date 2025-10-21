@@ -2,7 +2,9 @@
 // api/auth.php - Authentication API
 
 header('Content-Type: application/json; charset=utf-8');
-session_start();
+
+require_once '../config/security.php';
+init_secure_session();
 
 require_once '../config/database.php';
 require_once '../includes/functions.php';
@@ -13,21 +15,27 @@ $action = $_POST['action'] ?? $_GET['action'] ?? '';
 // REGISTER - Neuen Benutzer erstellen
 // ============================================
 if ($action === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Rate Limiting: Max 3 Registrierungen pro Stunde
+    check_rate_limit('register', 3, 3600);
+
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
-    $first_name = trim($_POST['first_name'] ?? '');
-    $last_name = trim($_POST['last_name'] ?? '');
+    $first_name = sanitize_string(trim($_POST['first_name'] ?? ''));
+    $last_name = sanitize_string(trim($_POST['last_name'] ?? ''));
 
     // Validierung
-    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $email = secure_email($email);
+    if (!$email) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => 'Ungültige E-Mail-Adresse']);
         exit;
     }
 
-    if (empty($password) || strlen($password) < 6) {
+    // Passwort-Stärke prüfen
+    $password_check = validate_password_strength($password);
+    if (!$password_check['valid']) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Passwort muss mindestens 6 Zeichen lang sein']);
+        echo json_encode(['success' => false, 'error' => 'Passwort nicht sicher genug', 'details' => $password_check['errors']]);
         exit;
     }
 
@@ -37,13 +45,12 @@ if ($action === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Escape values
-    $email_safe = $db->real_escape_string($email);
-    $first_name_safe = $db->real_escape_string($first_name);
-    $last_name_safe = $db->real_escape_string($last_name);
-
     // Check if user already exists
-    $check = $db->query("SELECT id FROM users WHERE email = '$email_safe'");
+    $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $check = $stmt->get_result();
+
     if ($check && $check->num_rows > 0) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => 'Diese E-Mail-Adresse ist bereits registriert']);
@@ -54,16 +61,17 @@ if ($action === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
     // Insert user
-    $sql = "INSERT INTO users (email, password, first_name, last_name, created_at)
-            VALUES ('$email_safe', '$password_hash', '$first_name_safe', '$last_name_safe', NOW())";
+    $stmt = $db->prepare("INSERT INTO users (email, password, first_name, last_name, created_at) VALUES (?, ?, ?, ?, NOW())");
+    $stmt->bind_param("ssss", $email, $password_hash, $first_name, $last_name);
 
-    if ($db->query($sql)) {
+    if ($stmt->execute()) {
         $user_id = $db->insert_id;
 
         // Link all guest orders with this email to the new account
-        $link_orders_sql = "UPDATE orders SET user_id = $user_id WHERE (guest_email = '$email_safe' OR delivery_email = '$email_safe') AND user_id IS NULL";
-        $link_result = $db->query($link_orders_sql);
-        $linked_orders_count = $db->affected_rows;
+        $stmt = $db->prepare("UPDATE orders SET user_id = ? WHERE (guest_email = ? OR delivery_email = ?) AND user_id IS NULL");
+        $stmt->bind_param("iss", $user_id, $email, $email);
+        $stmt->execute();
+        $linked_orders_count = $stmt->affected_rows;
 
         // Auto-login after registration
         $_SESSION['user_id'] = $user_id;
@@ -93,18 +101,23 @@ if ($action === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 // LOGIN - Benutzer anmelden
 // ============================================
 elseif ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Rate Limiting: Max 5 Login-Versuche pro Minute
+    check_rate_limit('login', 5, 60);
+
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
     if (empty($email) || empty($password)) {
+        log_security_event('login_failed', ['reason' => 'empty_credentials', 'email' => $email]);
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => 'E-Mail und Passwort erforderlich']);
         exit;
     }
 
-    $email_safe = $db->real_escape_string($email);
-
-    $result = $db->query("SELECT id, email, password, first_name, last_name FROM users WHERE email = '$email_safe'");
+    $stmt = $db->prepare("SELECT id, email, password, first_name, last_name FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result && $result->num_rows > 0) {
         $user = $result->fetch_assoc();
@@ -113,9 +126,10 @@ elseif ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $user_id = $user['id'];
 
             // Link all guest orders with this email to the account
-            $link_orders_sql = "UPDATE orders SET user_id = $user_id WHERE (guest_email = '$email_safe' OR delivery_email = '$email_safe') AND user_id IS NULL";
-            $link_result = $db->query($link_orders_sql);
-            $linked_orders_count = $db->affected_rows;
+            $stmt = $db->prepare("UPDATE orders SET user_id = ? WHERE (guest_email = ? OR delivery_email = ?) AND user_id IS NULL");
+            $stmt->bind_param("iss", $user_id, $email, $email);
+            $stmt->execute();
+            $linked_orders_count = $stmt->affected_rows;
 
             $_SESSION['user_id'] = $user_id;
             $_SESSION['email'] = $user['email'];
@@ -139,10 +153,12 @@ elseif ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 'linked_orders' => $linked_orders_count
             ]);
         } else {
+            log_security_event('login_failed', ['reason' => 'wrong_password', 'email' => $email]);
             http_response_code(401);
             echo json_encode(['success' => false, 'error' => 'Falsches Passwort']);
         }
     } else {
+        log_security_event('login_failed', ['reason' => 'user_not_found', 'email' => $email]);
         http_response_code(401);
         echo json_encode(['success' => false, 'error' => 'Benutzer nicht gefunden']);
     }

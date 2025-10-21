@@ -83,9 +83,9 @@ $category = get_category_name($wine['category_id']);
             <!-- STOCK STATUS -->
             <div class="product-stock">
                 <?php if ($wine['stock'] > 0): ?>
-                    <span class="stock-available">✓ Lagerbestand: <?php echo $wine['stock']; ?> Stück</span>
+                    <span class="stock-available"><?php echo get_icon('check', 16); ?> Lagerbestand: <?php echo $wine['stock']; ?> Stück</span>
                 <?php else: ?>
-                    <span class="stock-unavailable">✗ Nicht verfügbar</span>
+                    <span class="stock-unavailable"><?php echo get_icon('x', 16); ?> Nicht verfügbar</span>
                 <?php endif; ?>
             </div>
 

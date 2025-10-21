@@ -49,7 +49,7 @@ $query = "INSERT INTO wines (
 if ($db->query($query)) {
     $wine_id = $db->insert_id;
     
-    error_log("✅ Neuer Wein erstellt: $name (ID: $wine_id)");
+    error_log("Neuer Wein erstellt: $name (ID: $wine_id)");
     
     die(json_encode([
         'success' => true,

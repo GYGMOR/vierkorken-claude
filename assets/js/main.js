@@ -1,7 +1,7 @@
 // assets/js/main.js
 // Hauptscript für Vier Korken Webseite
 
-console.log('🍷 Vier Korken App geladen!');
+console.log('Vier Korken App geladen');
 
 // ============================================
 // 1. GLOBALE FUNKTIONEN
@@ -73,7 +73,7 @@ function updateCartCount() {
 // Bei Seite laden
 document.addEventListener('DOMContentLoaded', function() {
     updateCartCount();
-    console.log('✅ DOM geladen');
+    console.log('DOM geladen');
 });
 
 // Bei Storage-Änderung (andere Tabs)
@@ -217,4 +217,4 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-console.log('🍷 Shortcuts: Strg+K = Shop, Strg+C = Warenkorb');
+console.log('Shortcuts: Strg+K = Shop, Strg+C = Warenkorb');

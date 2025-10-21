@@ -5,7 +5,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "<h2>🔍 Datenbankverbindungs-Test</h2>";
+echo "<h2>Datenbankverbindungs-Test</h2>";
 echo "<hr>";
 
 // Verbindungsdaten (VON HOSTTEC):
@@ -24,7 +24,7 @@ echo "<hr>";
 $connection = @new mysqli($db_host, $db_user, $db_password, $db_name);
 
 if ($connection->connect_error) {
-    echo "<h3 style='color: red;'>❌ FEHLER!</h3>";
+    echo "<h3 style='color: red;'>FEHLER!</h3>";
     echo "<p><strong>Verbindung fehlgeschlagen:</strong></p>";
     echo "<p>" . $connection->connect_error . "</p>";
     echo "<hr>";
@@ -36,8 +36,8 @@ if ($connection->connect_error) {
     echo "<li>4. Versuche es mit einem anderen Host (frag Hosttec Support)</li>";
     echo "</ul>";
 } else {
-    echo "<h3 style='color: green;'>✅ ERFOLG!</h3>";
-    echo "<p>Datenbankverbindung funktioniert! 🎉</p>";
+    echo "<h3 style='color: green;'>ERFOLG!</h3>";
+    echo "<p>Datenbankverbindung funktioniert!</p>";
     
     // Tabellen anzeigen
     $result = $connection->query("SHOW TABLES");

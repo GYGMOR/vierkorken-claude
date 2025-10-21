@@ -399,25 +399,25 @@ unset($item); // Break reference
         
         <div class="about-grid">
             <div class="about-card">
-                <div class="about-icon">✓</div>
+                <div class="about-icon"><?php echo get_icon('check-circle', 32); ?></div>
                 <h4><?php editable('about_1_title', 'Sorgfältig ausgewählt', 'span'); ?></h4>
                 <p><?php editable_textarea('about_1_desc', 'Jeder Wein in unserem Sortiment wird mit großer Sorgfalt von unseren Experten ausgewählt.', 'span'); ?></p>
             </div>
-            
+
             <div class="about-card">
-                <div class="about-icon">✓</div>
+                <div class="about-icon"><?php echo get_icon('award', 32); ?></div>
                 <h4><?php editable('about_2_title', '100% Schweizer', 'span'); ?></h4>
                 <p><?php editable_textarea('about_2_desc', 'Wir legen Wert auf hochwertige Schweizer Weine von erstklassigen Produzenten.', 'span'); ?></p>
             </div>
-            
+
             <div class="about-card">
-                <div class="about-icon">✓</div>
+                <div class="about-icon"><?php echo get_icon('truck', 32); ?></div>
                 <h4><?php editable('about_3_title', 'Schnelle Lieferung', 'span'); ?></h4>
                 <p><?php editable_textarea('about_3_desc', 'Ihre Bestellung wird schnell und zuverlässig zu Ihnen nach Hause gebracht.', 'span'); ?></p>
             </div>
-            
+
             <div class="about-card">
-                <div class="about-icon">✓</div>
+                <div class="about-icon"><?php echo get_icon('message-circle', 32); ?></div>
                 <h4><?php editable('about_4_title', 'Persönliche Beratung', 'span'); ?></h4>
                 <p><?php editable_textarea('about_4_desc', 'Unser Team steht Ihnen bei Fragen gerne zur Seite und berät Sie fachkundig.', 'span'); ?></p>
             </div>

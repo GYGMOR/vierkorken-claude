@@ -63,7 +63,7 @@ $result = $db->query("SELECT * FROM user_addresses WHERE user_id = $user_id");
                         <td><?php echo $addr['city'] ?? '<span class="missing">NULL</span>'; ?></td>
                         <td><?php echo $addr['phone'] ?? '<span class="missing">NULL</span>'; ?></td>
                         <td><?php echo $addr['label'] ?? '<span class="missing">NULL</span>'; ?></td>
-                        <td><?php echo $addr['is_default'] ? '✓' : '-'; ?></td>
+                        <td><?php echo $addr['is_default'] ? 'Ja' : 'Nein'; ?></td>
                         <td class="field-check">
                             <?php
                             $required = ['first_name', 'last_name', 'street', 'postal_code', 'city', 'phone'];
@@ -74,9 +74,9 @@ $result = $db->query("SELECT * FROM user_addresses WHERE user_id = $user_id");
                                 }
                             }
                             if (empty($missing)) {
-                                echo '<span class="present">✓ Complete</span>';
+                                echo '<span class="present">Complete</span>';
                             } else {
-                                echo '<span class="missing">✗ Missing: ' . implode(', ', $missing) . '</span>';
+                                echo '<span class="missing">Missing: ' . implode(', ', $missing) . '</span>';
                             }
                             ?>
                         </td>

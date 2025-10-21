@@ -73,5 +73,5 @@ function db_query($sql, $params = []) {
     }
 }
 
-error_log("✅ Datenbankverbindung erfolgreich!");
+error_log("Datenbankverbindung erfolgreich");
 ?>

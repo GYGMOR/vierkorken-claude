@@ -35,7 +35,7 @@ if ($action === 'add') {
 }
 
 if ($query) {
-    error_log("✅ Wein $wine_id als Neuheit " . ($action === 'add' ? 'hinzugefügt' : 'entfernt'));
+    error_log("Wein $wine_id als Neuheit " . ($action === 'add' ? 'hinzugefügt' : 'entfernt'));
     die(json_encode(['success' => true, 'message' => 'Erfolg!']));
 } else {
     die(json_encode(['success' => false, 'error' => 'Datenbankfehler: ' . $db->error]));

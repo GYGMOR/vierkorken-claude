@@ -1,7 +1,7 @@
 // assets/js/cart.js
 // Warenkorb-Verwaltung mit localStorage
 
-console.log('🛒 Warenkorb Script geladen!');
+console.log('Warenkorb Script geladen');
 
 class ShoppingCart {
     constructor() {
@@ -12,7 +12,7 @@ class ShoppingCart {
     loadCart() {
         const saved = localStorage.getItem(this.storageKey);
         this.items = saved ? JSON.parse(saved) : [];
-        console.log('🛒 Warenkorb geladen:', this.items);
+        console.log('Warenkorb geladen:', this.items);
     }
     
     saveCart() {
@@ -41,8 +41,8 @@ class ShoppingCart {
         }
 
         this.saveCart();
-        showNotification(`${wineName} zum Warenkorb hinzugefügt! ✅`);
-        console.log('✅ Artikel hinzugefügt:', wineName);
+        showNotification(`${wineName} zum Warenkorb hinzugefügt`);
+        console.log('Artikel hinzugefügt:', wineName);
     }
 
     addEventTicket(eventId, eventName, price, quantity = 1, customerData = {}) {
@@ -61,8 +61,8 @@ class ShoppingCart {
         });
 
         this.saveCart();
-        showNotification(`${quantity} Event-Ticket(s) zum Warenkorb hinzugefügt! ✅`);
-        console.log('✅ Event-Ticket hinzugefügt:', eventName);
+        showNotification(`${quantity} Event-Ticket(s) zum Warenkorb hinzugefügt`);
+        console.log('Event-Ticket hinzugefügt:', eventName);
     }
     
     removeItem(itemId, itemType = 'wine') {
@@ -169,11 +169,17 @@ function renderCartPage() {
     if (cart.items.length === 0) {
         container.innerHTML = `
             <div class="cart-empty">
-                <div class="cart-empty-emoji">😢</div>
+                <div class="cart-empty-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </div>
                 <h3>Ihr Warenkorb ist leer</h3>
                 <p>Entdecken Sie unsere Weinauswahl!</p>
                 <a href="?page=shop" class="btn btn-primary" style="margin-top: 1rem;">
-                    🛍️ Zum Shop
+                    Zum Shop
                 </a>
             </div>
         `;
@@ -191,13 +197,13 @@ function renderCartPage() {
         html += `
             <div class="cart-item-row ${isEvent ? 'cart-item-event' : ''}">
                 <div class="cart-item-info">
-                    <div class="cart-item-type-badge ${itemType}">${isEvent ? '🎫 Event-Ticket' : '🍷 Wein'}</div>
+                    <div class="cart-item-type-badge ${itemType}">${isEvent ? 'Event-Ticket' : 'Wein'}</div>
                     <h4>${item.name}</h4>
                     <p class="cart-item-price">CHF ${item.price.toFixed(2)} pro ${isEvent ? 'Ticket' : 'Stück'}</p>
                     ${isEvent && item.customerData ? `
                         <div class="cart-event-details">
-                            <small>👤 ${item.customerData.customer_name || ''}</small><br>
-                            <small>📧 ${item.customerData.customer_email || ''}</small>
+                            <small>Name: ${item.customerData.customer_name || ''}</small><br>
+                            <small>E-Mail: ${item.customerData.customer_email || ''}</small>
                         </div>
                     ` : ''}
                 </div>
@@ -222,7 +228,11 @@ function renderCartPage() {
                 </div>
 
                 <button class="cart-item-delete" onclick="cart.removeItemByIndex(${index}); renderCartPage();">
-                    ✕ Löschen
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Löschen
                 </button>
             </div>
         `;
@@ -278,4 +288,4 @@ window.addEventListener('storage', function(e) {
     updateCartCount();
 });
 
-console.log('✅ Warenkorb-System aktiv!');
+console.log('Warenkorb-System aktiv');

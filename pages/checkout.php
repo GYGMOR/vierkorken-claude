@@ -665,7 +665,7 @@ function loadCheckoutCart() {
     } else {
         cart.items.forEach(item => {
             const itemType = item.type || 'wine';
-            const icon = itemType === 'event' ? '🎫' : '🍷';
+            const icon = itemType === 'event' ? 'Event' : 'Wein';
             html += `
                 <div class="order-item">
                     <div>
@@ -883,7 +883,7 @@ document.getElementById('coupon-form')?.addEventListener('submit', function(e) {
             appliedCoupon = d.coupon;
             resultDiv.innerHTML = `
                 <div class="alert" style="background: #d4edda; color: #155724; border-left: 4px solid #28a745;">
-                    <strong>✓ Gutschein angewendet!</strong><br>
+                    <strong>Gutschein angewendet!</strong><br>
                     ${d.coupon.description}<br>
                     Ersparnis: CHF ${d.coupon.discount_amount.toFixed(2)}
                 </div>

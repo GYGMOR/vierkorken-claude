@@ -2,12 +2,20 @@
 // index.php - FINAL VERSION mit neuem Mobile Header
 
 ob_start();
-session_start();
+
+// Security-Konfiguration laden
+require_once 'config/security.php';
+
+// Sichere Session starten
+init_secure_session();
 
 require_once 'config/database.php';
 require_once 'includes/functions.php';
 require_once 'includes/editable.php';
 require_once 'includes/icons.php';
+
+// Security Headers setzen
+set_security_headers();
 
 if (isset($_GET['logout'])) {
     session_destroy();
