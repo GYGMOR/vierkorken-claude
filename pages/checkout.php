@@ -882,17 +882,47 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
             }
         }
     } else {
-        // Pickup - minimal data needed
-        addressData = {
-            first_name: '<?php echo $_SESSION['first_name'] ?? ''; ?>',
-            last_name: '<?php echo $_SESSION['last_name'] ?? ''; ?>',
-            phone: prompt('Bitte gib deine Telefonnummer für die Abholung ein:') || '',
-            email: '<?php echo $_SESSION['email'] ?? ''; ?>'
-        };
+        // Pickup - get data from form (same as delivery)
+        const selectedAddressId = document.querySelector('input[name="address_id"]:checked')?.value;
 
-        if (!addressData.phone) {
-            alert('Telefonnummer ist erforderlich');
-            return;
+        if (selectedAddressId) {
+            // Parse from selected address card
+            const addressCard = document.querySelector(`input[name="address_id"][value="${selectedAddressId}"]`).nextElementSibling;
+            const addressText = addressCard.textContent;
+            const lines = addressText.split('\n').map(l => l.trim()).filter(l => l);
+
+            addressData = {
+                first_name: lines[0]?.split(' ')[0] || '',
+                last_name: lines[0]?.split(' ').slice(1).join(' ') || '',
+                street: lines[1] || '',
+                postal_code: lines[2]?.split(' ')[0] || '',
+                city: lines[2]?.split(' ').slice(1).join(' ') || '',
+                phone: lines[3] || '',
+                email: '<?php echo $_SESSION['email'] ?? ''; ?>'
+            };
+        } else {
+            // Get from form
+            const form = document.getElementById('new-address-form');
+            if (!form) {
+                alert('Bitte gib deine Kontaktdaten ein');
+                return;
+            }
+
+            addressData = {
+                first_name: form.querySelector('[name="first_name"]')?.value || '',
+                last_name: form.querySelector('[name="last_name"]')?.value || '',
+                street: form.querySelector('[name="street"]')?.value || '',
+                postal_code: form.querySelector('[name="postal_code"]')?.value || '',
+                city: form.querySelector('[name="city"]')?.value || '',
+                phone: form.querySelector('[name="phone"]')?.value || '',
+                email: form.querySelector('[name="email"]')?.value || ''
+            };
+
+            // Validate required fields
+            if (!addressData.first_name || !addressData.last_name || !addressData.phone || !addressData.email) {
+                alert('Bitte fülle alle Pflichtfelder aus');
+                return;
+            }
         }
     }
 
@@ -949,29 +979,12 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
             // Check if user is logged in
             const isLoggedIn = <?php echo $is_logged_in ? 'true' : 'false'; ?>;
 
+            // Redirect to order confirmation page
+            window.location.href = '?page=order-confirmation&order=' + encodeURIComponent(d.order_number);
+
+            // After viewing confirmation, offer account creation for guests
             if (!isLoggedIn) {
-                // Guest checkout - ask if they want to create an account
-                if (confirm(`✅ Bestellung erfolgreich erstellt!\n\nBestellnummer: ${d.order_number}\n\n` +
-                           `Du erhältst eine Bestätigung per E-Mail.\n\n` +
-                           `Möchtest du ein Konto erstellen, um deine Bestellungen zu verfolgen und deine Daten zu speichern?`)) {
-                    // Redirect to account creation with pre-filled data
-                    window.location.href = '?modal=register&from_order=1';
-                } else {
-                    // Just show success and redirect to home
-                    alert('Vielen Dank für deine Bestellung!\n\n(Zahlungsintegration folgt in 2 Wochen)');
-                    window.location.href = '?page=home';
-                }
-            } else {
-                // Logged-in user
-                alert(`✅ Bestellung erfolgreich erstellt!\n\nBestellnummer: ${d.order_number}\n\n` +
-                      `Du erhältst eine Bestätigung per E-Mail.\n\n` +
-                      `(Zahlungsintegration folgt in 2 Wochen)`);
-
-                // In production, redirect to payment gateway here:
-                // window.location.href = '/payment?order=' + d.order_number + '&method=' + paymentMethod;
-
-                // For now, redirect to order history
-                window.location.href = '?page=order-history';
+                sessionStorage.setItem('offer_account_creation', '1');
             }
         } else {
             alert('Fehler: ' + (d.error || 'Unbekannter Fehler'));
