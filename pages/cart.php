@@ -36,10 +36,10 @@
                     <span>Gesamtbetrag:</span>
                     <span id="total">CHF 0.00</span>
                 </div>
-                
-                <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 1rem;">
+
+                <a href="?page=checkout" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 1rem; text-align: center; display: block;">
                     <?php echo get_icon('arrow-right', 18); ?> Zur Kasse
-                </button>
+                </a>
                 
                 <a href="?page=shop" class="btn btn-secondary" style="width: 100%; margin-top: 0.8rem; padding: 1rem; text-align: center; display: block;">
                     Weiter einkaufen
