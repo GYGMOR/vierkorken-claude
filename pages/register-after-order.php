@@ -43,14 +43,24 @@ if (isset($_SESSION['last_order_data'])) {
 
                 <div class="form-group">
                     <label>Passwort *</label>
-                    <input type="password" name="password" id="password" required minlength="6"
-                           placeholder="Mindestens 6 Zeichen">
+                    <div class="password-input-wrapper">
+                        <input type="password" name="password" id="password" required minlength="6"
+                               placeholder="Mindestens 6 Zeichen">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', this)" aria-label="Passwort anzeigen">
+                            <?php echo get_icon('eye', 20); ?>
+                        </button>
+                    </div>
                     <small class="form-hint">Mindestens 6 Zeichen lang</small>
                 </div>
 
                 <div class="form-group">
                     <label>Passwort wiederholen *</label>
-                    <input type="password" name="confirm_password" id="confirm_password" required minlength="6">
+                    <div class="password-input-wrapper">
+                        <input type="password" name="confirm_password" id="confirm_password" required minlength="6">
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirm_password', this)" aria-label="Passwort anzeigen">
+                            <?php echo get_icon('eye', 20); ?>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -204,6 +214,43 @@ if (isset($_SESSION['last_order_data'])) {
     text-decoration: underline;
 }
 
+/* Password toggle styling */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 3rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: color 0.2s;
+    border-radius: 4px;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.password-toggle:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
 @media (max-width: 768px) {
     .register-header {
         padding: 2rem 1.5rem;
@@ -216,6 +263,23 @@ if (isset($_SESSION['last_order_data'])) {
 </style>
 
 <script>
+// Password toggle function
+function togglePassword(inputId, button) {
+    const input = document.getElementById(inputId);
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        // Change to eye-off icon
+        button.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+        button.setAttribute('aria-label', 'Passwort verbergen');
+    } else {
+        input.type = 'password';
+        // Change to eye icon
+        button.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        button.setAttribute('aria-label', 'Passwort anzeigen');
+    }
+}
+
 // Pre-fill form with order data from sessionStorage
 document.addEventListener('DOMContentLoaded', function() {
     const orderEmail = sessionStorage.getItem('last_order_email');

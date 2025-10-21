@@ -274,7 +274,12 @@ $settings = get_all_settings();
             <a href="?page=admin-dashboard&tab=coupons" class="<?php echo $tab === 'coupons' ? 'active' : ''; ?>">Gutscheine</a>
 
             <div class="nav-divider"></div>
-            <a href="?page=home" class="nav-home">Zur Webseite</a>
+            <a href="?page=home" class="nav-home">
+                <?php echo get_icon('home', 18); ?> Zur Webseite
+            </a>
+            <a href="?logout=1" class="nav-logout" onclick="return confirm('Wirklich abmelden?')">
+                <?php echo get_icon('log-out', 18); ?> Abmelden
+            </a>
         </nav>
     </aside>
 
@@ -1288,6 +1293,23 @@ $settings = get_all_settings();
     margin-top: 2rem;
     border-top: 1px solid rgba(255,255,255,0.2);
     padding-top: 1rem !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-logout {
+    margin-top: 0.5rem;
+    background: rgba(220, 53, 69, 0.2) !important;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-logout:hover {
+    background: rgba(220, 53, 69, 0.3) !important;
+    border-color: rgba(220, 53, 69, 0.5);
 }
 
 .admin-content-mega {

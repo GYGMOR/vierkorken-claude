@@ -142,7 +142,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                     <div class="form-group">
                         <label>Passwort</label>
-                        <input type="password" name="password" placeholder="Passwort" required>
+                        <div class="password-input-wrapper">
+                            <input type="password" name="password" id="login-password" placeholder="Passwort" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('login-password', this)" aria-label="Passwort anzeigen">
+                                <?php echo get_icon('eye', 20); ?>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-group checkbox">
@@ -187,12 +192,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                     <div class="form-group">
                         <label>Passwort</label>
-                        <input type="password" name="reg_password" placeholder="Min. 6 Zeichen" required>
+                        <div class="password-input-wrapper">
+                            <input type="password" name="reg_password" id="reg-password" placeholder="Min. 6 Zeichen" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('reg-password', this)" aria-label="Passwort anzeigen">
+                                <?php echo get_icon('eye', 20); ?>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label>Passwort wiederholen</label>
-                        <input type="password" name="reg_password_confirm" placeholder="Passwort wiederholen" required>
+                        <div class="password-input-wrapper">
+                            <input type="password" name="reg_password_confirm" id="reg-password-confirm" placeholder="Passwort wiederholen" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('reg-password-confirm', this)" aria-label="Passwort anzeigen">
+                                <?php echo get_icon('eye', 20); ?>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-group checkbox">
@@ -461,6 +476,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         grid-template-columns: 1fr;
     }
 }
+
+/* Password Toggle Styles */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 3rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: color 0.2s;
+    border-radius: 4px;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.password-toggle:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+}
 </style>
 
 <script>
@@ -470,12 +527,29 @@ function closeAuthModal() {
     if (overlay) {
         overlay.remove();
     }
-    
+
     // Entferne auch den modal Parameter aus der URL
     const url = new URL(window.location);
     url.searchParams.delete('modal');
     url.searchParams.delete('tab');
     window.history.replaceState({}, document.title, url);
+}
+
+// Toggle password visibility
+function togglePassword(inputId, button) {
+    const input = document.getElementById(inputId);
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        // Change to eye-off icon
+        button.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+        button.setAttribute('aria-label', 'Passwort verbergen');
+    } else {
+        input.type = 'password';
+        // Change to eye icon
+        button.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        button.setAttribute('aria-label', 'Passwort anzeigen');
+    }
 }
 
 // Schließe Modal wenn Overlay geklickt wird (nicht Container)
