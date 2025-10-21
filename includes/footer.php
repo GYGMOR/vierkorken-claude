@@ -25,7 +25,7 @@
 
                 <!-- Standort-Karte (Google Maps) -->
                 <div class="footer-map-container">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2695.8739482469127!2d8.283099!3d47.284600!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479070e7f7f7f7f7%3A0x1234567890!2sSteinbrunnengasse%203A%2C%205707%20Seengen!5e0!3m2!1sde!2sch!4v1234567890" width="100%" height="300" style="border:0; border-radius: 8px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://maps.google.com/maps?q=Steinbrunnengasse+3A,+5707+Seengen,+Schweiz&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="300" style="border:0; border-radius: 8px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
 
