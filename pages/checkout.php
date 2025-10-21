@@ -3,6 +3,22 @@
 $user_id = $_SESSION['user_id'] ?? 0;
 $is_logged_in = isset($_SESSION['user_id']);
 
+// Load user data and email if logged in
+$user_email = '';
+if ($is_logged_in) {
+    // Get user email from database if not in session
+    if (empty($_SESSION['email'])) {
+        $user_result = $db->query("SELECT email FROM users WHERE id = $user_id");
+        if ($user_result && $user_result->num_rows > 0) {
+            $user_data = $user_result->fetch_assoc();
+            $user_email = $user_data['email'];
+            $_SESSION['email'] = $user_email; // Store in session for future use
+        }
+    } else {
+        $user_email = $_SESSION['email'];
+    }
+}
+
 // Load user addresses if logged in
 $user_addresses = [];
 if ($is_logged_in) {
@@ -10,7 +26,7 @@ if ($is_logged_in) {
     if ($result) {
         $user_addresses = $result->fetch_all(MYSQLI_ASSOC);
         // Debug: Log loaded addresses
-        error_log("DEBUG Checkout: Loaded " . count($user_addresses) . " addresses for user $user_id");
+        error_log("DEBUG Checkout: Loaded " . count($user_addresses) . " addresses for user $user_id, Email: " . $user_email);
         foreach ($user_addresses as $addr) {
             error_log("DEBUG Address ID " . $addr['id'] . ": " . $addr['first_name'] . " " . ($addr['last_name'] ?? 'NO_LAST_NAME') . ", Phone: " . ($addr['phone'] ?? 'NO_PHONE'));
         }
@@ -935,7 +951,7 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
                 postal_code: addressRadio.getAttribute('data-postal-code') || addressRadio.dataset.postalCode || '',
                 city: addressRadio.getAttribute('data-city') || addressRadio.dataset.city || '',
                 phone: addressRadio.getAttribute('data-phone') || addressRadio.dataset.phone || '',
-                email: '<?php echo $_SESSION['email'] ?? ''; ?>'
+                email: '<?php echo $user_email; ?>'
             };
 
             // Debug: Log what we got
@@ -954,7 +970,7 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
                     postal_code: lines[2]?.split(' ')[0] || '',
                     city: lines[2]?.split(' ').slice(1).join(' ') || '',
                     phone: lines[3] || '',
-                    email: '<?php echo $_SESSION['email'] ?? ''; ?>'
+                    email: '<?php echo $user_email; ?>'
                 };
 
                 console.log('Delivery - Address data from text parsing:', addressData);
@@ -969,8 +985,8 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
             if (!addressData.city) missingFields.push('Stadt');
             if (!addressData.phone) missingFields.push('Telefon');
             if (!addressData.email) {
-                // Try to get email from session or user profile
-                addressData.email = '<?php echo $_SESSION['email'] ?? ''; ?>';
+                // Try to get email from PHP variable
+                addressData.email = '<?php echo $user_email; ?>';
                 if (!addressData.email) {
                     missingFields.push('E-Mail');
                 }
@@ -1031,7 +1047,7 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
                 postal_code: addressRadio.getAttribute('data-postal-code') || addressRadio.dataset.postalCode || '',
                 city: addressRadio.getAttribute('data-city') || addressRadio.dataset.city || '',
                 phone: addressRadio.getAttribute('data-phone') || addressRadio.dataset.phone || '',
-                email: '<?php echo $_SESSION['email'] ?? ''; ?>'
+                email: '<?php echo $user_email; ?>'
             };
 
             // Debug: Log what we got
@@ -1050,7 +1066,7 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
                     postal_code: lines[2]?.split(' ')[0] || '',
                     city: lines[2]?.split(' ').slice(1).join(' ') || '',
                     phone: lines[3] || '',
-                    email: '<?php echo $_SESSION['email'] ?? ''; ?>'
+                    email: '<?php echo $user_email; ?>'
                 };
 
                 console.log('Pickup - Address data from text parsing:', addressData);
@@ -1062,8 +1078,8 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
             if (!addressData.last_name) missingFieldsPickup.push('Nachname');
             if (!addressData.phone) missingFieldsPickup.push('Telefon');
             if (!addressData.email) {
-                // Try to get email from session
-                addressData.email = '<?php echo $_SESSION['email'] ?? ''; ?>';
+                // Try to get email from PHP variable
+                addressData.email = '<?php echo $user_email; ?>';
                 if (!addressData.email) {
                     missingFieldsPickup.push('E-Mail');
                 }
