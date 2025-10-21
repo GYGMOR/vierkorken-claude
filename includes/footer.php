@@ -23,55 +23,18 @@
                     </p>
                 </div>
 
-                <!-- Standort-Karte (Google Maps Eingebettet) -->
+                <!-- Standort-Karte (Google Maps) -->
                 <div class="footer-map-container">
-                    <div id="google-map" style="width: 100%; height: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);"></div>
+                    <iframe
+                        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyB85AoOECvljXnie2nS32ErkTEJCjmFhpw&q=Steinbrunnengasse+3A,5707+Seengen,Schweiz&zoom=16&maptype=roadmap"
+                        width="100%"
+                        height="300"
+                        style="border: 0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
                 </div>
-
-                <script>
-                function initMap() {
-                    // Koordinaten für Steinbrunnengasse 3A, 5707 Seengen
-                    const vierKorkenLocation = { lat: 47.32175, lng: 8.28325 };
-
-                    // Karte erstellen
-                    const map = new google.maps.Map(document.getElementById('google-map'), {
-                        center: vierKorkenLocation,
-                        zoom: 16,
-                        mapTypeControl: true,
-                        streetViewControl: true,
-                        fullscreenControl: true,
-                        zoomControl: true,
-                        styles: [
-                            {
-                                featureType: "poi",
-                                elementType: "labels",
-                                stylers: [{ visibility: "off" }]
-                            }
-                        ]
-                    });
-
-                    // Marker hinzufügen
-                    const marker = new google.maps.Marker({
-                        position: vierKorkenLocation,
-                        map: map,
-                        title: 'Vier Korken Wein Boutique',
-                        animation: google.maps.Animation.DROP
-                    });
-
-                    // Info-Fenster für den Marker
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: '<div style="padding: 10px;"><strong>Vier Korken Wein Boutique</strong><br>Steinbrunnengasse 3A<br>5707 Seengen<br><a href="https://www.google.com/maps/dir/?api=1&destination=47.32175,8.28325" target="_blank" style="color: #4c254c; font-weight: 600; margin-top: 8px; display: inline-block;">Route anzeigen</a></div>'
-                    });
-
-                    // Klick auf Marker öffnet Info-Fenster
-                    marker.addListener('click', function() {
-                        infoWindow.open(map, marker);
-                    });
-                }
-                </script>
-
-                <!-- Google Maps API laden -->
-                <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB85AoOECvljXnie2nS32ErkTEJCjmFhpw&callback=initMap" async defer></script>
             </div>
 
             <!-- BOTTOM GRID - Öffnungszeiten & Links -->
