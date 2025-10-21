@@ -82,11 +82,11 @@ if ($is_logged_in) {
                                 <?php foreach ($user_addresses as $index => $addr): ?>
                                     <label class="address-option">
                                         <input type="radio" name="address_id" value="<?php echo $addr['id']; ?>"
-                                               data-first-name="<?php echo safe_output($addr['first_name']); ?>"
-                                               data-last-name="<?php echo safe_output($addr['last_name']); ?>"
-                                               data-street="<?php echo safe_output($addr['street']); ?>"
-                                               data-postal-code="<?php echo safe_output($addr['postal_code']); ?>"
-                                               data-city="<?php echo safe_output($addr['city']); ?>"
+                                               data-first-name="<?php echo safe_output($addr['first_name'] ?? ''); ?>"
+                                               data-last-name="<?php echo safe_output($addr['last_name'] ?? ''); ?>"
+                                               data-street="<?php echo safe_output($addr['street'] ?? ''); ?>"
+                                               data-postal-code="<?php echo safe_output($addr['postal_code'] ?? ''); ?>"
+                                               data-city="<?php echo safe_output($addr['city'] ?? ''); ?>"
                                                data-phone="<?php echo safe_output($addr['phone'] ?? ''); ?>"
                                                <?php echo $index === 0 ? 'checked' : ''; ?>>
                                         <div class="address-card">
@@ -904,23 +904,31 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
         if (selectedAddressId) {
             // Get address data from data attributes
             const addressRadio = document.querySelector(`input[name="address_id"][value="${selectedAddressId}"]`);
-            const addressCard = addressRadio.nextElementSibling;
+
+            if (!addressRadio) {
+                alert('Fehler: Adresse nicht gefunden');
+                return;
+            }
 
             // Try to get from data attributes first (more reliable)
             addressData = {
-                first_name: addressRadio.dataset.firstName || addressCard.dataset.firstName || '',
-                last_name: addressRadio.dataset.lastName || addressCard.dataset.lastName || '',
-                street: addressRadio.dataset.street || addressCard.dataset.street || '',
-                postal_code: addressRadio.dataset.postalCode || addressCard.dataset.postalCode || '',
-                city: addressRadio.dataset.city || addressCard.dataset.city || '',
-                phone: addressRadio.dataset.phone || addressCard.dataset.phone || '',
+                first_name: addressRadio.dataset.firstName || '',
+                last_name: addressRadio.dataset.lastName || '',
+                street: addressRadio.dataset.street || '',
+                postal_code: addressRadio.dataset.postalCode || '',
+                city: addressRadio.dataset.city || '',
+                phone: addressRadio.dataset.phone || '',
                 email: '<?php echo $_SESSION['email'] ?? ''; ?>'
             };
 
+            // Debug: Log what we got
+            console.log('Delivery - Address data from attributes:', addressData);
+
             // If data attributes don't exist, fall back to text parsing (backup)
             if (!addressData.first_name) {
+                const addressCard = addressRadio.nextElementSibling;
                 const addressText = addressCard.textContent;
-                const lines = addressText.split('\n').map(l => l.trim()).filter(l => l);
+                const lines = addressText.split('\n').map(l => l.trim()).filter(l => l && !l.includes('Standard'));
 
                 addressData = {
                     first_name: lines[0]?.split(' ')[0] || '',
@@ -931,6 +939,16 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
                     phone: lines[3] || '',
                     email: '<?php echo $_SESSION['email'] ?? ''; ?>'
                 };
+
+                console.log('Delivery - Address data from text parsing:', addressData);
+            }
+
+            // Validate saved address data
+            if (!addressData.first_name || !addressData.last_name || !addressData.street ||
+                !addressData.postal_code || !addressData.city || !addressData.phone || !addressData.email) {
+                alert('Fehler: Fehlende Pflichtfelder in der gespeicherten Adresse. Bitte verwende eine neue Adresse.');
+                console.error('Delivery - Missing fields:', addressData);
+                return;
             }
         } else {
             // Get from form
@@ -964,23 +982,31 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
         if (selectedAddressId) {
             // Get address data from data attributes
             const addressRadio = document.querySelector(`input[name="address_id"][value="${selectedAddressId}"]`);
-            const addressCard = addressRadio.nextElementSibling;
+
+            if (!addressRadio) {
+                alert('Fehler: Adresse nicht gefunden');
+                return;
+            }
 
             // Try to get from data attributes first (more reliable)
             addressData = {
-                first_name: addressRadio.dataset.firstName || addressCard.dataset.firstName || '',
-                last_name: addressRadio.dataset.lastName || addressCard.dataset.lastName || '',
-                street: addressRadio.dataset.street || addressCard.dataset.street || '',
-                postal_code: addressRadio.dataset.postalCode || addressCard.dataset.postalCode || '',
-                city: addressRadio.dataset.city || addressCard.dataset.city || '',
-                phone: addressRadio.dataset.phone || addressCard.dataset.phone || '',
+                first_name: addressRadio.dataset.firstName || '',
+                last_name: addressRadio.dataset.lastName || '',
+                street: addressRadio.dataset.street || '',
+                postal_code: addressRadio.dataset.postalCode || '',
+                city: addressRadio.dataset.city || '',
+                phone: addressRadio.dataset.phone || '',
                 email: '<?php echo $_SESSION['email'] ?? ''; ?>'
             };
 
+            // Debug: Log what we got
+            console.log('Pickup - Address data from attributes:', addressData);
+
             // If data attributes don't exist, fall back to text parsing (backup)
             if (!addressData.first_name) {
+                const addressCard = addressRadio.nextElementSibling;
                 const addressText = addressCard.textContent;
-                const lines = addressText.split('\n').map(l => l.trim()).filter(l => l);
+                const lines = addressText.split('\n').map(l => l.trim()).filter(l => l && !l.includes('Standard'));
 
                 addressData = {
                     first_name: lines[0]?.split(' ')[0] || '',
@@ -991,6 +1017,15 @@ document.getElementById('btn-complete-order')?.addEventListener('click', functio
                     phone: lines[3] || '',
                     email: '<?php echo $_SESSION['email'] ?? ''; ?>'
                 };
+
+                console.log('Pickup - Address data from text parsing:', addressData);
+            }
+
+            // Validate saved address data (for pickup, street/postal_code/city are optional)
+            if (!addressData.first_name || !addressData.last_name || !addressData.phone || !addressData.email) {
+                alert('Fehler: Fehlende Pflichtfelder in der gespeicherten Adresse. Bitte verwende eine neue Adresse.');
+                console.error('Pickup - Missing fields:', addressData);
+                return;
             }
         } else {
             // Get from form
