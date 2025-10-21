@@ -292,27 +292,28 @@ elseif ($action === 'add_address' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $street = $db->real_escape_string(trim($_POST['street'] ?? ''));
     $city = $db->real_escape_string(trim($_POST['city'] ?? ''));
     $postal_code = $db->real_escape_string(trim($_POST['postal_code'] ?? ''));
+    $phone = $db->real_escape_string(trim($_POST['phone'] ?? ''));
     $country = $db->real_escape_string(trim($_POST['country'] ?? 'Schweiz'));
     $label = $db->real_escape_string(trim($_POST['label'] ?? 'Hauptadresse'));
     $is_default = isset($_POST['is_default']) ? 1 : 0;
-    
-    if (empty($first_name) || empty($street) || empty($city) || empty($postal_code)) {
-        echo json_encode(['success' => false, 'error' => 'Alle Felder sind erforderlich']);
+
+    if (empty($first_name) || empty($last_name) || empty($street) || empty($city) || empty($postal_code) || empty($phone)) {
+        echo json_encode(['success' => false, 'error' => 'Alle Pflichtfelder sind erforderlich (Vorname, Nachname, Straße, PLZ, Stadt, Telefon)']);
         exit;
     }
-    
+
     $dup = $db->query("SELECT id FROM user_addresses WHERE user_id = $user_id AND first_name = '$first_name' AND last_name = '$last_name' AND street = '$street' AND city = '$city' AND postal_code = '$postal_code'");
-    
+
     if ($dup && $dup->num_rows > 0) {
         http_response_code(409);
         die(json_encode(['success' => false, 'error' => 'Diese Adresse existiert bereits', 'code' => 'DUPLICATE_ADDRESS']));
     }
-    
+
     if ($is_default) {
         $db->query("UPDATE user_addresses SET is_default = 0 WHERE user_id = $user_id");
     }
-    
-    if ($db->query("INSERT INTO user_addresses (user_id, first_name, last_name, street, city, postal_code, country, label, is_default) VALUES ($user_id, '$first_name', '$last_name', '$street', '$city', '$postal_code', '$country', '$label', $is_default)")) {
+
+    if ($db->query("INSERT INTO user_addresses (user_id, first_name, last_name, street, city, postal_code, phone, country, label, is_default) VALUES ($user_id, '$first_name', '$last_name', '$street', '$city', '$postal_code', '$phone', '$country', '$label', $is_default)")) {
         echo json_encode(['success' => true, 'message' => 'Adresse hinzugefügt', 'id' => $db->insert_id]);
     } else {
         echo json_encode(['success' => false, 'error' => $db->error]);
@@ -345,15 +346,21 @@ elseif ($action === 'update_address' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $street = $db->real_escape_string(trim($_POST['street'] ?? ''));
     $city = $db->real_escape_string(trim($_POST['city'] ?? ''));
     $postal_code = $db->real_escape_string(trim($_POST['postal_code'] ?? ''));
+    $phone = $db->real_escape_string(trim($_POST['phone'] ?? ''));
     $country = $db->real_escape_string(trim($_POST['country'] ?? 'Schweiz'));
     $label = $db->real_escape_string(trim($_POST['label'] ?? 'Hauptadresse'));
     $is_default = isset($_POST['is_default']) ? 1 : 0;
-    
+
+    if (empty($first_name) || empty($last_name) || empty($street) || empty($city) || empty($postal_code) || empty($phone)) {
+        echo json_encode(['success' => false, 'error' => 'Alle Pflichtfelder sind erforderlich (Vorname, Nachname, Straße, PLZ, Stadt, Telefon)']);
+        exit;
+    }
+
     if ($is_default) {
         $db->query("UPDATE user_addresses SET is_default = 0 WHERE user_id = $user_id");
     }
-    
-    if ($db->query("UPDATE user_addresses SET first_name = '$first_name', last_name = '$last_name', street = '$street', city = '$city', postal_code = '$postal_code', country = '$country', label = '$label', is_default = $is_default WHERE id = $address_id")) {
+
+    if ($db->query("UPDATE user_addresses SET first_name = '$first_name', last_name = '$last_name', street = '$street', city = '$city', postal_code = '$postal_code', phone = '$phone', country = '$country', label = '$label', is_default = $is_default WHERE id = $address_id")) {
         echo json_encode(['success' => true, 'message' => 'Adresse aktualisiert']);
     } else {
         echo json_encode(['success' => false, 'error' => $db->error]);
