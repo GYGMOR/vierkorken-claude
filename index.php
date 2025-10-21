@@ -19,6 +19,7 @@ $page = isset($_GET['page']) ? trim($_GET['page']) : 'home';
 
 $allowed_pages = [
     'home', 'shop', 'product', 'cart', 'checkout',
+    'events', 'event',
     'admin-login', 'admin-dashboard', 'admin-theme',
     'user-portal',
     'impressum', 'agb', 'datenschutz', 'newsletter', 'contact'
@@ -58,6 +59,8 @@ $theme_colors = get_all_theme_settings();
             'product' => 'Produkt - Vier Korken',
             'cart' => 'Warenkorb - Vier Korken',
             'checkout' => 'Checkout - Vier Korken',
+            'events' => 'Events - Vier Korken',
+            'event' => 'Event Details - Vier Korken',
             'admin-theme' => 'Design-Einstellungen - Admin',
             'user-portal' => 'Mein Account - Vier Korken',
             'impressum' => 'Impressum - Vier Korken',
@@ -82,9 +85,12 @@ $theme_colors = get_all_theme_settings();
     <!-- CSS Variablen für Theme -->
     <style>
         :root {
-            --primary-color: <?php echo $theme_colors['header_bg_color'] ?? '#693a15'; ?>;
-            --accent-color: <?php echo $theme_colors['header_accent_color'] ?? '#ead39c'; ?>;
-            --text-color: <?php echo $theme_colors['header_text_color'] ?? '#ffffff'; ?>;
+            --primary-color: <?php echo $theme_colors['primary_color'] ?? '#722c2c'; ?>;
+            --primary-dark: <?php echo $theme_colors['primary_dark'] ?? '#561111'; ?>;
+            --accent-gold: <?php echo $theme_colors['accent_gold'] ?? '#d4a574'; ?>;
+            --bg-light: <?php echo $theme_colors['bg_light'] ?? '#f8f4f0'; ?>;
+            --text-dark: <?php echo $theme_colors['text_dark'] ?? '#333333'; ?>;
+            --text-light: <?php echo $theme_colors['text_light'] ?? '#666666'; ?>;
         }
     </style>
 </head>

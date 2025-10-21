@@ -207,12 +207,203 @@ function get_all_theme_settings() {
     global $db;
     $result = $db->query("SELECT setting_key, setting_value FROM theme_settings");
     $settings = [];
-    
+
     while ($row = $result->fetch_assoc()) {
         $settings[$row['setting_key']] = $row['setting_value'];
     }
-    
+
     return $settings;
+}
+
+// 21. NEWS/NEUHEITEN MANAGEMENT
+function get_all_news_items($limit = 6, $active_only = true) {
+    global $db;
+    $where = $active_only ? "WHERE is_active = 1" : "";
+    $query = "SELECT * FROM news_items $where ORDER BY display_order ASC, created_at DESC LIMIT $limit";
+    $result = $db->query($query);
+    return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+}
+
+function get_news_item_by_id($id) {
+    global $db;
+    $id = (int)$id;
+    $result = $db->query("SELECT * FROM news_items WHERE id = $id");
+    return $result ? $result->fetch_assoc() : null;
+}
+
+function create_news_item($data) {
+    global $db;
+    $title = $db->real_escape_string($data['title']);
+    $content = $db->real_escape_string($data['content'] ?? '');
+    $type = $db->real_escape_string($data['type']);
+    $image_url = $db->real_escape_string($data['image_url'] ?? '');
+    $link_url = $db->real_escape_string($data['link_url'] ?? '');
+    $reference_id = isset($data['reference_id']) ? (int)$data['reference_id'] : 'NULL';
+    $display_order = isset($data['display_order']) ? (int)$data['display_order'] : 0;
+
+    $sql = "INSERT INTO news_items (title, content, type, image_url, link_url, reference_id, display_order)
+            VALUES ('$title', '$content', '$type', '$image_url', '$link_url', $reference_id, $display_order)";
+
+    return $db->query($sql);
+}
+
+function update_news_item($id, $data) {
+    global $db;
+    $id = (int)$id;
+    $title = $db->real_escape_string($data['title']);
+    $content = $db->real_escape_string($data['content'] ?? '');
+    $type = $db->real_escape_string($data['type']);
+    $image_url = $db->real_escape_string($data['image_url'] ?? '');
+    $link_url = $db->real_escape_string($data['link_url'] ?? '');
+    $reference_id = isset($data['reference_id']) ? (int)$data['reference_id'] : 'NULL';
+    $display_order = isset($data['display_order']) ? (int)$data['display_order'] : 0;
+    $is_active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+
+    $sql = "UPDATE news_items SET
+            title = '$title',
+            content = '$content',
+            type = '$type',
+            image_url = '$image_url',
+            link_url = '$link_url',
+            reference_id = $reference_id,
+            display_order = $display_order,
+            is_active = $is_active
+            WHERE id = $id";
+
+    return $db->query($sql);
+}
+
+function delete_news_item($id) {
+    global $db;
+    $id = (int)$id;
+    return $db->query("DELETE FROM news_items WHERE id = $id");
+}
+
+// 22. EVENTS MANAGEMENT
+function get_all_events($active_only = true, $future_only = false) {
+    global $db;
+    $where = [];
+
+    if ($active_only) {
+        $where[] = "is_active = 1";
+    }
+
+    if ($future_only) {
+        $where[] = "event_date >= NOW()";
+    }
+
+    $where_clause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+    $query = "SELECT * FROM events $where_clause ORDER BY event_date ASC";
+    $result = $db->query($query);
+    return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+}
+
+function get_event_by_id($id) {
+    global $db;
+    $id = (int)$id;
+    $result = $db->query("SELECT * FROM events WHERE id = $id");
+    return $result ? $result->fetch_assoc() : null;
+}
+
+function create_event($data) {
+    global $db;
+    $name = $db->real_escape_string($data['name']);
+    $description = $db->real_escape_string($data['description'] ?? '');
+    $event_date = $db->real_escape_string($data['event_date']);
+    $location = $db->real_escape_string($data['location'] ?? '');
+    $price = (float)($data['price'] ?? 0);
+    $image_url = $db->real_escape_string($data['image_url'] ?? '');
+    $max_participants = (int)($data['max_participants'] ?? 0);
+    $available_tickets = (int)($data['available_tickets'] ?? 0);
+    $category_id = isset($data['category_id']) ? (int)$data['category_id'] : 9;
+
+    $sql = "INSERT INTO events (name, description, event_date, location, price, image_url, max_participants, available_tickets, category_id)
+            VALUES ('$name', '$description', '$event_date', '$location', $price, '$image_url', $max_participants, $available_tickets, $category_id)";
+
+    return $db->query($sql);
+}
+
+function update_event($id, $data) {
+    global $db;
+    $id = (int)$id;
+    $name = $db->real_escape_string($data['name']);
+    $description = $db->real_escape_string($data['description'] ?? '');
+    $event_date = $db->real_escape_string($data['event_date']);
+    $location = $db->real_escape_string($data['location'] ?? '');
+    $price = (float)($data['price'] ?? 0);
+    $image_url = $db->real_escape_string($data['image_url'] ?? '');
+    $max_participants = (int)($data['max_participants'] ?? 0);
+    $available_tickets = (int)($data['available_tickets'] ?? 0);
+    $is_active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+
+    $sql = "UPDATE events SET
+            name = '$name',
+            description = '$description',
+            event_date = '$event_date',
+            location = '$location',
+            price = $price,
+            image_url = '$image_url',
+            max_participants = $max_participants,
+            available_tickets = $available_tickets,
+            is_active = $is_active
+            WHERE id = $id";
+
+    return $db->query($sql);
+}
+
+function delete_event($id) {
+    global $db;
+    $id = (int)$id;
+    return $db->query("DELETE FROM events WHERE id = $id");
+}
+
+function get_available_tickets($event_id) {
+    global $db;
+    $event_id = (int)$event_id;
+    $result = $db->query("SELECT available_tickets FROM events WHERE id = $event_id");
+    if ($result && $row = $result->fetch_assoc()) {
+        return (int)$row['available_tickets'];
+    }
+    return 0;
+}
+
+function book_event_tickets($event_id, $quantity, $user_data = []) {
+    global $db;
+    $event_id = (int)$event_id;
+    $quantity = (int)$quantity;
+
+    // Check availability
+    $available = get_available_tickets($event_id);
+    if ($available < $quantity) {
+        return ['success' => false, 'error' => 'Nicht genügend Tickets verfügbar'];
+    }
+
+    // Get event price
+    $event = get_event_by_id($event_id);
+    if (!$event) {
+        return ['success' => false, 'error' => 'Event nicht gefunden'];
+    }
+
+    $total_price = $event['price'] * $quantity;
+
+    // Create booking
+    $user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 'NULL';
+    $customer_name = $db->real_escape_string($user_data['name'] ?? '');
+    $customer_email = $db->real_escape_string($user_data['email'] ?? '');
+    $customer_phone = $db->real_escape_string($user_data['phone'] ?? '');
+
+    $sql = "INSERT INTO event_bookings (event_id, user_id, ticket_quantity, total_price, customer_name, customer_email, customer_phone)
+            VALUES ($event_id, $user_id, $quantity, $total_price, '$customer_name', '$customer_email', '$customer_phone')";
+
+    if ($db->query($sql)) {
+        // Update available tickets
+        $new_available = $available - $quantity;
+        $db->query("UPDATE events SET available_tickets = $new_available WHERE id = $event_id");
+
+        return ['success' => true, 'booking_id' => $db->insert_id];
+    }
+
+    return ['success' => false, 'error' => 'Buchung fehlgeschlagen'];
 }
 
 ?>

@@ -113,6 +113,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         <ul class="menu-nav">
             <li><a href="?page=home">Startseite</a></li>
             <li><a href="?page=shop">Shop</a></li>
+            <li><a href="?page=events">Events</a></li>
         </ul>
 
         <!-- Kategorien -->
@@ -159,6 +160,12 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                     endif;
                 endforeach;
                 ?>
+
+                <!-- Events Kategorie -->
+                <?php if (isset($categories_by_name['Events'])): ?>
+                <li class="submenu-header">Events & Erlebnisse</li>
+                <li><a href="?page=events">Events & Verkostungen</a></li>
+                <?php endif; ?>
             </ul>
         </div>
 

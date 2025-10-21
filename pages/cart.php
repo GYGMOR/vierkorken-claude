@@ -210,6 +210,55 @@
     min-width: 80px;
 }
 
+/* EVENT-SPECIFIC STYLES */
+.cart-item-event {
+    border-left-color: #2196F3;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f5f5f5 100%);
+}
+
+.cart-item-type-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.cart-item-type-badge.wine {
+    background: var(--primary-color);
+    color: white;
+}
+
+.cart-item-type-badge.event {
+    background: #2196F3;
+    color: white;
+}
+
+.cart-event-details {
+    margin-top: 0.8rem;
+    padding: 0.8rem;
+    background: white;
+    border-radius: 6px;
+    border-left: 3px solid #2196F3;
+}
+
+.cart-event-details small {
+    display: block;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.event-quantity-label {
+    font-weight: 600;
+    color: #2196F3;
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: 6px;
+    border: 2px solid #2196F3;
+}
+
 /* SUMMARY */
 .cart-summary-sidebar {
     display: flex;

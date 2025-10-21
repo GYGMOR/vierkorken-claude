@@ -16,12 +16,30 @@ $about_image = get_setting('about_section_image', '');
 $about_text = get_setting('about_section_text', 'Willkommen bei Vier Korken, Ihrem Zugang zu den erlesenen Weinen der Schweiz.');
 $about_shop_link = get_setting('about_shop_link', '?page=shop');
 
-// Neuheiten-Weine laden (max 6)
-$featured_wines = [];
-$result = $db->query("SELECT w.*, c.name as cat_name FROM wines w LEFT JOIN categories c ON w.category_id = c.id WHERE w.is_featured = 1 ORDER BY w.created_at DESC LIMIT 6");
-if ($result) {
-    $featured_wines = $result->fetch_all(MYSQLI_ASSOC);
+// Neuheiten laden - kann Weine, Events oder allgemeine News sein
+$news_items = get_all_news_items(6, true);
+
+// Ergänze die News-Items mit zusätzlichen Daten (Wein- oder Event-Details)
+foreach ($news_items as &$item) {
+    if ($item['type'] === 'wine' && $item['reference_id']) {
+        $wine = get_wine_by_id($item['reference_id']);
+        if ($wine) {
+            $item['wine_data'] = $wine;
+            // Fallback: Nutze Wein-Daten wenn News-Item keine eigenen hat
+            if (empty($item['image_url'])) $item['image_url'] = $wine['image_url'];
+            if (empty($item['link_url'])) $item['link_url'] = '?page=product&id=' . $wine['id'];
+        }
+    } elseif ($item['type'] === 'event' && $item['reference_id']) {
+        $event = get_event_by_id($item['reference_id']);
+        if ($event) {
+            $item['event_data'] = $event;
+            // Fallback: Nutze Event-Daten wenn News-Item keine eigenen hat
+            if (empty($item['image_url'])) $item['image_url'] = $event['image_url'];
+            if (empty($item['link_url'])) $item['link_url'] = '?page=event&id=' . $event['id'];
+        }
+    }
 }
+unset($item); // Break reference
 ?>
 
 <!-- HEADER BANNER -->
@@ -69,54 +87,85 @@ if ($result) {
 
         <div class="news-scroll-container">
             <div class="news-grid-horizontal">
-            <?php if (!empty($featured_wines)): ?>
-                <?php foreach ($featured_wines as $wine): ?>
-                    <a href="?page=product&id=<?php echo $wine['id']; ?>" class="news-card news-card-link">
-                        <div class="news-badge">
-                            <?php 
-                            $cat_name = $wine['cat_name'] ?? 'Wein';
-                            echo safe_output($cat_name);
-                            ?>
+            <?php if (!empty($news_items)): ?>
+                <?php foreach ($news_items as $item): ?>
+                    <?php
+                    // Bestimme Badge-Text basierend auf Typ
+                    $badge_text = 'Neuheit';
+                    if ($item['type'] === 'wine') {
+                        $badge_text = $item['wine_data']['cat_name'] ?? 'Wein';
+                    } elseif ($item['type'] === 'event') {
+                        $badge_text = 'Event';
+                    }
+
+                    // Bestimme Link
+                    $link = $item['link_url'] ?: '#';
+                    ?>
+
+                    <a href="<?php echo safe_output($link); ?>" class="news-card news-card-link">
+                        <div class="news-badge news-badge-<?php echo $item['type']; ?>">
+                            <?php echo safe_output($badge_text); ?>
                         </div>
-                        
+
                         <div class="news-image">
-                            <?php if (!empty($wine['image_url'])): ?>
-                                <img src="<?php echo safe_output($wine['image_url']); ?>" alt="<?php echo safe_output($wine['name']); ?>">
+                            <?php if (!empty($item['image_url'])): ?>
+                                <img src="<?php echo safe_output($item['image_url']); ?>" alt="<?php echo safe_output($item['title']); ?>">
                             <?php else: ?>
-                                <div class="wine-image-placeholder"><?php echo get_icon('wine', 60, 'icon-secondary'); ?></div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="news-info">
-                            <h3><?php echo safe_output($wine['name']); ?></h3>
-                            <p class="wine-producer"><?php echo safe_output($wine['producer'] ?? 'Schweizer Wein'); ?></p>
-                            
-                            <!-- WINE DETAILS -->
-                            <div class="wine-details">
-                                <?php if (!empty($wine['vintage'])): ?>
-                                    <span class="detail-item">Jahrgang: <?php echo intval($wine['vintage']); ?></span>
-                                <?php endif; ?>
-                                <?php if (!empty($wine['region'])): ?>
-                                    <span class="detail-item">Region: <?php echo safe_output($wine['region']); ?></span>
-                                <?php endif; ?>
-                            </div>
-                            
-                            <!-- RATING ANZEIGE -->
-                            <?php if ($wine['avg_rating']): ?>
-                                <div class="wine-rating-news">
-                                    <?php echo get_rating_stars($wine['avg_rating'], 5, 16); ?>
-                                    <span class="rating-text-news"><?php echo number_format($wine['avg_rating'], 1); ?> (<?php echo $wine['rating_count']; ?>)</span>
+                                <div class="wine-image-placeholder">
+                                    <?php
+                                    $icon = $item['type'] === 'event' ? 'calendar' : 'wine';
+                                    echo get_icon($icon, 60, 'icon-secondary');
+                                    ?>
                                 </div>
                             <?php endif; ?>
-                            
-                            <p class="wine-price"><?php echo format_price($wine['price']); ?></p>
+                        </div>
+
+                        <div class="news-info">
+                            <h3><?php echo safe_output($item['title']); ?></h3>
+
+                            <?php if ($item['type'] === 'wine' && isset($item['wine_data'])): ?>
+                                <!-- WEIN-SPEZIFISCHE INFORMATIONEN -->
+                                <?php $wine = $item['wine_data']; ?>
+                                <p class="wine-producer"><?php echo safe_output($wine['producer'] ?? ''); ?></p>
+
+                                <div class="wine-details">
+                                    <?php if (!empty($wine['vintage'])): ?>
+                                        <span class="detail-item">Jahrgang: <?php echo intval($wine['vintage']); ?></span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($wine['region'])): ?>
+                                        <span class="detail-item">Region: <?php echo safe_output($wine['region']); ?></span>
+                                    <?php endif; ?>
+                                </div>
+
+                                <p class="wine-price"><?php echo format_price($wine['price']); ?></p>
+
+                            <?php elseif ($item['type'] === 'event' && isset($item['event_data'])): ?>
+                                <!-- EVENT-SPEZIFISCHE INFORMATIONEN -->
+                                <?php $event = $item['event_data']; ?>
+                                <p class="event-date">
+                                    <?php echo date('d.m.Y, H:i', strtotime($event['event_date'])); ?> Uhr
+                                </p>
+                                <?php if (!empty($event['location'])): ?>
+                                    <p class="event-location"><?php echo safe_output($event['location']); ?></p>
+                                <?php endif; ?>
+                                <p class="wine-price"><?php echo format_price($event['price']); ?> / Ticket</p>
+                                <p class="event-tickets">
+                                    <?php echo $event['available_tickets']; ?> Tickets verfügbar
+                                </p>
+
+                            <?php else: ?>
+                                <!-- ALLGEMEINE NEWS -->
+                                <?php if (!empty($item['content'])): ?>
+                                    <p class="news-content"><?php echo safe_output(substr($item['content'], 0, 100)); ?><?php echo strlen($item['content']) > 100 ? '...' : ''; ?></p>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </div>
                     </a>
                 <?php endforeach; ?>
             <?php else: ?>
                 <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-light);">
                     <?php if ($EDIT_MODE): ?>
-                        <p>📌 Noch keine Neuheiten hinzugefügt. Im Admin-Panel Weine als "Featured" markieren.</p>
+                        <p>📌 Noch keine Neuheiten hinzugefügt. Im Admin-Panel News-Items erstellen.</p>
                     <?php else: ?>
                         <p>Noch keine Neuheiten verfügbar.</p>
                     <?php endif; ?>
@@ -320,6 +369,22 @@ if ($result) {
                         endif;
                     endif;
                 endforeach;
+
+                // Events & Erlebnisse Sektion
+                $upcoming_events = get_all_events(true, true);
+                if (count($upcoming_events) > 0):
+                    echo '<div class="category-header-card"><h3>Events & Erlebnisse</h3></div>';
+                ?>
+                    <div class="category-card category-card-events">
+                        <div class="category-icon">
+                            <?php echo get_icon('calendar', 48, 'icon-primary'); ?>
+                        </div>
+                        <h3>Events & Verkostungen</h3>
+                        <p class="category-count"><?php echo count($upcoming_events); ?> bevorstehende Events</p>
+                        <a href="?page=events" class="btn btn-secondary">Entdecken</a>
+                    </div>
+                <?php
+                endif;
                 ?>
             </div>
         </div>
@@ -529,6 +594,40 @@ if ($result) {
     padding: 0.6rem 1rem;
     font-size: 0.85rem;
     font-weight: 600;
+}
+
+.news-badge-event {
+    background: #2196F3;
+}
+
+.news-badge-general {
+    background: #4CAF50;
+}
+
+.event-date {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.event-location {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.event-tickets {
+    color: var(--accent-gold);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.news-content {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    line-height: 1.6;
 }
 
 .news-image {
@@ -977,47 +1076,106 @@ if ($result) {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+    .news-grid-horizontal {
+        grid-auto-columns: 280px;
+    }
+
+    .news-card h3 {
+        font-size: 1rem;
+    }
+
+    .event-date,
+    .event-location,
+    .event-tickets {
+        font-size: 0.85rem;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
 @media (max-width: 768px) {
     .header-banner {
         height: 250px;
     }
-    
+
     .home-hero {
         min-height: 400px;
     }
-    
+
     .home-hero h1 {
         font-size: 2rem;
     }
-    
+
     .hero-subtitle {
         font-size: 1.1rem;
     }
-    
+
     .about-showcase-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
-    
+
     .about-text-side h2 {
         font-size: 1.8rem;
     }
-    
+
     .stat-number {
         font-size: 2rem;
     }
-    
+
     .newsletter-form {
         flex-direction: column;
     }
-    
+
     .newsletter-form input,
     .newsletter-form button {
         width: 100%;
     }
-    
-    .news-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+
+    .news-grid-horizontal {
+        grid-auto-columns: 260px;
+    }
+
+    .news-card {
+        min-height: auto;
+    }
+
+    .news-image {
+        height: 200px;
+    }
+
+    .news-info h3 {
+        font-size: 0.95rem;
+    }
+
+    .wine-producer,
+    .news-content {
+        font-size: 0.85rem;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 1rem;
+    }
+
+    .category-card {
+        padding: 1.2rem;
+    }
+
+    .category-icon {
+        margin-bottom: 0.8rem;
+    }
+
+    .category-card h3 {
+        font-size: 1rem;
+    }
+
+    .category-count {
+        font-size: 0.85rem;
     }
 }
 
@@ -1025,13 +1183,59 @@ if ($result) {
     .home-hero h1 {
         font-size: 1.5rem;
     }
-    
+
     .hero-subtitle {
         font-size: 1rem;
     }
-    
-    .news-grid {
+
+    .news-scroll-container {
+        margin: 0 -1rem;
+        padding: 0 1rem;
+    }
+
+    .news-grid-horizontal {
+        grid-auto-columns: 240px;
+        gap: 0.8rem;
+    }
+
+    .news-card {
+        border-radius: 10px;
+    }
+
+    .news-image {
+        height: 180px;
+    }
+
+    .news-info {
+        padding: 1rem;
+    }
+
+    .wine-price {
+        font-size: 1rem;
+    }
+
+    .event-date,
+    .event-location,
+    .event-tickets {
+        font-size: 0.8rem;
+    }
+
+    .category-grid {
         grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+
+    .category-card {
+        padding: 1rem;
+    }
+
+    .category-card h3 {
+        font-size: 0.95rem;
+    }
+
+    .category-count {
+        font-size: 0.8rem;
+        margin: 0.3rem 0 0.8rem;
     }
 }
 </style>

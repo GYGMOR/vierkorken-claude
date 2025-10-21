@@ -42,9 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message_type = 'success';
     }
     elseif ($action === 'update_colors') {
-        update_setting('color_primary', $_POST['color_primary']);
-        update_setting('color_primary_dark', $_POST['color_primary_dark']);
-        update_setting('color_accent_gold', $_POST['color_accent_gold']);
+        // Theme-Farben in theme_settings Tabelle speichern
+        update_theme_color('primary_color', $_POST['primary_color'] ?? '#722c2c');
+        update_theme_color('primary_dark', $_POST['primary_dark'] ?? '#561111');
+        update_theme_color('accent_gold', $_POST['accent_gold'] ?? '#d4a574');
+        update_theme_color('bg_light', $_POST['bg_light'] ?? '#f8f4f0');
+        update_theme_color('text_dark', $_POST['text_dark'] ?? '#333333');
+        update_theme_color('text_light', $_POST['text_light'] ?? '#666666');
         $message = 'Farben gespeichert! Seite neu laden um Änderungen zu sehen.';
         $message_type = 'success';
     }
@@ -164,19 +168,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $region = $db->real_escape_string(trim($_POST['region']));
         $alcohol = !empty($_POST['alcohol_content']) ? (float)$_POST['alcohol_content'] : 'NULL';
         $image_url = $db->real_escape_string(trim($_POST['image_url']));
-        
-        $sql = "UPDATE wines SET 
+
+        $sql = "UPDATE wines SET
                 name='$name', category_id=$category_id, price=$price, stock=$stock,
                 description='$description', producer='$producer', vintage=$vintage,
                 region='$region', alcohol_content=$alcohol, image_url='$image_url'
                 WHERE id=$wine_id";
-        
+
         if ($db->query($sql)) {
             $message = 'Wein aktualisiert!';
             $message_type = 'success';
             $tab = 'wines';
         } else {
             $message = 'Fehler: ' . $db->error;
+            $message_type = 'error';
+        }
+    }
+    elseif ($action === 'add_event') {
+        $data = [
+            'name' => $_POST['name'],
+            'description' => $_POST['description'] ?? '',
+            'event_date' => $_POST['event_date'],
+            'location' => $_POST['location'] ?? '',
+            'price' => $_POST['price'],
+            'image_url' => $_POST['image_url'] ?? '',
+            'max_participants' => $_POST['max_participants'] ?? 0,
+            'available_tickets' => $_POST['available_tickets'] ?? 0
+        ];
+
+        if (create_event($data)) {
+            $message = 'Event erstellt!';
+            $message_type = 'success';
+            $tab = 'events';
+        } else {
+            $message = 'Fehler beim Erstellen: ' . $db->error;
+            $message_type = 'error';
+        }
+    }
+    elseif ($action === 'edit_event') {
+        $event_id = (int)$_POST['event_id'];
+        $data = [
+            'name' => $_POST['name'],
+            'description' => $_POST['description'] ?? '',
+            'event_date' => $_POST['event_date'],
+            'location' => $_POST['location'] ?? '',
+            'price' => $_POST['price'],
+            'image_url' => $_POST['image_url'] ?? '',
+            'max_participants' => $_POST['max_participants'] ?? 0,
+            'available_tickets' => $_POST['available_tickets'] ?? 0,
+            'is_active' => isset($_POST['is_active']) ? 1 : 0
+        ];
+
+        if (update_event($event_id, $data)) {
+            $message = 'Event aktualisiert!';
+            $message_type = 'success';
+            $tab = 'events';
+        } else {
+            $message = 'Fehler beim Aktualisieren: ' . $db->error;
             $message_type = 'error';
         }
     }
@@ -214,7 +262,12 @@ $settings = get_all_settings();
             <div class="nav-divider">SHOP</div>
             <a href="?page=admin-dashboard&tab=wines" class="<?php echo $tab === 'wines' ? 'active' : ''; ?>">Weine verwalten</a>
             <a href="?page=admin-dashboard&tab=add-wine" class="<?php echo $tab === 'add-wine' ? 'active' : ''; ?>">Wein hinzufügen</a>
-            
+
+            <div class="nav-divider">NEWS & EVENTS</div>
+            <a href="?page=admin-dashboard&tab=news-items" class="<?php echo $tab === 'news-items' ? 'active' : ''; ?>">News verwalten</a>
+            <a href="?page=admin-dashboard&tab=events" class="<?php echo $tab === 'events' ? 'active' : ''; ?>">Events verwalten</a>
+            <a href="?page=admin-dashboard&tab=add-event" class="<?php echo $tab === 'add-event' ? 'active' : ''; ?>">Event hinzufügen</a>
+
             <div class="nav-divider"></div>
             <a href="?page=home" class="nav-home">Zur Webseite</a>
         </nav>
@@ -388,31 +441,47 @@ $settings = get_all_settings();
             </form>
 
         <?php elseif ($tab === 'colors'): ?>
+            <?php $theme_colors = get_all_theme_settings(); ?>
             <form method="POST" class="admin-form-mega">
                 <input type="hidden" name="action" value="update_colors">
                 <div class="form-section-mega">
                     <h3>Website Farben</h3>
-                    <p>Nach dem Speichern: Seite neu laden um Änderungen zu sehen.</p>
-                    
+                    <p>Nach dem Speichern: Seite neu laden (F5) um Änderungen zu sehen.</p>
+
                     <div class="colors-grid">
                         <div class="color-picker">
-                            <label>Hauptfarbe</label>
-                            <input type="color" name="color_primary" value="<?php echo $settings['color_primary'] ?? '#722c2c'; ?>">
-                            <input type="text" value="<?php echo $settings['color_primary'] ?? '#722c2c'; ?>" readonly>
+                            <label>Hauptfarbe (Primary)</label>
+                            <input type="color" name="primary_color" value="<?php echo $theme_colors['primary_color'] ?? '#722c2c'; ?>">
+                            <input type="text" value="<?php echo $theme_colors['primary_color'] ?? '#722c2c'; ?>" readonly>
                         </div>
                         <div class="color-picker">
                             <label>Dunkle Hauptfarbe</label>
-                            <input type="color" name="color_primary_dark" value="<?php echo $settings['color_primary_dark'] ?? '#561111'; ?>">
-                            <input type="text" value="<?php echo $settings['color_primary_dark'] ?? '#561111'; ?>" readonly>
+                            <input type="color" name="primary_dark" value="<?php echo $theme_colors['primary_dark'] ?? '#561111'; ?>">
+                            <input type="text" value="<?php echo $theme_colors['primary_dark'] ?? '#561111'; ?>" readonly>
                         </div>
                         <div class="color-picker">
                             <label>Akzentfarbe (Gold)</label>
-                            <input type="color" name="color_accent_gold" value="<?php echo $settings['color_accent_gold'] ?? '#d4a574'; ?>">
-                            <input type="text" value="<?php echo $settings['color_accent_gold'] ?? '#d4a574'; ?>" readonly>
+                            <input type="color" name="accent_gold" value="<?php echo $theme_colors['accent_gold'] ?? '#d4a574'; ?>">
+                            <input type="text" value="<?php echo $theme_colors['accent_gold'] ?? '#d4a574'; ?>" readonly>
+                        </div>
+                        <div class="color-picker">
+                            <label>Hintergrund Hell</label>
+                            <input type="color" name="bg_light" value="<?php echo $theme_colors['bg_light'] ?? '#f8f4f0'; ?>">
+                            <input type="text" value="<?php echo $theme_colors['bg_light'] ?? '#f8f4f0'; ?>" readonly>
+                        </div>
+                        <div class="color-picker">
+                            <label>Text Dunkel</label>
+                            <input type="color" name="text_dark" value="<?php echo $theme_colors['text_dark'] ?? '#333333'; ?>">
+                            <input type="text" value="<?php echo $theme_colors['text_dark'] ?? '#333333'; ?>" readonly>
+                        </div>
+                        <div class="color-picker">
+                            <label>Text Hell</label>
+                            <input type="color" name="text_light" value="<?php echo $theme_colors['text_light'] ?? '#666666'; ?>">
+                            <input type="text" value="<?php echo $theme_colors['text_light'] ?? '#666666'; ?>" readonly>
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg">Speichern</button>
+                <button type="submit" class="btn btn-primary btn-lg">Farben speichern</button>
             </form>
 
         <?php elseif ($tab === 'footer'): ?>
@@ -822,6 +891,205 @@ $settings = get_all_settings();
                     <a href="?page=admin-dashboard&tab=wines" class="btn btn-secondary btn-lg">Zurück</a>
                 </div>
             </form>
+
+        <?php elseif ($tab === 'news-items'): ?>
+            <div class="admin-info-box">
+                News/Neuheiten können Weine, Events oder allgemeine Nachrichten sein.
+            </div>
+
+            <div class="wines-header">
+                <h3>News/Neuheiten verwalten</h3>
+                <button onclick="showAddNewsModal()" class="btn btn-primary">Neues News-Item</button>
+            </div>
+
+            <div id="news-items-list">
+                <p>Lade News-Items...</p>
+            </div>
+
+        <?php elseif ($tab === 'events'): ?>
+            <?php $events = get_all_events(false, false); ?>
+
+            <div class="wines-header">
+                <h3><?php echo count($events); ?> Events</h3>
+                <a href="?page=admin-dashboard&tab=add-event" class="btn btn-primary">Neues Event</a>
+            </div>
+
+            <table class="admin-table-mega">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Datum</th>
+                        <th>Ort</th>
+                        <th>Preis</th>
+                        <th>Tickets</th>
+                        <th>Status</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($events as $event): ?>
+                        <tr>
+                            <td><strong><?php echo safe_output($event['name']); ?></strong></td>
+                            <td><?php echo date('d.m.Y H:i', strtotime($event['event_date'])); ?></td>
+                            <td><?php echo safe_output($event['location'] ?? '-'); ?></td>
+                            <td>CHF <?php echo number_format($event['price'], 2); ?></td>
+                            <td><?php echo $event['available_tickets']; ?> / <?php echo $event['max_participants'] ?: '∞'; ?></td>
+                            <td>
+                                <span class="stock-badge <?php echo $event['is_active'] ? '' : 'low'; ?>">
+                                    <?php echo $event['is_active'] ? 'Aktiv' : 'Inaktiv'; ?>
+                                </span>
+                            </td>
+                            <td>
+                                <a href="?page=admin-dashboard&tab=edit-event&event_id=<?php echo $event['id']; ?>" class="btn-small-admin">Bearbeiten</a>
+                                <button onclick="deleteEvent(<?php echo $event['id']; ?>)" class="btn-small-admin danger">Löschen</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+        <?php elseif ($tab === 'add-event'): ?>
+            <form method="POST" class="admin-form-mega" id="add-event-form">
+                <input type="hidden" name="action" value="add_event">
+
+                <div class="form-section-mega">
+                    <h3>Event-Details</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group-mega">
+                            <label>Event-Name *</label>
+                            <input type="text" name="name" required>
+                        </div>
+                        <div class="form-group-mega">
+                            <label>Ort</label>
+                            <input type="text" name="location" placeholder="z.B. Vier Korken Weinlounge, Zürich">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section-mega">
+                    <h3>Datum & Preis</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group-mega">
+                            <label>Event-Datum & Uhrzeit *</label>
+                            <input type="datetime-local" name="event_date" required>
+                        </div>
+                        <div class="form-group-mega">
+                            <label>Preis pro Ticket (CHF) *</label>
+                            <input type="number" name="price" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section-mega">
+                    <h3>Tickets & Kapazität</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group-mega">
+                            <label>Max. Teilnehmer (0 = unbegrenzt)</label>
+                            <input type="number" name="max_participants" min="0" value="0">
+                        </div>
+                        <div class="form-group-mega">
+                            <label>Verfügbare Tickets *</label>
+                            <input type="number" name="available_tickets" min="0" value="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section-mega">
+                    <h3>Beschreibung & Bild</h3>
+                    <div class="form-group-mega">
+                        <label>Bild-URL</label>
+                        <input type="text" name="image_url" placeholder="z.B. assets/images/events/event1.jpg">
+                    </div>
+                    <div class="form-group-mega">
+                        <label>Beschreibung</label>
+                        <textarea name="description" rows="5"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions-mega">
+                    <button type="submit" class="btn btn-primary btn-lg">Event erstellen</button>
+                    <a href="?page=admin-dashboard&tab=events" class="btn btn-secondary btn-lg">Zurück</a>
+                </div>
+            </form>
+
+        <?php elseif ($tab === 'edit-event'): ?>
+            <?php
+            $event_id = isset($_GET['event_id']) ? (int)$_GET['event_id'] : 0;
+            $event = get_event_by_id($event_id);
+            if (!$event) {
+                echo '<div class="alert alert-error">Event nicht gefunden</div>';
+            } else:
+            ?>
+            <form method="POST" class="admin-form-mega" id="edit-event-form">
+                <input type="hidden" name="action" value="edit_event">
+                <input type="hidden" name="event_id" value="<?php echo $event['id']; ?>">
+
+                <div class="form-section-mega">
+                    <h3>Event-Details</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group-mega">
+                            <label>Event-Name *</label>
+                            <input type="text" name="name" value="<?php echo safe_output($event['name']); ?>" required>
+                        </div>
+                        <div class="form-group-mega">
+                            <label>Ort</label>
+                            <input type="text" name="location" value="<?php echo safe_output($event['location']); ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section-mega">
+                    <h3>Datum & Preis</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group-mega">
+                            <label>Event-Datum & Uhrzeit *</label>
+                            <input type="datetime-local" name="event_date" value="<?php echo date('Y-m-d\TH:i', strtotime($event['event_date'])); ?>" required>
+                        </div>
+                        <div class="form-group-mega">
+                            <label>Preis pro Ticket (CHF) *</label>
+                            <input type="number" name="price" step="0.01" value="<?php echo $event['price']; ?>" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section-mega">
+                    <h3>Tickets & Kapazität</h3>
+                    <div class="form-grid-2col">
+                        <div class="form-group-mega">
+                            <label>Max. Teilnehmer (0 = unbegrenzt)</label>
+                            <input type="number" name="max_participants" value="<?php echo $event['max_participants']; ?>" min="0">
+                        </div>
+                        <div class="form-group-mega">
+                            <label>Verfügbare Tickets *</label>
+                            <input type="number" name="available_tickets" value="<?php echo $event['available_tickets']; ?>" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-group-mega">
+                        <label>
+                            <input type="checkbox" name="is_active" value="1" <?php echo $event['is_active'] ? 'checked' : ''; ?>>
+                            Event ist aktiv
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-section-mega">
+                    <h3>Beschreibung & Bild</h3>
+                    <div class="form-group-mega">
+                        <label>Bild-URL</label>
+                        <input type="text" name="image_url" value="<?php echo safe_output($event['image_url']); ?>">
+                    </div>
+                    <div class="form-group-mega">
+                        <label>Beschreibung</label>
+                        <textarea name="description" rows="5"><?php echo safe_output($event['description']); ?></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions-mega">
+                    <button type="submit" class="btn btn-primary btn-lg">Speichern</button>
+                    <a href="?page=admin-dashboard&tab=events" class="btn btn-secondary btn-lg">Zurück</a>
+                </div>
+            </form>
+            <?php endif; ?>
 
         <?php else: ?>
             <div class="coming-soon">
@@ -1418,5 +1686,219 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Load News Items if on news-items tab
+    if (document.getElementById('news-items-list')) {
+        loadNewsItems();
+    }
 });
+
+// NEWS ITEMS MANAGEMENT
+function loadNewsItems() {
+    fetch('api/news-items.php?action=get_all&active_only=false')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                renderNewsItems(data.data);
+            } else {
+                document.getElementById('news-items-list').innerHTML = '<p>Fehler beim Laden</p>';
+            }
+        })
+        .catch(e => {
+            console.error('Error:', e);
+            document.getElementById('news-items-list').innerHTML = '<p>Fehler beim Laden</p>';
+        });
+}
+
+function renderNewsItems(items) {
+    const container = document.getElementById('news-items-list');
+
+    if (items.length === 0) {
+        container.innerHTML = '<p>Keine News-Items vorhanden.</p>';
+        return;
+    }
+
+    const html = `
+        <table class="admin-table-mega">
+            <thead>
+                <tr>
+                    <th>Titel</th>
+                    <th>Typ</th>
+                    <th>Reihenfolge</th>
+                    <th>Status</th>
+                    <th>Aktionen</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${items.map(item => `
+                    <tr>
+                        <td><strong>${escapeHtml(item.title)}</strong></td>
+                        <td><span class="badge-type-${item.type}">${getTypeLabel(item.type)}</span></td>
+                        <td>${item.display_order}</td>
+                        <td>
+                            <span class="stock-badge ${item.is_active ? '' : 'low'}">
+                                ${item.is_active ? 'Aktiv' : 'Inaktiv'}
+                            </span>
+                        </td>
+                        <td>
+                            <button onclick="toggleNewsActive(${item.id})" class="btn-small-admin">
+                                ${item.is_active ? 'Deaktivieren' : 'Aktivieren'}
+                            </button>
+                            <button onclick="deleteNewsItem(${item.id})" class="btn-small-admin danger">Löschen</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+
+    container.innerHTML = html;
+}
+
+function getTypeLabel(type) {
+    const labels = {
+        'wine': 'Wein',
+        'event': 'Event',
+        'general': 'Allgemein'
+    };
+    return labels[type] || type;
+}
+
+function showAddNewsModal() {
+    const title = prompt('News-Titel:');
+    if (!title) return;
+
+    const type = prompt('Typ (wine/event/general):');
+    if (!type) return;
+
+    const content = prompt('Beschreibung (optional):');
+    const imageUrl = prompt('Bild-URL (optional):');
+    const linkUrl = prompt('Link-URL (optional):');
+
+    const data = { title, type, content, image_url: imageUrl, link_url: linkUrl };
+
+    fetch('api/news-items.php?action=create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('News-Item erstellt!');
+            loadNewsItems();
+        } else {
+            alert('Fehler: ' + data.error);
+        }
+    })
+    .catch(e => {
+        console.error('Error:', e);
+        alert('Fehler beim Erstellen');
+    });
+}
+
+function toggleNewsActive(id) {
+    if (!confirm('Status wirklich ändern?')) return;
+
+    fetch('api/news-items.php?action=toggle_active', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'id=' + id
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadNewsItems();
+        } else {
+            alert('Fehler: ' + data.error);
+        }
+    })
+    .catch(e => {
+        console.error('Error:', e);
+        alert('Fehler beim Aktualisieren');
+    });
+}
+
+function deleteNewsItem(id) {
+    if (!confirm('News-Item wirklich löschen?')) return;
+
+    fetch('api/news-items.php?action=delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'id=' + id
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Gelöscht!');
+            loadNewsItems();
+        } else {
+            alert('Fehler: ' + data.error);
+        }
+    })
+    .catch(e => {
+        console.error('Error:', e);
+        alert('Fehler beim Löschen');
+    });
+}
+
+// EVENT MANAGEMENT
+function deleteEvent(id) {
+    if (!confirm('Event wirklich löschen?')) return;
+
+    fetch('api/events.php?action=delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'id=' + id
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Event gelöscht!');
+            location.reload();
+        } else {
+            alert('Fehler: ' + data.error);
+        }
+    })
+    .catch(e => {
+        console.error('Error:', e);
+        alert('Fehler beim Löschen');
+    });
+}
+
+// HELPER
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 </script>
+
+<style>
+.badge-type-wine {
+    background: #722c2c;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    display: inline-block;
+}
+
+.badge-type-event {
+    background: #2196F3;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    display: inline-block;
+}
+
+.badge-type-general {
+    background: #4CAF50;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    display: inline-block;
+}
+</style>

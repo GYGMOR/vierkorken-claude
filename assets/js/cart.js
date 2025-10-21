@@ -25,9 +25,9 @@ class ShoppingCart {
         wineId = parseInt(wineId);
         price = parseFloat(price);
         quantity = parseInt(quantity) || 1;
-        
-        const existing = this.items.find(item => item.id === wineId);
-        
+
+        const existing = this.items.find(item => item.id === wineId && item.type === 'wine');
+
         if (existing) {
             existing.quantity += quantity;
         } else {
@@ -35,30 +35,57 @@ class ShoppingCart {
                 id: wineId,
                 name: wineName,
                 price: price,
-                quantity: quantity
+                quantity: quantity,
+                type: 'wine'
             });
         }
-        
+
         this.saveCart();
         showNotification(`${wineName} zum Warenkorb hinzugefügt! ✅`);
         console.log('✅ Artikel hinzugefügt:', wineName);
     }
+
+    addEventTicket(eventId, eventName, price, quantity = 1, customerData = {}) {
+        eventId = parseInt(eventId);
+        price = parseFloat(price);
+        quantity = parseInt(quantity) || 1;
+
+        // Events cannot be combined - each booking is unique
+        this.items.push({
+            id: eventId,
+            name: eventName,
+            price: price,
+            quantity: quantity,
+            type: 'event',
+            customerData: customerData
+        });
+
+        this.saveCart();
+        showNotification(`${quantity} Event-Ticket(s) zum Warenkorb hinzugefügt! ✅`);
+        console.log('✅ Event-Ticket hinzugefügt:', eventName);
+    }
     
-    removeItem(wineId) {
-        wineId = parseInt(wineId);
-        this.items = this.items.filter(item => item.id !== wineId);
+    removeItem(itemId, itemType = 'wine') {
+        itemId = parseInt(itemId);
+        this.items = this.items.filter(item => !(item.id === itemId && item.type === itemType));
         this.saveCart();
         showNotification('Artikel aus Warenkorb entfernt');
     }
-    
-    updateQuantity(wineId, quantity) {
-        wineId = parseInt(wineId);
+
+    removeItemByIndex(index) {
+        this.items.splice(index, 1);
+        this.saveCart();
+        showNotification('Artikel aus Warenkorb entfernt');
+    }
+
+    updateQuantity(itemId, quantity, itemType = 'wine') {
+        itemId = parseInt(itemId);
         quantity = parseInt(quantity);
-        
-        const item = this.items.find(i => i.id === wineId);
+
+        const item = this.items.find(i => i.id === itemId && i.type === itemType);
         if (item) {
             if (quantity <= 0) {
-                this.removeItem(wineId);
+                this.removeItem(itemId, itemType);
             } else {
                 item.quantity = quantity;
                 this.saveCart();
@@ -155,55 +182,69 @@ function renderCartPage() {
     }
 
     let html = '<div class="cart-items-list">';
-    
-    cart.items.forEach(item => {
+
+    cart.items.forEach((item, index) => {
         const subtotal = item.price * item.quantity;
+        const itemType = item.type || 'wine';
+        const isEvent = itemType === 'event';
+
         html += `
-            <div class="cart-item-row">
+            <div class="cart-item-row ${isEvent ? 'cart-item-event' : ''}">
                 <div class="cart-item-info">
+                    <div class="cart-item-type-badge ${itemType}">${isEvent ? '🎫 Event-Ticket' : '🍷 Wein'}</div>
                     <h4>${item.name}</h4>
-                    <p class="cart-item-price">CHF ${item.price.toFixed(2)} pro Stück</p>
+                    <p class="cart-item-price">CHF ${item.price.toFixed(2)} pro ${isEvent ? 'Ticket' : 'Stück'}</p>
+                    ${isEvent && item.customerData ? `
+                        <div class="cart-event-details">
+                            <small>👤 ${item.customerData.customer_name || ''}</small><br>
+                            <small>📧 ${item.customerData.customer_email || ''}</small>
+                        </div>
+                    ` : ''}
                 </div>
-                
+
                 <div class="cart-item-quantity">
-                    <button onclick="decreaseQuantity(${item.id})" style="padding: 0.3rem 0.6rem; border: none; background: #f0f0f0; cursor: pointer; border-radius: 3px;">−</button>
-                    <input type="number" 
-                           value="${item.quantity}" 
-                           min="1" 
-                           max="99"
-                           class="quantity-input"
-                           onchange="cart.updateQuantity(${item.id}, parseInt(this.value)); renderCartPage();">
-                    <button onclick="increaseQuantity(${item.id})" style="padding: 0.3rem 0.6rem; border: none; background: #f0f0f0; cursor: pointer; border-radius: 3px;">+</button>
+                    ${!isEvent ? `
+                        <button onclick="decreaseQuantity(${index})" style="padding: 0.3rem 0.6rem; border: none; background: #f0f0f0; cursor: pointer; border-radius: 3px;">−</button>
+                        <input type="number"
+                               value="${item.quantity}"
+                               min="1"
+                               max="99"
+                               class="quantity-input"
+                               onchange="cart.updateQuantity(${item.id}, parseInt(this.value), '${itemType}'); renderCartPage();">
+                        <button onclick="increaseQuantity(${index})" style="padding: 0.3rem 0.6rem; border: none; background: #f0f0f0; cursor: pointer; border-radius: 3px;">+</button>
+                    ` : `
+                        <span class="event-quantity-label">${item.quantity} Ticket(s)</span>
+                    `}
                 </div>
-                
+
                 <div class="cart-item-subtotal">
                     CHF ${subtotal.toFixed(2)}
                 </div>
-                
-                <button class="cart-item-delete" onclick="cart.removeItem(${item.id}); renderCartPage();">
+
+                <button class="cart-item-delete" onclick="cart.removeItemByIndex(${index}); renderCartPage();">
                     ✕ Löschen
                 </button>
             </div>
         `;
     });
-    
+
     html += '</div>';
     container.innerHTML = html;
     updateSummary();
 }
 
-function increaseQuantity(wineId) {
-    const item = cart.items.find(i => i.id === wineId);
-    if (item && item.quantity < 99) {
+function increaseQuantity(index) {
+    const item = cart.items[index];
+    if (item && item.quantity < 99 && item.type !== 'event') {
         item.quantity++;
         cart.saveCart();
         renderCartPage();
     }
 }
 
-function decreaseQuantity(wineId) {
-    const item = cart.items.find(i => i.id === wineId);
-    if (item && item.quantity > 1) {
+function decreaseQuantity(index) {
+    const item = cart.items[index];
+    if (item && item.quantity > 1 && item.type !== 'event') {
         item.quantity--;
         cart.saveCart();
         renderCartPage();
