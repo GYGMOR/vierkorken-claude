@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir /b /s \"C:\\Users\\joel.hediger\\OneDrive - SONNENBERG (1)\\Desktop\\vierkorken\")"
+      "Bash(dir /b /s \"C:\\Users\\joel.hediger\\OneDrive - SONNENBERG (1)\\Desktop\\vierkorken\")",
+      "Bash(python analyze_excel.py:*)"
     ],
     "deny": [],
     "ask": []
