@@ -23,22 +23,36 @@
                     </p>
                 </div>
 
-                <!-- Standort-Karte -->
+                <!-- Standort-Karte (Google Maps Static) -->
                 <div class="footer-map-container">
-                    <iframe
-                        width="100%"
-                        height="300"
-                        frameborder="0"
-                        scrolling="no"
-                        marginheight="0"
-                        marginwidth="0"
-                        src="https://www.openstreetmap.org/export/embed.html?bbox=8.2765%2C47.3175%2C8.2900%2C47.3260&layer=mapnik&marker=47.32175%2C8.28325"
-                        style="border:0; border-radius: 8px;">
-                    </iframe>
-                    <div style="margin-top: 0.5rem; text-align: center;">
-                        <a href="https://www.google.com/maps/search/?api=1&query=Steinbrunnengasse+3A+5707+Seengen" target="_blank" style="color: white; text-decoration: underline; font-size: 0.9rem;">In Google Maps öffnen</a>
-                    </div>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=Steinbrunnengasse+3A,5707+Seengen,Schweiz" target="_blank" class="map-link-wrapper" style="display: block; position: relative; cursor: pointer;">
+                        <img
+                            src="https://maps.googleapis.com/maps/api/staticmap?center=47.32175,8.28325&zoom=15&size=600x300&markers=color:red%7C47.32175,8.28325&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8"
+                            alt="Standort Karte"
+                            style="width: 100%; height: 300px; border-radius: 8px; object-fit: cover;"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        >
+                        <div class="map-fallback" style="display: none; width: 100%; height: 300px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; align-items: center; justify-content: center; flex-direction: column; color: white; text-align: center;">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="margin-bottom: 1rem;">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem;">Unser Standort</h3>
+                            <p style="margin: 0; font-size: 1rem;">Steinbrunnengasse 3A<br>5707 Seengen</p>
+                            <p style="margin-top: 1rem; padding: 0.8rem 1.5rem; background: rgba(255,255,255,0.2); border-radius: 25px; font-weight: 600;">Route anzeigen →</p>
+                        </div>
+                        <div class="map-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0); border-radius: 8px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: all 0.3s;">
+                            <span style="background: rgba(76, 37, 76, 0.95); color: white; padding: 1rem 2rem; border-radius: 25px; font-weight: 600; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">Route anzeigen →</span>
+                        </div>
+                    </a>
                 </div>
+
+                <style>
+                .map-link-wrapper:hover .map-overlay {
+                    opacity: 1 !important;
+                    background: rgba(0,0,0,0.2) !important;
+                }
+                </style>
             </div>
 
             <!-- BOTTOM GRID - Öffnungszeiten & Links -->
