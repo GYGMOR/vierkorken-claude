@@ -359,12 +359,26 @@ function addAddressForm() {
 }
 
 function editAddress(addressId) {
+    console.log('Edit address clicked, ID:', addressId);
+
     fetch(`${API_BASE}?action=get_addresses`)
         .then(r => r.json())
         .then(data => {
+            console.log('Loaded addresses for edit:', data);
+
+            if (!data.success || !data.addresses) {
+                showNotification('Fehler beim Laden der Adressen', 'error');
+                return;
+            }
+
             const addr = data.addresses.find(a => a.id === addressId);
-            if (!addr) return;
-            
+            if (!addr) {
+                showNotification('Adresse nicht gefunden', 'error');
+                return;
+            }
+
+            console.log('Found address:', addr);
+
             const modal = createModal('Adresse bearbeiten', `
                 <form class="form-address" onsubmit="event.preventDefault(); saveAddress(this, 'update')">
                     <input type="hidden" name="address_id" value="${addressId}">
@@ -372,7 +386,7 @@ function editAddress(addressId) {
                     <div class="form-row">
                         <div class="form-group">
                             <label>Vorname *</label>
-                            <input type="text" name="first_name" value="${addr.first_name}" required>
+                            <input type="text" name="first_name" value="${addr.first_name || ''}" required>
                         </div>
                         <div class="form-group">
                             <label>Nachname *</label>
@@ -382,17 +396,17 @@ function editAddress(addressId) {
 
                     <div class="form-group">
                         <label>Straße & Hausnummer *</label>
-                        <input type="text" name="street" value="${addr.street}" required>
+                        <input type="text" name="street" value="${addr.street || ''}" required>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label>Postleitzahl *</label>
-                            <input type="text" name="postal_code" value="${addr.postal_code}" required>
+                            <input type="text" name="postal_code" value="${addr.postal_code || ''}" required>
                         </div>
                         <div class="form-group">
                             <label>Stadt *</label>
-                            <input type="text" name="city" value="${addr.city}" required>
+                            <input type="text" name="city" value="${addr.city || ''}" required>
                         </div>
                     </div>
 
@@ -417,6 +431,10 @@ function editAddress(addressId) {
                 </form>
             `);
             document.body.appendChild(modal);
+        })
+        .catch(e => {
+            console.error('Error loading address for edit:', e);
+            showNotification('Fehler beim Laden der Adresse', 'error');
         });
 }
 
