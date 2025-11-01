@@ -999,14 +999,14 @@ $settings = get_all_settings();
                                 <div class="form-group">
                                     <label for="news-bg-color">Hintergrundfarbe</label>
                                     <div class="color-picker-group">
-                                        <input type="color" id="news-bg-color-picker" value="#722c2c" class="color-picker">
+                                        <input type="color" id="news-bg-color-picker" value="#722c2c" class="news-color-input">
                                         <input type="text" id="news-bg-color" name="bg_color" value="#722c2c" class="form-control" pattern="^#[0-9A-Fa-f]{6}$">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="news-text-color">Textfarbe</label>
                                     <div class="color-picker-group">
-                                        <input type="color" id="news-text-color-picker" value="#ffffff" class="color-picker">
+                                        <input type="color" id="news-text-color-picker" value="#ffffff" class="news-color-input">
                                         <input type="text" id="news-text-color" name="text_color" value="#ffffff" class="form-control" pattern="^#[0-9A-Fa-f]{6}$">
                                     </div>
                                 </div>
@@ -1949,7 +1949,7 @@ textarea.form-control {
     align-items: center;
 }
 
-.color-picker {
+.news-color-input {
     width: 60px;
     height: 45px;
     border: 2px solid #e5e7eb;

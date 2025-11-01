@@ -199,14 +199,12 @@ if ($category_id !== '') {
                                                 title="In Warenkorb">
                                             <?php echo get_icon('shopping-cart', 20); ?>
                                         </button>
-                                        <?php if (isset($_SESSION['user_id'])): ?>
-                                        <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(<?php echo $wine['id']; ?>);"
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist('<?php echo $wine['id']; ?>', '<?php echo addslashes($wine['name']); ?>');"
                                                 class="btn-icon-wishlist"
-                                                id="wishlist-btn-<?php echo $wine['id']; ?>"
-                                                title="Merkliste">
+                                                data-wishlist-id="<?php echo $wine['id']; ?>"
+                                                title="Zur Merkliste hinzufügen">
                                             <?php echo get_icon('heart', 20); ?>
                                         </button>
-                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>

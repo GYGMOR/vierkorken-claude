@@ -1,29 +1,68 @@
 <?php
 // pages/product.php - Einzelwein Produktseite mit Ratings
 
-$wine_id = (int)($_GET['id'] ?? 0);
+$wine_id = $_GET['id'] ?? '';
 
-if ($wine_id <= 0) {
-    echo '<div class="alert alert-error">Wein nicht gefunden</div>';
+if (empty($wine_id)) {
+    echo '<div class="alert alert-error">Produkt nicht gefunden</div>';
     exit;
 }
 
-$wine = get_wine_by_id($wine_id);
+// Versuche zuerst Klara-Produkt zu laden
+$wine = null;
+$is_klara_product = false;
+
+// Klara-Produkte durchsuchen
+$all_articles = klara_get_articles();
+foreach ($all_articles as $article) {
+    if ($article['id'] === $wine_id) {
+        $wine = $article;
+        $is_klara_product = true;
+
+        // Erweiterte Daten laden falls vorhanden
+        $extended = get_klara_extended_data($wine_id);
+        if ($extended) {
+            $wine = array_merge($wine, $extended);
+            // Custom-Preis überschreibt Klara-Preis
+            if (isset($extended['custom_price']) && $extended['custom_price']) {
+                $wine['price'] = $extended['custom_price'];
+            }
+        }
+        break;
+    }
+}
+
+// Fallback: Alte Datenbank
+if (!$wine) {
+    $wine_id_int = (int)$wine_id;
+    $wine = get_wine_by_id($wine_id_int);
+}
 
 if (!$wine) {
-    echo '<div class="alert alert-error">Dieser Wein existiert nicht</div>';
+    echo '<div class="alert alert-error">Dieses Produkt existiert nicht</div>';
     exit;
 }
 
-$category = get_category_name($wine['category_id']);
+// Kategorie-Name ermitteln
+$category = 'Produkt';
+if ($is_klara_product && !empty($wine['categories'])) {
+    // Erste Kategorie nehmen
+    $category = $wine['categories'][0] ?? 'Produkt';
+} elseif (isset($wine['category_id'])) {
+    $category = get_category_name($wine['category_id']);
+}
 ?>
 
 <div class="product-page">
     <!-- BREADCRUMB -->
     <div class="breadcrumb">
-        <a href="?page=home">Home</a> / 
-        <a href="?page=shop">Shop</a> / 
-        <a href="?page=shop&category=<?php echo $wine['category_id']; ?>"><?php echo safe_output($category); ?></a> / 
+        <a href="?page=home">Home</a> /
+        <a href="?page=shop">Shop</a> /
+        <?php if ($is_klara_product && !empty($wine['categories'])): ?>
+            <a href="?page=shop&category=<?php echo safe_output($wine['categories'][0]); ?>"><?php echo safe_output($category); ?></a> /
+        <?php elseif (isset($wine['category_id'])): ?>
+            <a href="?page=shop&category=<?php echo $wine['category_id']; ?>"><?php echo safe_output($category); ?></a> /
+        <?php endif; ?>
         <span><?php echo safe_output($wine['name']); ?></span>
     </div>
 
