@@ -261,8 +261,9 @@ $settings = get_all_settings();
             <a href="?page=admin-dashboard&tab=images" class="<?php echo $tab === 'images' ? 'active' : ''; ?>">Bilder & Banner</a>
             
             <div class="nav-divider">SHOP</div>
-            <a href="?page=admin-dashboard&tab=wines" class="<?php echo $tab === 'wines' ? 'active' : ''; ?>">Weine verwalten</a>
-            <a href="?page=admin-dashboard&tab=add-wine" class="<?php echo $tab === 'add-wine' ? 'active' : ''; ?>">Wein hinzufügen</a>
+            <a href="?page=admin-dashboard&tab=klara-products" class="<?php echo $tab === 'klara-products' ? 'active' : ''; ?>">Klara-Produkte</a>
+            <a href="?page=admin-dashboard&tab=wines" class="<?php echo $tab === 'wines' ? 'active' : ''; ?>">Weine verwalten (alt)</a>
+            <a href="?page=admin-dashboard&tab=add-wine" class="<?php echo $tab === 'add-wine' ? 'active' : ''; ?>">Wein hinzufügen (alt)</a>
 
             <div class="nav-divider">NEWS & EVENTS</div>
             <a href="?page=admin-dashboard&tab=news-items" class="<?php echo $tab === 'news-items' ? 'active' : ''; ?>">News verwalten</a>
@@ -718,6 +719,9 @@ $settings = get_all_settings();
                 <button type="submit" class="btn btn-primary btn-lg">Speichern</button>
             </form>
 
+        <?php elseif ($tab === 'klara-products'): ?>
+            <?php include 'components/admin-klara-products.php'; ?>
+
         <?php elseif ($tab === 'wines'): ?>
             <?php $wines = $db->query("SELECT w.*, c.name as cat_name FROM wines w LEFT JOIN categories c ON w.category_id = c.id ORDER BY w.name ASC")->fetch_all(MYSQLI_ASSOC); ?>
             
@@ -928,6 +932,101 @@ $settings = get_all_settings();
 
             <div id="news-items-list">
                 <p>Lade News-Items...</p>
+            </div>
+
+            <!-- News Item Edit Modal -->
+            <div id="news-edit-modal" class="modal-overlay" style="display: none;">
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+                        <h3 id="news-modal-title">News-Item bearbeiten</h3>
+                        <button onclick="closeNewsModal()" class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="news-edit-form" onsubmit="saveNewsItem(event)">
+                            <input type="hidden" id="news-id" name="id">
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="news-title">Titel *</label>
+                                    <input type="text" id="news-title" name="title" required class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="news-type">Typ *</label>
+                                    <select id="news-type" name="type" required class="form-control">
+                                        <option value="general">Allgemein</option>
+                                        <option value="wine">Wein</option>
+                                        <option value="event">Event</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="news-display-order">Reihenfolge</label>
+                                    <input type="number" id="news-display-order" name="display_order" class="form-control" value="0">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="news-content">Beschreibung</label>
+                                    <textarea id="news-content" name="content" rows="4" class="form-control"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="news-image-url">Bild-URL</label>
+                                    <input type="text" id="news-image-url" name="image_url" class="form-control" placeholder="z.B. assets/images/news/bild.jpg">
+                                    <small class="form-hint">URL zum Bild oder leer lassen</small>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="news-link-url">Link-URL</label>
+                                    <input type="text" id="news-link-url" name="link_url" class="form-control" placeholder="z.B. ?page=shop&category=1">
+                                    <small class="form-hint">Wohin soll die News verlinken?</small>
+                                </div>
+                            </div>
+
+                            <div class="form-section-divider">
+                                <h4>Farbeinstellungen</h4>
+                                <p class="form-hint">Individuelle Farben für diese News (Hex-Codes, z.B. #722c2c)</p>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="news-bg-color">Hintergrundfarbe</label>
+                                    <div class="color-picker-group">
+                                        <input type="color" id="news-bg-color-picker" value="#722c2c" class="color-picker">
+                                        <input type="text" id="news-bg-color" name="bg_color" value="#722c2c" class="form-control" pattern="^#[0-9A-Fa-f]{6}$">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="news-text-color">Textfarbe</label>
+                                    <div class="color-picker-group">
+                                        <input type="color" id="news-text-color-picker" value="#ffffff" class="color-picker">
+                                        <input type="text" id="news-text-color" name="text_color" value="#ffffff" class="form-control" pattern="^#[0-9A-Fa-f]{6}$">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <div id="news-color-preview" class="color-preview-box">
+                                        <strong>Vorschau:</strong> So sieht die News auf der Startseite aus
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" onclick="closeNewsModal()" class="btn btn-secondary">Abbrechen</button>
+                                <button type="submit" class="btn btn-primary">Speichern</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
 
         <?php elseif ($tab === 'events'): ?>
@@ -1712,6 +1811,186 @@ $settings = get_all_settings();
     }
 }
 
+/* News Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-lg {
+    max-width: 900px;
+}
+
+.modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #999;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(114, 44, 44, 0.1);
+}
+
+textarea.form-control {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.form-hint {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 0.3rem;
+}
+
+.form-section-divider {
+    margin: 2rem 0 1.5rem 0;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e5e7eb;
+}
+
+.form-section-divider h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-color);
+}
+
+.color-picker-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.color-picker {
+    width: 60px;
+    height: 45px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.color-preview-box {
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #722c2c;
+    color: #ffffff;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e5e7eb;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+}
+
 @media (max-width: 768px) {
     .admin-top-bar h1 {
         font-size: 1.5rem;
@@ -1883,6 +2162,7 @@ function renderNewsItems(items) {
                             </span>
                         </td>
                         <td>
+                            <button onclick="editNewsItem(${item.id})" class="btn-small-admin">Bearbeiten</button>
                             <button onclick="toggleNewsActive(${item.id})" class="btn-small-admin">
                                 ${item.is_active ? 'Deaktivieren' : 'Aktivieren'}
                             </button>
@@ -1982,6 +2262,157 @@ function deleteNewsItem(id) {
         console.error('Error:', e);
         alert('Fehler beim Löschen');
     });
+}
+
+// Edit News Item - Open Modal with Data
+function editNewsItem(id) {
+    fetch(`api/news-items.php?action=get_one&id=${id}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                openNewsModal(data.data);
+            } else {
+                alert('Fehler: ' + data.error);
+            }
+        })
+        .catch(e => {
+            console.error('Error:', e);
+            alert('Fehler beim Laden');
+        });
+}
+
+// Open News Modal (for both create and edit)
+function openNewsModal(item = null) {
+    const modal = document.getElementById('news-edit-modal');
+    const title = document.getElementById('news-modal-title');
+    const form = document.getElementById('news-edit-form');
+
+    if (item) {
+        // Edit mode
+        title.textContent = 'News-Item bearbeiten';
+        document.getElementById('news-id').value = item.id || '';
+        document.getElementById('news-title').value = item.title || '';
+        document.getElementById('news-type').value = item.type || 'general';
+        document.getElementById('news-content').value = item.content || '';
+        document.getElementById('news-image-url').value = item.image_url || '';
+        document.getElementById('news-link-url').value = item.link_url || '';
+        document.getElementById('news-display-order').value = item.display_order || 0;
+
+        // Farben setzen
+        const bgColor = item.bg_color || '#722c2c';
+        const textColor = item.text_color || '#ffffff';
+
+        document.getElementById('news-bg-color').value = bgColor;
+        document.getElementById('news-bg-color-picker').value = bgColor;
+        document.getElementById('news-text-color').value = textColor;
+        document.getElementById('news-text-color-picker').value = textColor;
+
+        updateColorPreview();
+    } else {
+        // Create mode
+        title.textContent = 'Neues News-Item erstellen';
+        form.reset();
+        document.getElementById('news-bg-color').value = '#722c2c';
+        document.getElementById('news-bg-color-picker').value = '#722c2c';
+        document.getElementById('news-text-color').value = '#ffffff';
+        document.getElementById('news-text-color-picker').value = '#ffffff';
+        updateColorPreview();
+    }
+
+    modal.style.display = 'flex';
+
+    // Color picker sync
+    setupColorPickers();
+}
+
+// Setup Color Picker Sync
+function setupColorPickers() {
+    const bgPicker = document.getElementById('news-bg-color-picker');
+    const bgInput = document.getElementById('news-bg-color');
+    const textPicker = document.getElementById('news-text-color-picker');
+    const textInput = document.getElementById('news-text-color');
+
+    bgPicker.addEventListener('input', function() {
+        bgInput.value = this.value;
+        updateColorPreview();
+    });
+
+    bgInput.addEventListener('input', function() {
+        if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+            bgPicker.value = this.value;
+            updateColorPreview();
+        }
+    });
+
+    textPicker.addEventListener('input', function() {
+        textInput.value = this.value;
+        updateColorPreview();
+    });
+
+    textInput.addEventListener('input', function() {
+        if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+            textPicker.value = this.value;
+            updateColorPreview();
+        }
+    });
+}
+
+// Update Color Preview
+function updateColorPreview() {
+    const preview = document.getElementById('news-color-preview');
+    const bgColor = document.getElementById('news-bg-color').value;
+    const textColor = document.getElementById('news-text-color').value;
+
+    preview.style.backgroundColor = bgColor;
+    preview.style.color = textColor;
+}
+
+// Close News Modal
+function closeNewsModal() {
+    const modal = document.getElementById('news-edit-modal');
+    modal.style.display = 'none';
+}
+
+// Save News Item (Create or Update)
+function saveNewsItem(event) {
+    event.preventDefault();
+
+    const form = document.getElementById('news-edit-form');
+    const formData = new FormData(form);
+    const data = {};
+
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
+
+    const newsId = data.id;
+    const action = newsId ? 'update' : 'create';
+    const url = `api/news-items.php?action=${action}`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            alert(newsId ? 'News-Item aktualisiert!' : 'News-Item erstellt!');
+            closeNewsModal();
+            loadNewsItems();
+        } else {
+            alert('Fehler: ' + result.error);
+        }
+    })
+    .catch(e => {
+        console.error('Error:', e);
+        alert('Fehler beim Speichern');
+    });
+}
+
+// Update showAddNewsModal to use new modal
+function showAddNewsModal() {
+    openNewsModal(null);
 }
 
 // EVENT MANAGEMENT

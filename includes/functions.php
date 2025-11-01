@@ -602,4 +602,100 @@ function klara_count_articles_in_category($categoryId) {
     return count($articles);
 }
 
+// ============================================
+// KLARA EXTENDED DATA FUNCTIONS
+// ============================================
+
+// Get erweiterte Daten für einen Klara-Artikel
+function get_klara_extended_data($klara_article_id) {
+    global $db;
+    $klara_article_id = $db->real_escape_string($klara_article_id);
+
+    $result = $db->query("SELECT * FROM klara_products_extended WHERE klara_article_id = '$klara_article_id'");
+    if ($result && $result->num_rows > 0) {
+        return $result->fetch_assoc();
+    }
+    return null;
+}
+
+// Update oder Insert erweiterte Daten
+function update_klara_extended_data($klara_article_id, $data) {
+    global $db;
+    $klara_article_id = $db->real_escape_string($klara_article_id);
+
+    // Check if exists
+    $existing = get_klara_extended_data($klara_article_id);
+
+    $image_url = $db->real_escape_string($data['image_url'] ?? '');
+    $producer = $db->real_escape_string($data['producer'] ?? '');
+    $vintage = isset($data['vintage']) ? (int)$data['vintage'] : 'NULL';
+    $region = $db->real_escape_string($data['region'] ?? '');
+    $alcohol_content = isset($data['alcohol_content']) ? (float)$data['alcohol_content'] : 'NULL';
+    $description = $db->real_escape_string($data['description'] ?? '');
+    $is_featured = isset($data['is_featured']) ? (int)$data['is_featured'] : 0;
+    $custom_price = isset($data['custom_price']) && $data['custom_price'] !== '' ? (float)$data['custom_price'] : 'NULL';
+
+    if ($existing) {
+        // Update
+        $sql = "UPDATE klara_products_extended SET
+                image_url = '$image_url',
+                producer = '$producer',
+                vintage = $vintage,
+                region = '$region',
+                alcohol_content = $alcohol_content,
+                description = '$description',
+                is_featured = $is_featured,
+                custom_price = $custom_price
+                WHERE klara_article_id = '$klara_article_id'";
+    } else {
+        // Insert
+        $sql = "INSERT INTO klara_products_extended
+                (klara_article_id, image_url, producer, vintage, region, alcohol_content, description, is_featured, custom_price)
+                VALUES ('$klara_article_id', '$image_url', '$producer', $vintage, '$region', $alcohol_content, '$description', $is_featured, $custom_price)";
+    }
+
+    return $db->query($sql);
+}
+
+// Delete erweiterte Daten
+function delete_klara_extended_data($klara_article_id) {
+    global $db;
+    $klara_article_id = $db->real_escape_string($klara_article_id);
+    return $db->query("DELETE FROM klara_products_extended WHERE klara_article_id = '$klara_article_id'");
+}
+
+// Get alle featured Klara-Produkte
+function get_klara_featured_products($limit = 6) {
+    global $db;
+    $limit = (int)$limit;
+
+    $result = $db->query("SELECT klara_article_id FROM klara_products_extended WHERE is_featured = 1 ORDER BY updated_at DESC LIMIT $limit");
+
+    if (!$result) {
+        return [];
+    }
+
+    $featured_ids = [];
+    while ($row = $result->fetch_assoc()) {
+        $featured_ids[] = $row['klara_article_id'];
+    }
+
+    // Klara-Artikel holen
+    $all_articles = klara_get_articles();
+    $featured = [];
+
+    foreach ($all_articles as $article) {
+        if (in_array($article['id'], $featured_ids)) {
+            // Erweiterte Daten mergen
+            $extended = get_klara_extended_data($article['id']);
+            if ($extended) {
+                $article = array_merge($article, $extended);
+            }
+            $featured[] = $article;
+        }
+    }
+
+    return $featured;
+}
+
 ?>

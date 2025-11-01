@@ -103,8 +103,14 @@ unset($item); // Break reference
                     $link = $item['link_url'] ?: '#';
                     ?>
 
-                    <a href="<?php echo safe_output($link); ?>" class="news-card news-card-link">
-                        <div class="news-badge news-badge-<?php echo $item['type']; ?>">
+                    <?php
+                    // Individuelle Farben aus Datenbank
+                    $bg_color = $item['bg_color'] ?? '#722c2c';
+                    $text_color = $item['text_color'] ?? '#ffffff';
+                    $card_style = "background: {$bg_color}; color: {$text_color};";
+                    ?>
+                    <a href="<?php echo safe_output($link); ?>" class="news-card news-card-link" style="<?php echo $card_style; ?>">
+                        <div class="news-badge" style="background: rgba(255,255,255,0.2); color: <?php echo $text_color; ?>;">
                             <?php echo safe_output($badge_text); ?>
                         </div>
 

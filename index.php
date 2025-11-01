@@ -131,7 +131,8 @@ $theme_colors = get_all_theme_settings();
     <!-- Scripts -->
     <script src="assets/js/main.js"></script>
     <script src="assets/js/cart.js"></script>
-    
+    <script src="assets/js/wishlist.js"></script>
+
     <?php 
     if (isset($_SESSION['user_id']) && isset($_GET['modal']) && $_GET['modal'] === 'login') {
         echo "<script>
