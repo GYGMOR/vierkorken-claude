@@ -460,55 +460,140 @@ function book_event_tickets($event_id, $quantity, $user_data = []) {
 // KLARA API FUNCTIONS
 // ============================================
 
-// Get base URL for API calls
-function get_base_url() {
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'];
-    $base_path = dirname($_SERVER['SCRIPT_NAME']);
-    return $protocol . '://' . $host . $base_path;
+// Klara API Credentials
+define('KLARA_API_BASEURL', 'https://api.klara.ch');
+define('KLARA_API_KEY', '01c11c3e-c484-4ce7-bca0-3f52eb3772af');
+
+// Direkter Klara API Call
+function klara_api_call($endpoint) {
+    $url = KLARA_API_BASEURL . $endpoint;
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Für lokale Tests
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'accept: application/json',
+        'Accept-Language: de',
+        'X-API-KEY: ' . KLARA_API_KEY
+    ]);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($error) {
+        error_log("Klara API Error: " . $error);
+        return null;
+    }
+
+    if ($http_code !== 200) {
+        error_log("Klara API HTTP Error: " . $http_code);
+        return null;
+    }
+
+    $data = json_decode($response, true);
+    return $data;
 }
 
 // Fetch Klara Kategorien
 function klara_get_categories() {
-    $base_url = get_base_url();
-    $url = $base_url . '/api/klara-categories.php';
+    $raw = klara_api_call('/core/latest/article-categories?limit=1000');
 
-    $response = @file_get_contents($url);
-
-    if ($response === false) {
+    if (!is_array($raw)) {
         return [];
     }
 
-    $data = json_decode($response, true);
-    return is_array($data) ? $data : [];
+    // Kategorien aufräumen & vereinheitlichen
+    $categories = [];
+    foreach ($raw as $c) {
+        $categories[] = [
+            'id' => (string)$c['id'],
+            'name' => $c['nameDE'] ?? $c['nameEN'] ?? 'Kategorie',
+            'order' => $c['order'] ?? null,
+            'active' => ($c['active'] ?? true) !== false
+        ];
+    }
+
+    // Sortieren wie in KLARA
+    usort($categories, function($a, $b) {
+        $orderA = $a['order'] ?? 9999;
+        $orderB = $b['order'] ?? 9999;
+        return $orderA - $orderB;
+    });
+
+    return $categories;
 }
 
 // Fetch Klara Artikel
 function klara_get_articles($categoryId = null, $search = null) {
-    $base_url = get_base_url();
-    $url = $base_url . '/api/klara-articles.php';
-    $params = [];
+    $raw = klara_api_call('/core/latest/articles?limit=1000');
 
-    if ($categoryId !== null && $categoryId !== '') {
-        $params['categoryId'] = $categoryId;
-    }
-
-    if ($search !== null && $search !== '') {
-        $params['search'] = $search;
-    }
-
-    if (!empty($params)) {
-        $url .= '?' . http_build_query($params);
-    }
-
-    $response = @file_get_contents($url);
-
-    if ($response === false) {
+    if (!is_array($raw)) {
         return [];
     }
 
-    $data = json_decode($response, true);
-    return is_array($data) ? $data : [];
+    // Artikel aufbereiten
+    $articles = [];
+    foreach ($raw as $a) {
+        // Preis aus pricePeriods holen
+        $price = null;
+        if (isset($a['pricePeriods']) && is_array($a['pricePeriods']) && count($a['pricePeriods']) > 0) {
+            $price = (float)($a['pricePeriods'][0]['price'] ?? 0);
+        }
+
+        // Kategorie-IDs sammeln
+        $catIds = [];
+        if (isset($a['posCategories']) && is_array($a['posCategories'])) {
+            foreach ($a['posCategories'] as $c) {
+                if (isset($c['id'])) {
+                    $catIds[] = (string)$c['id'];
+                }
+            }
+        }
+
+        $article = [
+            'id' => (string)$a['id'],
+            'articleNumber' => $a['articleNumber'] ?? null,
+            'name' => $a['nameDE'] ?? $a['nameEN'] ?? 'Artikel',
+            'price' => $price,
+            'image_url' => null,
+            'categories' => $catIds,
+            'description' => $a['descriptionDE'] ?? $a['descriptionEN'] ?? '',
+            'stock' => 999,
+            'producer' => $a['producer'] ?? '',
+            'vintage' => null,
+            'region' => '',
+            'alcohol_content' => null,
+            'avg_rating' => null,
+            'rating_count' => 0
+        ];
+
+        // Kategorie-Filter anwenden
+        if ($categoryId !== null && $categoryId !== '') {
+            if (!in_array($categoryId, $catIds)) {
+                continue;
+            }
+        }
+
+        // Such-Filter anwenden
+        if ($search !== null && $search !== '') {
+            $searchLower = mb_strtolower($search);
+            $nameLower = mb_strtolower($article['name']);
+            $articleNumberLower = mb_strtolower($article['articleNumber'] ?? '');
+
+            if (strpos($nameLower, $searchLower) === false &&
+                strpos($articleNumberLower, $searchLower) === false) {
+                continue;
+            }
+        }
+
+        $articles[] = $article;
+    }
+
+    return $articles;
 }
 
 // Count Artikel in Klara Kategorie

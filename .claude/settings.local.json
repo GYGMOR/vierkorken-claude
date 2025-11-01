@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dir /b /s \"C:\\Users\\joel.hediger\\OneDrive - SONNENBERG (1)\\Desktop\\vierkorken\")",
       "Bash(python analyze_excel.py:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(php -r:*)"
     ],
     "deny": [],
     "ask": []

@@ -6,11 +6,32 @@
 $category_id = isset($_GET['category']) ? trim($_GET['category']) : '';
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+// Debug-Modus (entfernen nach Test)
+$debug_mode = isset($_GET['debug']);
+
 // Kategorien von Klara API
 $categories = klara_get_categories();
+if ($debug_mode) {
+    echo "<!-- DEBUG: Kategorien gefunden: " . count($categories) . " -->\n";
+}
 
 // Artikel von Klara API (mit Filter)
 $wines = klara_get_articles($category_id, $search);
+if ($debug_mode) {
+    echo "<!-- DEBUG: Artikel gefunden: " . count($wines) . " -->\n";
+}
+
+// Artikel-Anzahl pro Kategorie berechnen (Optimiert)
+$all_articles = klara_get_articles(); // Alle Artikel holen
+$category_counts = [];
+foreach ($all_articles as $article) {
+    foreach ($article['categories'] as $cat_id) {
+        if (!isset($category_counts[$cat_id])) {
+            $category_counts[$cat_id] = 0;
+        }
+        $category_counts[$cat_id]++;
+    }
+}
 
 $current_category = null;
 if ($category_id !== '') {
@@ -75,7 +96,7 @@ if ($category_id !== '') {
                 // KLARA Kategorien anzeigen
                 foreach ($categories as $cat):
                     if (!$cat['active']) continue;
-                    $wine_count = klara_count_articles_in_category($cat['id']);
+                    $wine_count = $category_counts[$cat['id']] ?? 0;
                     if ($wine_count > 0):
                 ?>
                     <a href="?page=shop&category=<?php echo safe_output($cat['id']); ?>"
@@ -104,7 +125,7 @@ if ($category_id !== '') {
                 // KLARA Kategorien anzeigen
                 foreach ($categories as $cat):
                     if (!$cat['active']) continue; // Inaktive überspringen
-                    $wine_count = klara_count_articles_in_category($cat['id']);
+                    $wine_count = $category_counts[$cat['id']] ?? 0;
                     if ($wine_count > 0):
                 ?>
                     <a href="?page=shop&category=<?php echo safe_output($cat['id']); ?>"
