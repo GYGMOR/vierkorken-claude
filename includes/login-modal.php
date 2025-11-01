@@ -462,13 +462,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     opacity: 0.7;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
     .auth-modal-container {
+        width: 95%;
         max-width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+        margin: 1rem;
     }
 
     .auth-tab {
-        padding: 1rem;
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        font-size: 0.95rem;
+        padding: 0.7rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.8rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-modal-container {
+        width: 100%;
+        max-width: 100%;
+        max-height: 95vh;
+        border-radius: 10px;
+        margin: 0.5rem;
+    }
+
+    .auth-tab {
+        padding: 0.7rem;
         font-size: 0.9rem;
     }
 

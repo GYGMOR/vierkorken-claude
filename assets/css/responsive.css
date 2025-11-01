@@ -293,6 +293,35 @@ textarea {
     min-height: 44px;
 }
 
+/* Mobile Mengenauswahl */
+.wine-quantity-section {
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.quantity-selector-compact {
+    width: 100%;
+}
+
+.qty-input {
+    width: 60px;
+}
+
+.btn-add-cart {
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 0.85rem;
+}
+
+.btn-add-cart span {
+    display: inline;
+}
+
+/* Mobile Beschreibung Toggle */
+.btn-toggle-description {
+    font-size: 0.9rem;
+}
+
 /* =========================================
    TABLET PORTRAIT (481px - 768px)
    ========================================= */
@@ -406,6 +435,21 @@ textarea {
     .search-input {
         flex: 1;
         min-width: 250px;
+    }
+
+    /* Tablet Mengenauswahl */
+    .wine-quantity-section {
+        flex-direction: row;
+    }
+
+    .quantity-selector-compact {
+        width: auto;
+    }
+
+    .btn-add-cart {
+        width: auto;
+        flex: 1;
+        font-size: 0.9rem;
     }
 }
 
