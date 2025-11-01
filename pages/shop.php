@@ -200,6 +200,12 @@ if ($category_id !== '') {
                                                 title="Zur Merkliste hinzufügen">
                                             <?php echo get_icon('heart', 20); ?>
                                         </button>
+                                        <!-- Mobile: In Warenkorb oben -->
+                                        <button class="btn-add-cart btn-add-cart-mobile-top"
+                                                onclick="event.preventDefault(); event.stopPropagation(); addToCartFromCard('<?php echo $wine['id']; ?>', '<?php echo addslashes($wine['name']); ?>', <?php echo $wine['price']; ?>)">
+                                            <?php echo get_icon('shopping-cart', 18); ?>
+                                            <span>In Warenkorb</span>
+                                        </button>
                                     </div>
                                 </div>
 
@@ -220,7 +226,8 @@ if ($category_id !== '') {
                                             <?php echo get_icon('plus', 16); ?>
                                         </button>
                                     </div>
-                                    <button class="btn-add-cart"
+                                    <!-- Desktop/Tablet: In Warenkorb unten -->
+                                    <button class="btn-add-cart btn-add-cart-bottom"
                                             onclick="addToCartFromCard('<?php echo $wine['id']; ?>', '<?php echo addslashes($wine['name']); ?>', <?php echo $wine['price']; ?>)">
                                         <?php echo get_icon('shopping-cart', 18); ?>
                                         <span>In Warenkorb</span>
