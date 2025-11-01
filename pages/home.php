@@ -319,7 +319,7 @@ unset($item); // Break reference
                 $klara_categories = klara_get_categories();
                 $all_articles = klara_get_articles();
 
-                // Produkte pro Kategorie zählen
+                // Produkte pro Kategorie zählen (nur verfügbare)
                 $category_counts = [];
                 foreach ($all_articles as $article) {
                     if (!empty($article['categories']) && $article['stock'] > 0) {
@@ -354,19 +354,19 @@ unset($item); // Break reference
                 // WEINE SEKTION
                 echo '<div class="category-header-card"><h3>Weine</h3></div>';
 
-                foreach ($klara_categories as $cat):
-                    $cat_name = $cat['name'];
-                    if (!in_array($cat_name, $wine_categories)) continue;
+                // Zeige alle Wein-Kategorien
+                foreach ($wine_categories as $cat_name):
                     $product_count = $category_counts[$cat_name] ?? 0;
 
-                    if ($product_count > 0):
+                    // Zeige Kategorie auch wenn 0 Produkte (für bessere UX)
+                    if ($product_count >= 0):
                 ?>
                     <div class="category-card">
                         <div class="category-icon">
                             <?php echo $icons[$cat_name] ?? get_icon('wine', 48, 'icon-primary'); ?>
                         </div>
                         <h3><?php echo safe_output($cat_name); ?></h3>
-                        <p class="category-count"><?php echo $product_count; ?> Weine</p>
+                        <p class="category-count"><?php echo $product_count; ?> Wein<?php echo $product_count !== 1 ? 'e' : ''; ?></p>
                         <a href="?page=shop&category=<?php echo urlencode($cat_name); ?>" class="btn btn-secondary">Anschauen</a>
                     </div>
                 <?php
@@ -374,37 +374,26 @@ unset($item); // Break reference
                 endforeach;
 
                 // DIVERSES SEKTION
-                $has_other_products = false;
-                foreach ($klara_categories as $cat):
-                    $cat_name = $cat['name'];
-                    if (in_array($cat_name, $other_categories) && ($category_counts[$cat_name] ?? 0) > 0):
-                        $has_other_products = true;
-                        break;
+                echo '<div class="category-header-card"><h3>Diverses</h3></div>';
+
+                // Zeige alle Diverses-Kategorien
+                foreach ($other_categories as $cat_name):
+                    $product_count = $category_counts[$cat_name] ?? 0;
+
+                    // Zeige Kategorie auch wenn 0 Produkte
+                    if ($product_count >= 0):
+                ?>
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <?php echo $icons[$cat_name] ?? get_icon('package', 48, 'icon-primary'); ?>
+                        </div>
+                        <h3><?php echo safe_output($cat_name); ?></h3>
+                        <p class="category-count"><?php echo $product_count; ?> Produkt<?php echo $product_count !== 1 ? 'e' : ''; ?></p>
+                        <a href="?page=shop&category=<?php echo urlencode($cat_name); ?>" class="btn btn-secondary">Anschauen</a>
+                    </div>
+                <?php
                     endif;
                 endforeach;
-
-                if ($has_other_products):
-                    echo '<div class="category-header-card"><h3>Diverses</h3></div>';
-
-                    foreach ($klara_categories as $cat):
-                        $cat_name = $cat['name'];
-                        if (!in_array($cat_name, $other_categories)) continue;
-                        $product_count = $category_counts[$cat_name] ?? 0;
-
-                        if ($product_count > 0):
-                    ?>
-                        <div class="category-card">
-                            <div class="category-icon">
-                                <?php echo $icons[$cat_name] ?? get_icon('package', 48, 'icon-primary'); ?>
-                            </div>
-                            <h3><?php echo safe_output($cat_name); ?></h3>
-                            <p class="category-count"><?php echo $product_count; ?> Produkte</p>
-                            <a href="?page=shop&category=<?php echo urlencode($cat_name); ?>" class="btn btn-secondary">Anschauen</a>
-                        </div>
-                    <?php
-                        endif;
-                    endforeach;
-                endif;
 
                 // Events & Erlebnisse Sektion
                 $upcoming_events = get_all_events(true, true);
