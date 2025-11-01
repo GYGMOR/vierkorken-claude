@@ -92,10 +92,22 @@
                     </div>
                 </div>
 
+                <div class="form-section-divider">
+                    <h4>Beschreibungen</h4>
+                    <p class="form-hint">Kurzbeschreibung für alle Kunden, erweiterte Beschreibung für Weinkenner</p>
+                </div>
+
                 <div class="form-row">
                     <div class="form-group full-width">
-                        <label for="klara-product-description">Beschreibung</label>
-                        <textarea id="klara-product-description" name="description" rows="4" class="form-control" placeholder="Detaillierte Beschreibung des Produkts..."></textarea>
+                        <label for="klara-product-short-desc">Kurzbeschreibung</label>
+                        <textarea id="klara-product-short-desc" name="short_description" rows="3" class="form-control" placeholder="Kurze Beschreibung für alle Kunden (2-3 Sätze)..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="klara-product-extended-desc">Erweiterte Beschreibung (optional)</label>
+                        <textarea id="klara-product-extended-desc" name="extended_description" rows="5" class="form-control" placeholder="Detaillierte Beschreibung für Weinkenner (Aromen, Rebsorten, Herstellung, etc.)..."></textarea>
                     </div>
                 </div>
 
@@ -339,7 +351,8 @@ function openKlaraProductModal(product) {
     document.getElementById('klara-product-vintage').value = product.vintage || '';
     document.getElementById('klara-product-region').value = product.region || '';
     document.getElementById('klara-product-alcohol').value = product.alcohol_content || '';
-    document.getElementById('klara-product-description').value = product.description || '';
+    document.getElementById('klara-product-short-desc').value = product.short_description || product.description || '';
+    document.getElementById('klara-product-extended-desc').value = product.extended_description || '';
     document.getElementById('klara-product-custom-price').value = product.custom_price || '';
     document.getElementById('klara-product-featured').checked = product.is_featured == 1;
 

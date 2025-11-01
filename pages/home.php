@@ -315,73 +315,56 @@ unset($item); // Break reference
         <div class="categories-scroll-container">
             <div class="categories-grid-horizontal">
                 <?php
-                // Definiere die gewünschte Reihenfolge
-                $wine_categories_order = ['Rotwein', 'Weißwein', 'Rosé', 'Schaumwein', 'Dessertwein', 'Alkoholfreie Weine'];
-                $other_categories_order = ['Geschenk-Gutscheine', 'Diverses'];
+                // Klara-Kategorien laden
+                $klara_categories = klara_get_categories();
+                $all_articles = klara_get_articles();
 
-                $all_categories = get_all_categories();
-
-                // Erstelle assoziatives Array für schnellen Zugriff
-                $categories_by_name = [];
-                foreach ($all_categories as $cat) {
-                    $categories_by_name[$cat['name']] = $cat;
+                // Produkte pro Kategorie zählen
+                $category_counts = [];
+                foreach ($all_articles as $article) {
+                    if (!empty($article['categories']) && $article['stock'] > 0) {
+                        foreach ($article['categories'] as $cat_name) {
+                            if (!isset($category_counts[$cat_name])) {
+                                $category_counts[$cat_name] = 0;
+                            }
+                            $category_counts[$cat_name]++;
+                        }
+                    }
                 }
 
-                // Icons Definition
+                // Icons Definition (angepasst an Klara-Kategorienamen)
                 $icons = [
-                    'Schaumwein' => get_icon('champagne', 48, 'icon-primary'),
+                    'Champagner & Prosecco' => get_icon('champagne', 48, 'icon-primary'),
                     'Rosé' => get_icon('flower', 48, 'icon-primary'),
-                    'Weißwein' => get_icon('champagne', 48, 'icon-primary'),
+                    'Rosewein' => get_icon('flower', 48, 'icon-primary'),
+                    'Weisswein' => get_icon('champagne', 48, 'icon-primary'),
                     'Rotwein' => get_icon('grapes', 48, 'icon-primary'),
+                    'Süsswein' => get_icon('droplet', 48, 'icon-primary'),
                     'Dessertwein' => get_icon('droplet', 48, 'icon-primary'),
-                    'Alkoholfreie Weine' => get_icon('sparkles', 48, 'icon-primary'),
+                    'Spirituosen' => get_icon('wine', 48, 'icon-primary'),
                     'Geschenk-Gutscheine' => get_icon('gift', 48, 'icon-primary'),
-                    'Diverses' => get_icon('package', 48, 'icon-primary')
+                    'Zubehör' => get_icon('package', 48, 'icon-primary')
                 ];
 
                 // Header: Hauptkategorie Weine
                 echo '<div class="category-header-card"><h3>Weine</h3></div>';
 
-                // Wein-Kategorien
-                foreach ($wine_categories_order as $cat_name):
-                    if (isset($categories_by_name[$cat_name])):
-                        $cat = $categories_by_name[$cat_name];
-                        $wine_count = count_wines_in_category($cat['id']);
-                        if ($wine_count > 0):
+                // Klara-Kategorien anzeigen
+                foreach ($klara_categories as $cat):
+                    $cat_name = $cat['name'];
+                    $product_count = $category_counts[$cat_name] ?? 0;
+
+                    if ($product_count > 0):
                 ?>
                     <div class="category-card">
                         <div class="category-icon">
                             <?php echo $icons[$cat_name] ?? get_icon('wine', 48, 'icon-primary'); ?>
                         </div>
-                        <h3><?php echo safe_output($cat['name']); ?></h3>
-                        <p class="category-count"><?php echo $wine_count; ?> Weine</p>
-                        <a href="?page=shop&category=<?php echo $cat['id']; ?>" class="btn btn-secondary">Anschauen</a>
+                        <h3><?php echo safe_output($cat_name); ?></h3>
+                        <p class="category-count"><?php echo $product_count; ?> Produkte</p>
+                        <a href="?page=shop&category=<?php echo urlencode($cat_name); ?>" class="btn btn-secondary">Anschauen</a>
                     </div>
                 <?php
-                        endif;
-                    endif;
-                endforeach;
-
-                // Header: Andere Produkte
-                echo '<div class="category-header-card"><h3>Andere Produkte</h3></div>';
-
-                // Andere Kategorien
-                foreach ($other_categories_order as $cat_name):
-                    if (isset($categories_by_name[$cat_name])):
-                        $cat = $categories_by_name[$cat_name];
-                        $wine_count = count_wines_in_category($cat['id']);
-                        if ($wine_count > 0):
-                ?>
-                    <div class="category-card">
-                        <div class="category-icon">
-                            <?php echo $icons[$cat_name] ?? get_icon('wine', 48, 'icon-primary'); ?>
-                        </div>
-                        <h3><?php echo safe_output($cat['name']); ?></h3>
-                        <p class="category-count"><?php echo $wine_count; ?> Produkte</p>
-                        <a href="?page=shop&category=<?php echo $cat['id']; ?>" class="btn btn-secondary">Anschauen</a>
-                    </div>
-                <?php
-                        endif;
                     endif;
                 endforeach;
 

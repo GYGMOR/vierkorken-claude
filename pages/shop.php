@@ -194,11 +194,6 @@ if ($category_id !== '') {
                                     </div>
 
                                     <div class="wine-actions">
-                                        <button onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(<?php echo $wine['id']; ?>, '<?php echo addslashes($wine['name']); ?>', <?php echo $wine['price']; ?>);"
-                                                class="btn-icon-cart"
-                                                title="In Warenkorb">
-                                            <?php echo get_icon('shopping-cart', 20); ?>
-                                        </button>
                                         <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist('<?php echo $wine['id']; ?>', '<?php echo addslashes($wine['name']); ?>');"
                                                 class="btn-icon-wishlist"
                                                 data-wishlist-id="<?php echo $wine['id']; ?>"
@@ -206,6 +201,30 @@ if ($category_id !== '') {
                                             <?php echo get_icon('heart', 20); ?>
                                         </button>
                                     </div>
+                                </div>
+
+                                <!-- Mengenauswahl & In Warenkorb -->
+                                <div class="wine-quantity-section" onclick="event.preventDefault(); event.stopPropagation();">
+                                    <div class="quantity-selector-compact">
+                                        <button class="qty-btn" onclick="decreaseQty('<?php echo $wine['id']; ?>')">
+                                            <?php echo get_icon('minus', 16); ?>
+                                        </button>
+                                        <input type="number"
+                                               id="qty-<?php echo $wine['id']; ?>"
+                                               value="1"
+                                               min="1"
+                                               max="<?php echo $wine['stock']; ?>"
+                                               class="qty-input"
+                                               readonly>
+                                        <button class="qty-btn" onclick="increaseQty('<?php echo $wine['id']; ?>', <?php echo $wine['stock']; ?>)">
+                                            <?php echo get_icon('plus', 16); ?>
+                                        </button>
+                                    </div>
+                                    <button class="btn-add-cart"
+                                            onclick="addToCartFromCard('<?php echo $wine['id']; ?>', '<?php echo addslashes($wine['name']); ?>', <?php echo $wine['price']; ?>)">
+                                        <?php echo get_icon('shopping-cart', 18); ?>
+                                        <span>In Warenkorb</span>
+                                    </button>
                                 </div>
                             </div>
                         </a>
@@ -310,22 +329,46 @@ if ($category_id !== '') {
     background: white;
     padding: 1.5rem;
     border-radius: 10px;
-    height: fit-content;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     position: sticky;
     top: 100px;
+    max-height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
 }
 
 .shop-sidebar h3 {
     margin-top: 0;
     margin-bottom: 1.5rem;
     color: var(--primary-color);
+    flex-shrink: 0;
 }
 
 .category-list {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.5rem;
+}
+
+.category-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.category-list::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+.category-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
 }
 
 .cat-link {
@@ -592,6 +635,88 @@ if ($category_id !== '') {
     color: white;
 }
 
+/* Quantity Selector auf Produktkarten */
+.wine-quantity-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.quantity-selector-compact {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.qty-btn {
+    background: white;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    color: var(--primary-color);
+}
+
+.qty-btn:hover {
+    background: var(--bg-light);
+}
+
+.qty-btn:active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.qty-input {
+    border: none;
+    width: 45px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.5rem 0;
+    background: white;
+    border-left: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+}
+
+.qty-input:focus {
+    outline: none;
+}
+
+.btn-add-cart {
+    flex: 1;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-add-cart:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(114, 44, 44, 0.3);
+}
+
+.btn-add-cart:active {
+    transform: translateY(0);
+}
+
 /* Mobile Category Filter - Aufklappbar unter Suchbalken */
 .mobile-category-filter {
     display: none; /* Standardmäßig versteckt, auf Mobile sichtbar */
@@ -825,6 +950,37 @@ if ($category_id !== '') {
 function quickAddToCart(wineId, wineName, price) {
     if (typeof cart !== 'undefined') {
         cart.addItem(wineId, wineName, price, 1);
+    } else {
+        console.error('Cart system not loaded');
+        alert('Warenkorb-System nicht verfügbar');
+    }
+}
+
+// Mengenauswahl Funktionen
+function decreaseQty(wineId) {
+    const input = document.getElementById('qty-' + wineId);
+    const currentValue = parseInt(input.value) || 1;
+    if (currentValue > 1) {
+        input.value = currentValue - 1;
+    }
+}
+
+function increaseQty(wineId, maxStock) {
+    const input = document.getElementById('qty-' + wineId);
+    const currentValue = parseInt(input.value) || 1;
+    if (currentValue < maxStock) {
+        input.value = currentValue + 1;
+    }
+}
+
+function addToCartFromCard(wineId, wineName, price) {
+    const input = document.getElementById('qty-' + wineId);
+    const quantity = parseInt(input.value) || 1;
+
+    if (typeof cart !== 'undefined') {
+        cart.addItem(wineId, wineName, price, quantity);
+        // Menge zurücksetzen
+        input.value = 1;
     } else {
         console.error('Cart system not loaded');
         alert('Warenkorb-System nicht verfügbar');

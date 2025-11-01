@@ -631,7 +631,8 @@ function update_klara_extended_data($klara_article_id, $data) {
     $vintage = isset($data['vintage']) ? (int)$data['vintage'] : 'NULL';
     $region = $db->real_escape_string($data['region'] ?? '');
     $alcohol_content = isset($data['alcohol_content']) ? (float)$data['alcohol_content'] : 'NULL';
-    $description = $db->real_escape_string($data['description'] ?? '');
+    $short_description = $db->real_escape_string($data['short_description'] ?? '');
+    $extended_description = $db->real_escape_string($data['extended_description'] ?? '');
     $is_featured = isset($data['is_featured']) ? (int)$data['is_featured'] : 0;
     $custom_price = isset($data['custom_price']) && $data['custom_price'] !== '' ? (float)$data['custom_price'] : 'NULL';
 
@@ -643,15 +644,16 @@ function update_klara_extended_data($klara_article_id, $data) {
                 vintage = $vintage,
                 region = '$region',
                 alcohol_content = $alcohol_content,
-                description = '$description',
+                short_description = '$short_description',
+                extended_description = '$extended_description',
                 is_featured = $is_featured,
                 custom_price = $custom_price
                 WHERE klara_article_id = '$klara_article_id'";
     } else {
         // Insert
         $sql = "INSERT INTO klara_products_extended
-                (klara_article_id, image_url, producer, vintage, region, alcohol_content, description, is_featured, custom_price)
-                VALUES ('$klara_article_id', '$image_url', '$producer', $vintage, '$region', $alcohol_content, '$description', $is_featured, $custom_price)";
+                (klara_article_id, image_url, producer, vintage, region, alcohol_content, short_description, extended_description, is_featured, custom_price)
+                VALUES ('$klara_article_id', '$image_url', '$producer', $vintage, '$region', $alcohol_content, '$short_description', '$extended_description', $is_featured, $custom_price)";
     }
 
     return $db->query($sql);

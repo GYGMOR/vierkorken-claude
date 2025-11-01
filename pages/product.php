@@ -129,10 +129,27 @@ if ($is_klara_product && !empty($wine['categories'])) {
             </div>
 
             <!-- BESCHREIBUNG -->
-            <?php if ($wine['description']): ?>
+            <?php
+            $short_desc = $wine['short_description'] ?? $wine['description'] ?? '';
+            $extended_desc = $wine['extended_description'] ?? '';
+            $has_extended = !empty($extended_desc);
+            ?>
+            <?php if ($short_desc): ?>
                 <div class="product-description">
                     <h3>Beschreibung</h3>
-                    <p><?php echo safe_output($wine['description']); ?></p>
+                    <div id="short-description">
+                        <p><?php echo nl2br(safe_output($short_desc)); ?></p>
+                    </div>
+                    <?php if ($has_extended): ?>
+                        <div id="extended-description" style="display: none;">
+                            <p><?php echo nl2br(safe_output($extended_desc)); ?></p>
+                        </div>
+                        <button type="button" class="btn-toggle-description" onclick="toggleDescription()">
+                            <span id="toggle-text">
+                                <?php echo get_icon('chevron-down', 16); ?> Mehr anzeigen
+                            </span>
+                        </button>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 
@@ -154,14 +171,14 @@ if ($is_klara_product && !empty($wine['categories'])) {
                         </tr>
                     <?php endif; ?>
                     
-                    <?php if ($wine['volume_ml']): ?>
+                    <?php if (isset($wine['volume_ml']) && $wine['volume_ml']): ?>
                         <tr>
                             <td><strong>Volumen:</strong></td>
                             <td><?php echo $wine['volume_ml']; ?> ml</td>
                         </tr>
                     <?php endif; ?>
-                    
-                    <?php if ($wine['sku']): ?>
+
+                    <?php if (isset($wine['sku']) && $wine['sku']): ?>
                         <tr>
                             <td><strong>SKU:</strong></td>
                             <td><?php echo safe_output($wine['sku']); ?></td>
@@ -183,13 +200,13 @@ if ($is_klara_product && !empty($wine['categories'])) {
                         </button>
                     </div>
 
-                    <!-- FAVORITE BUTTON -->
-                    <button id="favorite-btn-<?php echo $wine_id; ?>" class="btn btn-secondary btn-favorite" onclick="toggleFavorite(<?php echo $wine_id; ?>)">
-                        <?php if (isset($_SESSION['user_id'])): ?>
-                            <span id="favorite-icon-<?php echo $wine_id; ?>"><?php echo get_icon('heart', 18); ?> Zu Favoriten</span>
-                        <?php else: ?>
-                            <span><?php echo get_icon('heart', 18); ?> Zu Favoriten (Anmelden nötig)</span>
-                        <?php endif; ?>
+                    <!-- WISHLIST BUTTON -->
+                    <button class="btn btn-secondary btn-favorite"
+                            onclick="toggleWishlist('<?php echo $wine_id; ?>', '<?php echo addslashes($wine['name']); ?>');"
+                            data-wishlist-id="<?php echo $wine_id; ?>">
+                        <span class="wishlist-btn-content">
+                            <?php echo get_icon('heart', 18); ?> Zu Favoriten hinzufügen
+                        </span>
                     </button>
                 <?php else: ?>
                     <div class="alert alert-warning">
@@ -218,17 +235,31 @@ if ($is_klara_product && !empty($wine['categories'])) {
     <!-- ÄHNLICHE WEINE -->
     <div class="similar-wines-section">
         <h2>Ähnliche Weine</h2>
-        
+
         <?php
-        $similar = $db->query("
-            SELECT * FROM wines 
-            WHERE category_id = {$wine['category_id']} 
-            AND id != $wine_id 
-            AND stock > 0
-            ORDER BY RAND()
-            LIMIT 4
-        ")->fetch_all(MYSQLI_ASSOC);
-        
+        $similar = [];
+
+        if ($is_klara_product && !empty($wine['categories'])) {
+            // Klara-Produkte: Finde ähnliche aus gleicher Kategorie
+            $current_category = $wine['categories'][0];
+            foreach ($all_articles as $article) {
+                if ($article['id'] !== $wine_id && in_array($current_category, $article['categories']) && $article['stock'] > 0) {
+                    $similar[] = $article;
+                    if (count($similar) >= 4) break;
+                }
+            }
+        } elseif (isset($wine['category_id'])) {
+            // Alte DB-Produkte
+            $similar = $db->query("
+                SELECT * FROM wines
+                WHERE category_id = {$wine['category_id']}
+                AND id != $wine_id
+                AND stock > 0
+                ORDER BY RAND()
+                LIMIT 4
+            ")->fetch_all(MYSQLI_ASSOC);
+        }
+
         if (count($similar) > 0):
         ?>
             <div class="wines-grid">
@@ -373,6 +404,24 @@ if ($is_klara_product && !empty($wine['categories'])) {
     color: var(--primary-color);
 }
 
+.btn-toggle-description {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.btn-toggle-description:hover {
+    color: var(--primary-dark);
+}
+
 .product-specs {
     margin: 2rem 0;
 }
@@ -489,7 +538,7 @@ if ($is_klara_product && !empty($wine['categories'])) {
 function addToCart(wineId, wineName, price, quantity) {
     quantity = parseInt(quantity) || 1;
     console.log('addToCart:', {wineId, wineName, price, quantity});
-    
+
     if (typeof cart !== 'undefined' && cart.addItem) {
         cart.addItem(wineId, wineName, price, quantity);
         document.getElementById('quantity').value = 1;
@@ -499,26 +548,47 @@ function addToCart(wineId, wineName, price, quantity) {
     }
 }
 
-// Favorite Toggle
-function toggleFavorite(wineId) {
-    if (!<?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>) {
-        window.location.href = '?modal=login';
-        return;
+// Update wishlist button state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const productId = '<?php echo $wine_id; ?>';
+    const button = document.querySelector('[data-wishlist-id="' + productId + '"]');
+
+    if (button && typeof wishlist !== 'undefined') {
+        updateWishlistButton(button, productId);
     }
-    
-    const icon = document.getElementById('favorite-icon-' + wineId);
-    
-    fetch('api/user-portal.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'action=add_favorite&wine_id=' + wineId
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.success) {
-            icon.innerHTML = '<?php echo addslashes(get_icon('heart', 18)); ?> Aus Favoriten';
-        }
-    })
-    .catch(e => console.error('Fehler:', e));
+});
+
+function updateWishlistButton(button, productId) {
+    if (typeof wishlist === 'undefined') return;
+
+    const isInWishlist = wishlist.hasItem(productId);
+    const content = button.querySelector('.wishlist-btn-content');
+
+    if (isInWishlist) {
+        content.innerHTML = '<?php echo addslashes(get_icon('heart', 18)); ?> Von Favoriten entfernen';
+        button.classList.add('active');
+    } else {
+        content.innerHTML = '<?php echo addslashes(get_icon('heart', 18)); ?> Zu Favoriten hinzufügen';
+        button.classList.remove('active');
+    }
+}
+
+// Toggle zwischen Kurz- und Erweiterter Beschreibung
+function toggleDescription() {
+    const shortDesc = document.getElementById('short-description');
+    const extendedDesc = document.getElementById('extended-description');
+    const toggleText = document.getElementById('toggle-text');
+
+    if (extendedDesc.style.display === 'none') {
+        // Zeige erweiterte Beschreibung
+        shortDesc.style.display = 'none';
+        extendedDesc.style.display = 'block';
+        toggleText.innerHTML = '<?php echo addslashes(get_icon('chevron-up', 16)); ?> Weniger anzeigen';
+    } else {
+        // Zeige Kurzbeschreibung
+        shortDesc.style.display = 'block';
+        extendedDesc.style.display = 'none';
+        toggleText.innerHTML = '<?php echo addslashes(get_icon('chevron-down', 16)); ?> Mehr anzeigen';
+    }
 }
 </script>
