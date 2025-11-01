@@ -319,81 +319,117 @@ unset($item); // Break reference
                 $klara_categories = klara_get_categories();
                 $all_articles = klara_get_articles();
 
-                // Produkte pro Kategorie zählen (nur verfügbare)
+                // Produkte pro Kategorie zählen (nur verfügbare) - nach ID!
                 $category_counts = [];
                 foreach ($all_articles as $article) {
                     if (!empty($article['categories']) && $article['stock'] > 0) {
-                        foreach ($article['categories'] as $cat_name) {
-                            if (!isset($category_counts[$cat_name])) {
-                                $category_counts[$cat_name] = 0;
+                        foreach ($article['categories'] as $cat_id) {
+                            if (!isset($category_counts[$cat_id])) {
+                                $category_counts[$cat_id] = 0;
                             }
-                            $category_counts[$cat_name]++;
+                            $category_counts[$cat_id]++;
                         }
                     }
                 }
 
-                // Icons Definition (angepasst an Klara-Kategorienamen)
-                $icons = [
-                    'Champagner & Prosecco' => get_icon('champagne', 48, 'icon-primary'),
-                    'Rosé' => get_icon('flower', 48, 'icon-primary'),
-                    'Rosewein' => get_icon('flower', 48, 'icon-primary'),
-                    'Weisswein' => get_icon('champagne', 48, 'icon-primary'),
-                    'Rotwein' => get_icon('grapes', 48, 'icon-primary'),
-                    'Süsswein' => get_icon('droplet', 48, 'icon-primary'),
-                    'Dessertwein' => get_icon('droplet', 48, 'icon-primary'),
-                    'Spirituosen' => get_icon('wine', 48, 'icon-primary'),
-                    'Geschenk-Gutscheine' => get_icon('gift', 48, 'icon-primary'),
-                    'Zubehör' => get_icon('package', 48, 'icon-primary'),
-                    'Accessoires' => get_icon('package', 48, 'icon-primary')
+                // Icons Definition - Flexible Zuordnung
+                $icon_mapping = [
+                    'champagner' => get_icon('champagne', 48, 'icon-primary'),
+                    'prosecco' => get_icon('champagne', 48, 'icon-primary'),
+                    'rosé' => get_icon('flower', 48, 'icon-primary'),
+                    'rosewein' => get_icon('flower', 48, 'icon-primary'),
+                    'weisswein' => get_icon('champagne', 48, 'icon-primary'),
+                    'weißwein' => get_icon('champagne', 48, 'icon-primary'),
+                    'rotwein' => get_icon('grapes', 48, 'icon-primary'),
+                    'süsswein' => get_icon('droplet', 48, 'icon-primary'),
+                    'süßwein' => get_icon('droplet', 48, 'icon-primary'),
+                    'dessertwein' => get_icon('droplet', 48, 'icon-primary'),
+                    'spirituosen' => get_icon('wine', 48, 'icon-primary'),
+                    'gutschein' => get_icon('gift', 48, 'icon-primary'),
+                    'geschenk' => get_icon('gift', 48, 'icon-primary'),
+                    'zubehör' => get_icon('package', 48, 'icon-primary'),
+                    'accessoire' => get_icon('package', 48, 'icon-primary')
                 ];
 
-                // Kategorien nach Typ gruppieren
-                $wine_categories = ['Rotwein', 'Weisswein', 'Rosé', 'Rosewein', 'Champagner & Prosecco', 'Süsswein', 'Dessertwein'];
-                $other_categories = ['Spirituosen', 'Geschenk-Gutscheine', 'Zubehör', 'Accessoires'];
+                // Funktion um Icon zu finden
+                function getIconForCategory($cat_name, $icon_mapping) {
+                    $name_lower = strtolower($cat_name);
+                    foreach ($icon_mapping as $key => $icon) {
+                        if (stripos($name_lower, $key) !== false) {
+                            return $icon;
+                        }
+                    }
+                    return get_icon('wine', 48, 'icon-primary');
+                }
+
+                // Wein-Keywords für Kategorisierung
+                $wine_keywords = ['wein', 'rosé', 'champagner', 'prosecco'];
+
+                // Kategorien gruppieren
+                $wine_cats = [];
+                $other_cats = [];
+
+                foreach ($klara_categories as $cat) {
+                    if (!$cat['active']) continue;
+
+                    $cat_name = $cat['name'];
+                    $is_wine = false;
+
+                    foreach ($wine_keywords as $keyword) {
+                        if (stripos(strtolower($cat_name), $keyword) !== false) {
+                            $is_wine = true;
+                            break;
+                        }
+                    }
+
+                    if ($is_wine) {
+                        $wine_cats[] = $cat;
+                    } else {
+                        $other_cats[] = $cat;
+                    }
+                }
 
                 // WEINE SEKTION
-                echo '<div class="category-header-card"><h3>Weine</h3></div>';
+                if (count($wine_cats) > 0):
+                    echo '<div class="category-header-card"><h3>Weine</h3></div>';
 
-                // Zeige alle Wein-Kategorien
-                foreach ($wine_categories as $cat_name):
-                    $product_count = $category_counts[$cat_name] ?? 0;
-
-                    // Zeige Kategorie auch wenn 0 Produkte (für bessere UX)
-                    if ($product_count >= 0):
+                    foreach ($wine_cats as $cat):
+                        $cat_id = $cat['id'];
+                        $cat_name = $cat['name'];
+                        $product_count = $category_counts[$cat_id] ?? 0;
                 ?>
                     <div class="category-card">
                         <div class="category-icon">
-                            <?php echo $icons[$cat_name] ?? get_icon('wine', 48, 'icon-primary'); ?>
+                            <?php echo getIconForCategory($cat_name, $icon_mapping); ?>
                         </div>
                         <h3><?php echo safe_output($cat_name); ?></h3>
                         <p class="category-count"><?php echo $product_count; ?> Wein<?php echo $product_count !== 1 ? 'e' : ''; ?></p>
-                        <a href="?page=shop&category=<?php echo urlencode($cat_name); ?>" class="btn btn-secondary">Anschauen</a>
+                        <a href="?page=shop&category=<?php echo urlencode($cat_id); ?>" class="btn btn-secondary">Anschauen</a>
                     </div>
                 <?php
-                    endif;
-                endforeach;
+                    endforeach;
+                endif;
 
                 // DIVERSES SEKTION
-                echo '<div class="category-header-card"><h3>Diverses</h3></div>';
+                if (count($other_cats) > 0):
+                    echo '<div class="category-header-card"><h3>Diverses</h3></div>';
 
-                // Zeige alle Diverses-Kategorien
-                foreach ($other_categories as $cat_name):
-                    $product_count = $category_counts[$cat_name] ?? 0;
-
-                    // Zeige Kategorie auch wenn 0 Produkte
-                    if ($product_count >= 0):
+                    foreach ($other_cats as $cat):
+                        $cat_id = $cat['id'];
+                        $cat_name = $cat['name'];
+                        $product_count = $category_counts[$cat_id] ?? 0;
                 ?>
                     <div class="category-card">
                         <div class="category-icon">
-                            <?php echo $icons[$cat_name] ?? get_icon('package', 48, 'icon-primary'); ?>
+                            <?php echo getIconForCategory($cat_name, $icon_mapping); ?>
                         </div>
                         <h3><?php echo safe_output($cat_name); ?></h3>
                         <p class="category-count"><?php echo $product_count; ?> Produkt<?php echo $product_count !== 1 ? 'e' : ''; ?></p>
-                        <a href="?page=shop&category=<?php echo urlencode($cat_name); ?>" class="btn btn-secondary">Anschauen</a>
+                        <a href="?page=shop&category=<?php echo urlencode($cat_id); ?>" class="btn btn-secondary">Anschauen</a>
                     </div>
                 <?php
-                    endif;
-                endforeach;
+                    endforeach;
+                endif;
 
                 // Events & Erlebnisse Sektion
                 $upcoming_events = get_all_events(true, true);
