@@ -732,6 +732,50 @@ if ($category_id !== '') {
     transform: translateY(0);
 }
 
+/* Mobile: Button oben sichtbar, unten versteckt + Mengenauswahl volle Breite */
+@media (max-width: 480px) {
+    .btn-add-cart-mobile-top {
+        display: flex !important;
+    }
+
+    .btn-add-cart-bottom {
+        display: none !important;
+    }
+
+    .wine-quantity-section {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .quantity-selector-compact {
+        flex: 1;
+        width: 100%;
+    }
+
+    .qty-input {
+        flex: 1;
+        width: auto;
+        font-size: 1.1rem;
+        padding: 0.6rem;
+    }
+
+    .qty-btn {
+        padding: 0.6rem 1rem;
+        font-size: 1.1rem;
+    }
+}
+
+/* Tablet/Desktop: Button oben versteckt, unten sichtbar */
+@media (min-width: 481px) {
+    .btn-add-cart-mobile-top {
+        display: none !important;
+    }
+
+    .btn-add-cart-bottom {
+        display: flex !important;
+    }
+}
+
 /* Mobile Category Filter - Aufklappbar unter Suchbalken */
 .mobile-category-filter {
     display: none; /* Standardmäßig versteckt, auf Mobile sichtbar */
