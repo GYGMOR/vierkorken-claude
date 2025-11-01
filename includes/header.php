@@ -116,58 +116,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             <li><a href="?page=events">Events</a></li>
         </ul>
 
-        <!-- Kategorien -->
-        <div class="menu-section">
-            <button class="menu-toggle" data-target="categories">
-                <span>Kategorien</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-            </button>
-            <ul class="submenu" id="categories">
-                <!-- Hauptkategorie: Weine -->
-                <li class="submenu-header">Weine</li>
-                <?php
-                $wine_categories = ['Rotwein', 'Weißwein', 'Rosé', 'Schaumwein', 'Dessertwein', 'Alkoholfreie Weine'];
-                $categories_by_name = [];
-                foreach ($all_categories as $cat) {
-                    $categories_by_name[$cat['name']] = $cat;
-                }
-                foreach ($wine_categories as $cat_name):
-                    if (isset($categories_by_name[$cat_name])):
-                        $cat = $categories_by_name[$cat_name];
-                ?>
-                    <li><a href="?page=shop&category=<?php echo $cat['id']; ?>">
-                        <?php echo safe_output($cat['name']); ?>
-                    </a></li>
-                <?php
-                    endif;
-                endforeach;
-                ?>
-
-                <!-- Andere Produkte -->
-                <li class="submenu-header">Andere Produkte</li>
-                <?php
-                $other_categories = ['Geschenk-Gutscheine', 'Diverses'];
-                foreach ($other_categories as $cat_name):
-                    if (isset($categories_by_name[$cat_name])):
-                        $cat = $categories_by_name[$cat_name];
-                ?>
-                    <li><a href="?page=shop&category=<?php echo $cat['id']; ?>">
-                        <?php echo safe_output($cat['name']); ?>
-                    </a></li>
-                <?php
-                    endif;
-                endforeach;
-                ?>
-
-                <!-- Events Kategorie -->
-                <?php if (isset($categories_by_name['Events'])): ?>
-                <li class="submenu-header">Events & Erlebnisse</li>
-                <li><a href="?page=events">Events & Verkostungen</a></li>
-                <?php endif; ?>
-            </ul>
-        </div>
+        <!-- Kategorien Section entfernt - nur noch im Shop sichtbar -->
 
         <!-- Links -->
         <div class="menu-section">

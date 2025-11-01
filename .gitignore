@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+klara-shop-starter/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+klara-shop-starter/.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build outputs
+klara-shop-starter/.next/
+klara-shop-starter/out/
+
+# Database (optional - nur wenn du DB-Dumps nicht committen willst)
+# DB/

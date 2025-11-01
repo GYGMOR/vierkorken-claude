@@ -456,4 +456,65 @@ function book_event_tickets($event_id, $quantity, $user_data = []) {
     return ['success' => false, 'error' => 'Buchung fehlgeschlagen'];
 }
 
+// ============================================
+// KLARA API FUNCTIONS
+// ============================================
+
+// Get base URL for API calls
+function get_base_url() {
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $base_path = dirname($_SERVER['SCRIPT_NAME']);
+    return $protocol . '://' . $host . $base_path;
+}
+
+// Fetch Klara Kategorien
+function klara_get_categories() {
+    $base_url = get_base_url();
+    $url = $base_url . '/api/klara-categories.php';
+
+    $response = @file_get_contents($url);
+
+    if ($response === false) {
+        return [];
+    }
+
+    $data = json_decode($response, true);
+    return is_array($data) ? $data : [];
+}
+
+// Fetch Klara Artikel
+function klara_get_articles($categoryId = null, $search = null) {
+    $base_url = get_base_url();
+    $url = $base_url . '/api/klara-articles.php';
+    $params = [];
+
+    if ($categoryId !== null && $categoryId !== '') {
+        $params['categoryId'] = $categoryId;
+    }
+
+    if ($search !== null && $search !== '') {
+        $params['search'] = $search;
+    }
+
+    if (!empty($params)) {
+        $url .= '?' . http_build_query($params);
+    }
+
+    $response = @file_get_contents($url);
+
+    if ($response === false) {
+        return [];
+    }
+
+    $data = json_decode($response, true);
+    return is_array($data) ? $data : [];
+}
+
+// Count Artikel in Klara Kategorie
+function klara_count_articles_in_category($categoryId) {
+    $articles = klara_get_articles($categoryId);
+    return count($articles);
+}
+
 ?>

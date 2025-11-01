@@ -2,35 +2,24 @@
 // pages/shop.php - Weinshop mit Kategorien und Produkten
 // Der Benutzer kann Weine filtern und in den Warenkorb legen
 
-$category_id = isset($_GET['category']) ? (int)$_GET['category'] : 0;
+// KLARA Integration: Kategorien und Artikel von Klara API holen
+$category_id = isset($_GET['category']) ? trim($_GET['category']) : '';
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-$categories = get_all_categories();
+// Kategorien von Klara API
+$categories = klara_get_categories();
 
-$wines = [];
-if ($search) {
-    $search_safe = $db->real_escape_string($search);
-    $query = "SELECT * FROM wines 
-              WHERE (name LIKE '%$search_safe%' OR description LIKE '%$search_safe%' OR producer LIKE '%$search_safe%')
-              AND stock > 0 
-              ORDER BY name ASC";
-} elseif ($category_id > 0) {
-    $query = "SELECT * FROM wines 
-              WHERE category_id = $category_id AND stock > 0 
-              ORDER BY name ASC";
-} else {
-    $query = "SELECT * FROM wines WHERE stock > 0 ORDER BY name ASC";
-}
-
-$result = $db->query($query);
-if ($result) {
-    $wines = $result->fetch_all(MYSQLI_ASSOC);
-}
+// Artikel von Klara API (mit Filter)
+$wines = klara_get_articles($category_id, $search);
 
 $current_category = null;
-if ($category_id > 0) {
-    $current_category = array_filter($categories, fn($c) => $c['id'] == $category_id);
-    $current_category = reset($current_category);
+if ($category_id !== '') {
+    foreach ($categories as $cat) {
+        if ($cat['id'] === $category_id) {
+            $current_category = $cat;
+            break;
+        }
+    }
 }
 ?>
 
@@ -55,13 +44,51 @@ if ($category_id > 0) {
     <div class="shop-controls">
         <form method="GET" class="search-form">
             <input type="hidden" name="page" value="shop">
-            <input type="text" name="search" placeholder="Nach Wein, Produzent suchen..." 
+            <input type="text" name="search" placeholder="Nach Wein, Produzent suchen..."
                    value="<?php echo safe_output($search); ?>" class="search-input">
             <button type="submit" class="btn btn-primary"><?php echo get_icon('search', 18); ?> Suchen</button>
-            <?php if ($search || $category_id > 0): ?>
+            <?php if ($search || $category_id !== ''): ?>
                 <a href="?page=shop" class="btn btn-secondary"><?php echo get_icon('close', 18); ?> Filter zurücksetzen</a>
             <?php endif; ?>
         </form>
+
+        <!-- Mobile Category Filter (aufklappbar) -->
+        <div class="mobile-category-filter">
+            <button class="category-toggle-btn" id="mobile-category-toggle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                <span>Kategorien</span>
+                <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+
+            <div class="mobile-category-list" id="mobile-category-list">
+                <a href="?page=shop" class="mobile-cat-link <?php echo ($category_id === '' && !$search) ? 'active' : ''; ?>">
+                    Alle Produkte
+                </a>
+
+                <?php
+                // KLARA Kategorien anzeigen
+                foreach ($categories as $cat):
+                    if (!$cat['active']) continue;
+                    $wine_count = klara_count_articles_in_category($cat['id']);
+                    if ($wine_count > 0):
+                ?>
+                    <a href="?page=shop&category=<?php echo safe_output($cat['id']); ?>"
+                       class="mobile-cat-link <?php echo $category_id === $cat['id'] ? 'active' : ''; ?>">
+                        <?php echo safe_output($cat['name']); ?>
+                        <span class="mobile-cat-count">(<?php echo $wine_count; ?>)</span>
+                    </a>
+                <?php
+                    endif;
+                endforeach;
+                ?>
+            </div>
+        </div>
     </div>
 
     <div class="shop-layout">
@@ -69,83 +96,26 @@ if ($category_id > 0) {
         <aside class="shop-sidebar">
             <h3>Kategorien</h3>
             <div class="category-list">
-                <a href="?page=shop" class="cat-link <?php echo ($category_id == 0 && !$search) ? 'active' : ''; ?>">
+                <a href="?page=shop" class="cat-link <?php echo ($category_id === '' && !$search) ? 'active' : ''; ?>">
                     <span class="icon-text"><?php echo get_icon('list', 18); ?> Alle Produkte</span>
                 </a>
 
                 <?php
-                // Kategorien nach Namen gruppieren
-                $categories_by_name = [];
-                foreach ($categories as $cat) {
-                    $categories_by_name[$cat['name']] = $cat;
-                }
-
-                // Wein-Kategorien
-                $wine_categories = ['Rotwein', 'Weißwein', 'Rosé', 'Schaumwein', 'Dessertwein', 'Alkoholfreie Weine'];
+                // KLARA Kategorien anzeigen
+                foreach ($categories as $cat):
+                    if (!$cat['active']) continue; // Inaktive überspringen
+                    $wine_count = klara_count_articles_in_category($cat['id']);
+                    if ($wine_count > 0):
                 ?>
-
-                <div class="cat-section-header">Weine</div>
-                <?php foreach ($wine_categories as $cat_name):
-                    if (isset($categories_by_name[$cat_name])):
-                        $cat = $categories_by_name[$cat_name];
-                        $wine_count = count_wines_in_category($cat['id']);
-                        if ($wine_count > 0):
-                ?>
-                    <a href="?page=shop&category=<?php echo $cat['id']; ?>"
-                       class="cat-link <?php echo $category_id == $cat['id'] ? 'active' : ''; ?>">
+                    <a href="?page=shop&category=<?php echo safe_output($cat['id']); ?>"
+                       class="cat-link <?php echo $category_id === $cat['id'] ? 'active' : ''; ?>">
                         <?php echo safe_output($cat['name']); ?>
                         <span class="cat-count">(<?php echo $wine_count; ?>)</span>
                     </a>
                 <?php
-                        endif;
                     endif;
                 endforeach;
                 ?>
-
-                <?php
-                // Andere Kategorien
-                $other_categories = ['Geschenk-Gutscheine', 'Diverses'];
-                $has_other = false;
-                foreach ($other_categories as $cat_name) {
-                    if (isset($categories_by_name[$cat_name])) {
-                        $count = count_wines_in_category($categories_by_name[$cat_name]['id']);
-                        if ($count > 0) {
-                            $has_other = true;
-                            break;
-                        }
-                    }
-                }
-
-                if ($has_other):
-                ?>
-                <div class="cat-section-header">Andere Produkte</div>
-                <?php foreach ($other_categories as $cat_name):
-                    if (isset($categories_by_name[$cat_name])):
-                        $cat = $categories_by_name[$cat_name];
-                        $wine_count = count_wines_in_category($cat['id']);
-                        if ($wine_count > 0):
-                ?>
-                    <a href="?page=shop&category=<?php echo $cat['id']; ?>"
-                       class="cat-link <?php echo $category_id == $cat['id'] ? 'active' : ''; ?>">
-                        <?php echo safe_output($cat['name']); ?>
-                        <span class="cat-count">(<?php echo $wine_count; ?>)</span>
-                    </a>
-                <?php
-                        endif;
-                    endif;
-                endforeach;
-                endif;
-
-                // Events-Kategorie
-                $upcoming_events = get_all_events(true, true);
-                if (count($upcoming_events) > 0):
-                ?>
-                <div class="cat-section-header">Events & Erlebnisse</div>
-                <a href="?page=events" class="cat-link">
-                    <?php echo get_icon('calendar', 16); ?> Events & Verkostungen
-                    <span class="cat-count">(<?php echo count($upcoming_events); ?>)</span>
-                </a>
-                <?php endif; ?>
             </div>
         </aside>
 
@@ -603,44 +573,197 @@ if ($category_id > 0) {
     color: white;
 }
 
-/* Responsive */
+/* Mobile Category Filter - Aufklappbar unter Suchbalken */
+.mobile-category-filter {
+    display: none; /* Standardmäßig versteckt, auf Mobile sichtbar */
+    margin-top: 1rem;
+}
+
+.category-toggle-btn {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.category-toggle-btn:hover {
+    border-color: var(--primary-color);
+    background: #f8f9fa;
+}
+
+.category-toggle-btn svg {
+    color: var(--primary-color);
+}
+
+.category-toggle-btn .toggle-icon {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+}
+
+.category-toggle-btn.active .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.mobile-category-list {
+    display: none;
+    margin-top: 0.8rem;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.mobile-category-list.active {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-cat-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    color: var(--text-dark);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.mobile-cat-link:last-child {
+    border-bottom: none;
+}
+
+.mobile-cat-link:hover {
+    background: #f8f9fa;
+    padding-left: 1.5rem;
+}
+
+.mobile-cat-link.active {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.mobile-cat-count {
+    background: rgba(0,0,0,0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.mobile-cat-link.active .mobile-cat-count {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Responsive Design - Perfekt für alle Geräte */
+
+/* Tablet (1024px und kleiner) */
 @media (max-width: 1024px) {
     .shop-layout {
         grid-template-columns: 200px 1fr;
     }
-    
+
     .wines-grid {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
+
+    /* Mobile Category Filter auf Tablets anzeigen */
+    .mobile-category-filter {
+        display: block;
+    }
+
+    /* Desktop Sidebar auf Tablets verstecken */
+    .shop-sidebar {
+        display: none;
+    }
 }
 
+/* Mobile (768px und kleiner) */
 @media (max-width: 768px) {
+    .shop-container {
+        padding: 1rem 0;
+    }
+
+    .shop-header h1 {
+        font-size: 1.5rem;
+    }
+
     .shop-layout {
         grid-template-columns: 1fr;
     }
-    
-    .shop-sidebar {
-        position: static;
-        top: auto;
+
+    /* Mobile Category Filter anzeigen */
+    .mobile-category-filter {
+        display: block;
     }
-    
+
+    /* Desktop Sidebar verstecken */
+    .shop-sidebar {
+        display: none;
+    }
+
     .search-form {
         flex-direction: column;
     }
-    
+
     .search-input {
         min-width: auto;
+        width: 100%;
     }
-    
+
+    .search-form .btn {
+        width: 100%;
+    }
+
     .wines-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 1rem;
     }
 }
 
+/* Small Mobile (480px und kleiner) */
 @media (max-width: 480px) {
+    .shop-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .shop-subtitle {
+        font-size: 0.9rem;
+    }
+
     .wines-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+
+    .wine-card {
+        font-size: 0.9rem;
+    }
+
+    .wine-image-container {
+        height: 150px;
     }
 
     .wine-footer {
@@ -653,6 +776,27 @@ if ($category_id > 0) {
     .btn-icon-wishlist {
         width: 36px;
         height: 36px;
+    }
+
+    .category-toggle-btn {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .mobile-cat-link {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Extra Small Mobile (360px und kleiner) */
+@media (max-width: 360px) {
+    .wines-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .shop-controls {
+        padding: 1rem;
     }
 }
 </style>
@@ -714,5 +858,16 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(e => console.error('Error loading wishlist:', e));
     <?php endif; ?>
+
+    // Mobile Category Toggle
+    const categoryToggleBtn = document.getElementById('mobile-category-toggle');
+    const categoryList = document.getElementById('mobile-category-list');
+
+    if (categoryToggleBtn && categoryList) {
+        categoryToggleBtn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            categoryList.classList.toggle('active');
+        });
+    }
 });
 </script>
