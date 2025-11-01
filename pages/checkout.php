@@ -135,38 +135,38 @@ if ($is_logged_in) {
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Vorname *</label>
-                                        <input type="text" name="first_name" required>
+                                        <input type="text" name="first_name" autocomplete="given-name" required>
                                     </div>
                                     <div class="form-group">
                                         <label>Nachname *</label>
-                                        <input type="text" name="last_name" required>
+                                        <input type="text" name="last_name" autocomplete="family-name" required>
                                     </div>
                                 </div>
 
                                 <div class="form-group" id="street-field">
                                     <label>Strasse & Hausnummer *</label>
-                                    <input type="text" name="street" required>
+                                    <input type="text" name="street" autocomplete="street-address" required>
                                 </div>
 
                                 <div class="form-row" id="postal-city-fields">
                                     <div class="form-group">
                                         <label>PLZ *</label>
-                                        <input type="text" name="postal_code" required>
+                                        <input type="text" name="postal_code" autocomplete="postal-code" required>
                                     </div>
                                     <div class="form-group">
                                         <label>Ort *</label>
-                                        <input type="text" name="city" required>
+                                        <input type="text" name="city" autocomplete="address-level2" required>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Telefon *</label>
-                                    <input type="tel" name="phone" required>
+                                    <input type="tel" name="phone" autocomplete="tel" required>
                                 </div>
 
                                 <div class="form-group">
                                     <label>E-Mail *</label>
-                                    <input type="email" name="email" required
+                                    <input type="email" name="email" autocomplete="email" required
                                            value="<?php echo $is_logged_in ? safe_output($_SESSION['email'] ?? '') : ''; ?>">
                                 </div>
                             </form>

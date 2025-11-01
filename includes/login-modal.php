@@ -158,8 +158,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Anmelden</button>
                 </form>
 
+                <div class="auth-links-group" style="margin-top: 1rem; text-align: center;">
+                    <a href="?page=forgot-password" class="link-button" style="font-size: 0.9rem; color: var(--primary-color);">Passwort vergessen?</a>
+                </div>
+
                 <p class="auth-footer-text">
-                    Noch kein Konto? 
+                    Noch kein Konto?
                     <a href="?modal=login&tab=register" class="link-button">Jetzt registrieren</a>
                 </p>
             </div>

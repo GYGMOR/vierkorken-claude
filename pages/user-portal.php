@@ -59,12 +59,64 @@ $ratings_count = $db->query("SELECT COUNT(*) as c FROM wine_ratings WHERE user_i
                 </div>
             </div>
 
-            <div class="quick-links">
+            <div class="quick-links-modern">
                 <h2>Schnellzugriff</h2>
-                <a href="?page=shop" class="quick-link">Zum Shop gehen</a>
-                <a href="?page=user-portal&tab=ratings" class="quick-link">Meine Bewertungen</a>
-                <a href="?page=user-portal&tab=orders" class="quick-link">Bestellhistorie</a>
-                <a href="?page=user-portal&tab=profile" class="quick-link">Profil bearbeiten</a>
+                <div class="quick-links-grid">
+                    <a href="?page=shop" class="quick-link-card">
+                        <div class="quick-link-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                        </div>
+                        <div class="quick-link-text">
+                            <h4>Shop</h4>
+                            <p>Zum Shop gehen</p>
+                        </div>
+                    </a>
+
+                    <a href="?page=user-portal&tab=ratings" class="quick-link-card">
+                        <div class="quick-link-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                        </div>
+                        <div class="quick-link-text">
+                            <h4>Bewertungen</h4>
+                            <p>Meine Bewertungen</p>
+                        </div>
+                    </a>
+
+                    <a href="?page=user-portal&tab=orders" class="quick-link-card">
+                        <div class="quick-link-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="quick-link-text">
+                            <h4>Bestellungen</h4>
+                            <p>Bestellhistorie</p>
+                        </div>
+                    </a>
+
+                    <a href="?page=user-portal&tab=profile" class="quick-link-card">
+                        <div class="quick-link-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="quick-link-text">
+                            <h4>Profil</h4>
+                            <p>Profil bearbeiten</p>
+                        </div>
+                    </a>
+                </div>
             </div>
 
         <?php elseif ($tab === 'orders'): ?>
@@ -182,6 +234,95 @@ $ratings_count = $db->query("SELECT COUNT(*) as c FROM wine_ratings WHERE user_i
         text-align: center;
         padding: 3rem;
         color: #999;
+    }
+
+    /* Modern Quick Links */
+    .quick-links-modern {
+        margin-top: 2rem;
+    }
+
+    .quick-links-modern h2 {
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+    }
+
+    .quick-links-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .quick-link-card {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .quick-link-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 8px 20px rgba(114, 44, 44, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .quick-link-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-color), #8b3a3a);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(114, 44, 44, 0.2);
+    }
+
+    .quick-link-icon svg {
+        color: white;
+        width: 28px;
+        height: 28px;
+    }
+
+    .quick-link-text {
+        flex: 1;
+    }
+
+    .quick-link-text h4 {
+        margin: 0 0 0.3rem 0;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+    }
+
+    .quick-link-text p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .quick-links-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .quick-link-card {
+            padding: 1.2rem;
+        }
+
+        .quick-link-icon {
+            width: 50px;
+            height: 50px;
+        }
+
+        .quick-link-icon svg {
+            width: 24px;
+            height: 24px;
+        }
     }
 </style>
 

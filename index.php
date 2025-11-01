@@ -29,7 +29,8 @@ $allowed_pages = [
     'home', 'shop', 'product', 'cart', 'checkout', 'order-confirmation', 'register-after-order',
     'events', 'event', 'order-history',
     'admin-login', 'admin-dashboard', 'admin-theme',
-    'user-portal',
+    'user-portal', 'wishlist',
+    'forgot-password', 'reset-password',
     'impressum', 'agb', 'datenschutz', 'newsletter', 'contact'
 ];
 
