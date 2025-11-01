@@ -548,99 +548,46 @@ $settings = get_all_settings();
 
         <?php elseif ($tab === 'featured-wines'): ?>
             <div class="admin-info-box">
-                Diese Weine werden auf der Startseite unter "News / Neuheiten" angezeigt.
+                Diese Produkte werden auf der Startseite unter "News / Neuheiten" angezeigt. Wähle Klara-Produkte aus und markiere sie als Neuheit.
             </div>
 
             <div class="admin-form-mega">
-                <h3>Wein hinzufügen</h3>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                    <div>
-                        <h4>Option 1: Existierenden Wein</h4>
-                        <form method="POST">
-                            <input type="hidden" name="action" value="toggle_featured_wine">
-                            <div class="form-group-mega">
-                                <label>Wein auswählen:</label>
-                                <select name="wine_id" required>
-                                    <option value="">-- Wählen --</option>
-                                    <?php 
-                                    $all_wines = $db->query("SELECT id, name, producer, is_featured FROM wines WHERE is_featured = 0 ORDER BY name ASC");
-                                    while ($w = $all_wines->fetch_assoc()):
-                                    ?>
-                                        <option value="<?php echo $w['id']; ?>"><?php echo safe_output($w['name']); ?></option>
-                                    <?php endwhile; ?>
-                                </select>
-                            </div>
-                            <input type="hidden" name="featured" value="1">
-                            <button type="submit" class="btn btn-primary">Hinzufügen</button>
-                        </form>
-                    </div>
-
-                    <div>
-                        <h4>Option 2: Neuen Wein erstellen</h4>
-                        <form method="POST">
-                            <input type="hidden" name="action" value="create_featured_wine">
-                            <div class="form-group-mega">
-                                <label>Weinname</label>
-                                <input type="text" name="wine_name" required>
-                            </div>
-                            <div class="form-group-mega">
-                                <label>Produzent</label>
-                                <input type="text" name="wine_producer">
-                            </div>
-                            <div class="form-group-mega">
-                                <label>Kategorie</label>
-                                <select name="category_id">
-                                    <?php foreach (get_all_categories() as $cat): ?>
-                                        <option value="<?php echo $cat['id']; ?>"><?php echo safe_output($cat['name']); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="form-group-mega">
-                                <label>Preis (CHF)</label>
-                                <input type="number" name="wine_price" step="0.01" value="0.00">
-                            </div>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
-                        </form>
-                    </div>
-                </div>
+                <h3>Produkt als Neuheit hinzufügen</h3>
+                <p>Klicke auf "Bearbeiten" bei einem Klara-Produkt im Tab "Klara-Produkte" und aktiviere "Als Neuheit markieren".</p>
+                <a href="?page=admin-dashboard&tab=klara-products" class="btn btn-primary">Zu Klara-Produkten</a>
             </div>
 
             <div class="admin-form-mega">
                 <h3>Aktuelle Neuheiten</h3>
-                <?php 
-                $featured_wines = $db->query("SELECT w.id, w.name, w.producer, w.price, c.name as cat_name FROM wines w LEFT JOIN categories c ON w.category_id = c.id WHERE w.is_featured = 1 ORDER BY w.name");
-                $count = $featured_wines->num_rows;
+                <?php
+                $featured_wines = klara_get_featured_products();
+                $count = count($featured_wines);
                 ?>
-                
+
                 <?php if ($count > 0): ?>
-                    <p>Anzahl: <?php echo $count; ?> Wein<?php echo $count !== 1 ? 'e' : ''; ?></p>
+                    <p>Anzahl: <?php echo $count; ?> Produkt<?php echo $count !== 1 ? 'e' : ''; ?></p>
                     <table class="admin-table-mega">
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Produzent</th>
-                                <th>Kategorie</th>
+                                <th>Kategorien</th>
                                 <th>Preis</th>
                                 <th>Aktion</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($wine = $featured_wines->fetch_assoc()): ?>
+                            <?php foreach ($featured_wines as $wine): ?>
                                 <tr>
                                     <td><strong><?php echo safe_output($wine['name']); ?></strong></td>
                                     <td><?php echo safe_output($wine['producer'] ?? '-'); ?></td>
-                                    <td><?php echo safe_output($wine['cat_name']); ?></td>
+                                    <td><?php echo safe_output(implode(', ', $wine['categories'] ?? [])); ?></td>
                                     <td>CHF <?php echo number_format($wine['price'], 2); ?></td>
                                     <td>
-                                        <form method="POST" style="display: inline;">
-                                            <input type="hidden" name="action" value="toggle_featured_wine">
-                                            <input type="hidden" name="wine_id" value="<?php echo $wine['id']; ?>">
-                                            <button type="submit" class="btn-small-admin danger">Entfernen</button>
-                                        </form>
+                                        <a href="?page=admin-dashboard&tab=klara-products" class="btn-small-admin">Bearbeiten</a>
                                     </td>
                                 </tr>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 <?php else: ?>

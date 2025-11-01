@@ -215,7 +215,7 @@ if ($category_id !== '') {
                                                min="1"
                                                max="<?php echo $wine['stock']; ?>"
                                                class="qty-input"
-                                               readonly>
+                                               oninput="validateQtyInput('<?php echo $wine['id']; ?>', <?php echo $wine['stock']; ?>)">
                                         <button class="qty-btn" onclick="increaseQty('<?php echo $wine['id']; ?>', <?php echo $wine['stock']; ?>)">
                                             <?php echo get_icon('plus', 16); ?>
                                         </button>
@@ -310,11 +310,19 @@ if ($category_id !== '') {
     border-radius: 5px;
     font-size: 1rem;
     transition: border-color 0.3s ease;
+    background: white;
+    color: var(--text-dark);
+}
+
+.search-input::placeholder {
+    color: #999;
+    opacity: 1;
 }
 
 .search-input:focus {
     outline: none;
     border-color: var(--primary-color);
+    background: white;
 }
 
 /* Shop Layout */
@@ -984,6 +992,19 @@ function addToCartFromCard(wineId, wineName, price) {
     } else {
         console.error('Cart system not loaded');
         alert('Warenkorb-System nicht verfügbar');
+    }
+}
+
+// Validierung für manuell eingegebene Mengen
+function validateQtyInput(wineId, maxStock) {
+    const input = document.getElementById('qty-' + wineId);
+    let value = parseInt(input.value);
+
+    if (isNaN(value) || value < 1) {
+        input.value = 1;
+    } else if (value > maxStock) {
+        input.value = maxStock;
+        showNotification('Maximale Menge: ' + maxStock, 'warning');
     }
 }
 

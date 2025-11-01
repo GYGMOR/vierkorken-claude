@@ -343,15 +343,20 @@ unset($item); // Break reference
                     'Dessertwein' => get_icon('droplet', 48, 'icon-primary'),
                     'Spirituosen' => get_icon('wine', 48, 'icon-primary'),
                     'Geschenk-Gutscheine' => get_icon('gift', 48, 'icon-primary'),
-                    'Zubehör' => get_icon('package', 48, 'icon-primary')
+                    'Zubehör' => get_icon('package', 48, 'icon-primary'),
+                    'Accessoires' => get_icon('package', 48, 'icon-primary')
                 ];
 
-                // Header: Hauptkategorie Weine
+                // Kategorien nach Typ gruppieren
+                $wine_categories = ['Rotwein', 'Weisswein', 'Rosé', 'Rosewein', 'Champagner & Prosecco', 'Süsswein', 'Dessertwein'];
+                $other_categories = ['Spirituosen', 'Geschenk-Gutscheine', 'Zubehör', 'Accessoires'];
+
+                // WEINE SEKTION
                 echo '<div class="category-header-card"><h3>Weine</h3></div>';
 
-                // Klara-Kategorien anzeigen
                 foreach ($klara_categories as $cat):
                     $cat_name = $cat['name'];
+                    if (!in_array($cat_name, $wine_categories)) continue;
                     $product_count = $category_counts[$cat_name] ?? 0;
 
                     if ($product_count > 0):
@@ -361,12 +366,45 @@ unset($item); // Break reference
                             <?php echo $icons[$cat_name] ?? get_icon('wine', 48, 'icon-primary'); ?>
                         </div>
                         <h3><?php echo safe_output($cat_name); ?></h3>
-                        <p class="category-count"><?php echo $product_count; ?> Produkte</p>
+                        <p class="category-count"><?php echo $product_count; ?> Weine</p>
                         <a href="?page=shop&category=<?php echo urlencode($cat_name); ?>" class="btn btn-secondary">Anschauen</a>
                     </div>
                 <?php
                     endif;
                 endforeach;
+
+                // DIVERSES SEKTION
+                $has_other_products = false;
+                foreach ($klara_categories as $cat):
+                    $cat_name = $cat['name'];
+                    if (in_array($cat_name, $other_categories) && ($category_counts[$cat_name] ?? 0) > 0):
+                        $has_other_products = true;
+                        break;
+                    endif;
+                endforeach;
+
+                if ($has_other_products):
+                    echo '<div class="category-header-card"><h3>Diverses</h3></div>';
+
+                    foreach ($klara_categories as $cat):
+                        $cat_name = $cat['name'];
+                        if (!in_array($cat_name, $other_categories)) continue;
+                        $product_count = $category_counts[$cat_name] ?? 0;
+
+                        if ($product_count > 0):
+                    ?>
+                        <div class="category-card">
+                            <div class="category-icon">
+                                <?php echo $icons[$cat_name] ?? get_icon('package', 48, 'icon-primary'); ?>
+                            </div>
+                            <h3><?php echo safe_output($cat_name); ?></h3>
+                            <p class="category-count"><?php echo $product_count; ?> Produkte</p>
+                            <a href="?page=shop&category=<?php echo urlencode($cat_name); ?>" class="btn btn-secondary">Anschauen</a>
+                        </div>
+                    <?php
+                        endif;
+                    endforeach;
+                endif;
 
                 // Events & Erlebnisse Sektion
                 $upcoming_events = get_all_events(true, true);
