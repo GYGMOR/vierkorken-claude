@@ -200,10 +200,16 @@ if ($category_id !== '') {
                                                 title="Zur Merkliste hinzufügen">
                                             <?php echo get_icon('heart', 20); ?>
                                         </button>
+                                        <button class="btn-add-cart-mobile"
+                                                onclick="event.preventDefault(); event.stopPropagation(); addToCartFromCard('<?php echo $wine['id']; ?>', '<?php echo addslashes($wine['name']); ?>', <?php echo $wine['price']; ?>);"
+                                                title="In Warenkorb">
+                                            <?php echo get_icon('shopping-cart', 18); ?>
+                                            <span>In Warenkorb</span>
+                                        </button>
                                     </div>
                                 </div>
 
-                                <!-- Mengenauswahl & In Warenkorb -->
+                                <!-- Mengenauswahl -->
                                 <div class="wine-quantity-section" onclick="event.preventDefault(); event.stopPropagation();">
                                     <div class="quantity-selector-compact">
                                         <button class="qty-btn" onclick="decreaseQty('<?php echo $wine['id']; ?>')">
@@ -220,7 +226,7 @@ if ($category_id !== '') {
                                             <?php echo get_icon('plus', 16); ?>
                                         </button>
                                     </div>
-                                    <button class="btn-add-cart"
+                                    <button class="btn-add-cart-desktop"
                                             onclick="addToCartFromCard('<?php echo $wine['id']; ?>', '<?php echo addslashes($wine['name']); ?>', <?php echo $wine['price']; ?>)">
                                         <?php echo get_icon('shopping-cart', 18); ?>
                                         <span>In Warenkorb</span>
