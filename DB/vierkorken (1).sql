@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Erstellungszeit: 01. Nov 2025 um 20:15
+-- Erstellungszeit: 02. Nov 2025 um 15:02
 -- Server-Version: 10.11.10-MariaDB-cll-lve-log
 -- PHP-Version: 8.4.11
 
@@ -140,6 +140,25 @@ CREATE TABLE `coupon_usage` (
 -- --------------------------------------------------------
 
 --
+-- Tabellenstruktur für Tabelle `custom_news`
+--
+
+CREATE TABLE `custom_news` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `image_url` varchar(500) DEFAULT NULL,
+  `is_featured` tinyint(1) DEFAULT 0,
+  `active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `featured_bg_color` varchar(20) DEFAULT '#c27c0e',
+  `featured_text_color` varchar(20) DEFAULT '#ffffff'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tabellenstruktur für Tabelle `events`
 --
 
@@ -156,17 +175,20 @@ CREATE TABLE `events` (
   `category_id` int(11) DEFAULT 9 COMMENT 'Standardmäßig Events-Kategorie',
   `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_featured` tinyint(1) DEFAULT 0,
+  `featured_bg_color` varchar(20) DEFAULT '#2c5282',
+  `featured_text_color` varchar(20) DEFAULT '#ffffff'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Daten für Tabelle `events`
 --
 
-INSERT INTO `events` (`id`, `name`, `description`, `event_date`, `location`, `price`, `image_url`, `max_participants`, `available_tickets`, `category_id`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'Weinverkostung: Schweizer Rotweine', 'Entdecken Sie die Vielfalt der Schweizer Rotweine bei unserer exklusiven Verkostung. Ein erfahrener Sommelier führt Sie durch 6 ausgewählte Weine.', '2025-11-15 18:00:00', 'Vier Korken Weinlounge, Zürich', 45.00, 'assets/images/events/weinverkostung-rotwein.jpg', 20, 20, 9, 1, '2025-10-21 06:20:13', '2025-10-21 06:20:13'),
-(2, 'Käse & Wein Pairing Workshop', 'Lernen Sie die perfekte Kombination von Schweizer Käse und Wein kennen. Ein unvergessliches kulinarisches Erlebnis.', '2025-11-22 19:00:00', 'Vier Korken Weinlounge, Zürich', 65.00, 'assets/images/events/kaese-wein-pairing.jpg', 15, 15, 9, 1, '2025-10-21 06:20:13', '2025-10-21 06:20:13'),
-(3, 'Weihnachts-Weindegustation', 'Besondere Weine für die Festtage. Finden Sie den perfekten Begleiter für Ihr Weihnachtsmenü.', '2025-12-10 17:00:00', 'Vier Korken Weinlounge, Zürich', 55.00, 'assets/images/events/weihnachts-degustation.jpg', 25, 25, 9, 1, '2025-10-21 06:20:13', '2025-10-21 06:20:13');
+INSERT INTO `events` (`id`, `name`, `description`, `event_date`, `location`, `price`, `image_url`, `max_participants`, `available_tickets`, `category_id`, `is_active`, `created_at`, `updated_at`, `is_featured`, `featured_bg_color`, `featured_text_color`) VALUES
+(1, 'Weinverkostung: Schweizer Rotweine', 'Entdecken Sie die Vielfalt der Schweizer Rotweine bei unserer exklusiven Verkostung. Ein erfahrener Sommelier führt Sie durch 6 ausgewählte Weine.', '2025-11-15 18:00:00', 'Vier Korken Weinlounge, Zürich', 45.00, 'assets/images/events/weinverkostung-rotwein.jpg', 20, 20, 9, 1, '2025-10-21 06:20:13', '2025-11-02 11:38:34', 0, '#c9a113', '#ffffff'),
+(2, 'Käse & Wein Pairing Workshop', 'Lernen Sie die perfekte Kombination von Schweizer Käse und Wein kennen. Ein unvergessliches kulinarisches Erlebnis.', '2025-11-22 19:00:00', 'Vier Korken Weinlounge, Zürich', 65.00, 'assets/images/events/kaese-wein-pairing.jpg', 15, 15, 9, 1, '2025-10-21 06:20:13', '2025-11-02 11:38:34', 0, '#c69f30', '#ffffff'),
+(3, 'Weihnachts-Weindegustation', 'Besondere Weine für die Festtage. Finden Sie den perfekten Begleiter für Ihr Weihnachtsmenü.', '2025-12-10 17:00:00', 'Vier Korken Weinlounge, Zürich', 55.00, 'assets/images/events/weihnachts-degustation.jpg', 25, 25, 9, 1, '2025-10-21 06:20:13', '2025-11-02 11:38:34', 0, '#c59f30', '#ffffff');
 
 -- --------------------------------------------------------
 
@@ -187,6 +209,48 @@ CREATE TABLE `event_bookings` (
   `customer_email` varchar(255) DEFAULT NULL,
   `customer_phone` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `klara_products_extended`
+--
+
+CREATE TABLE `klara_products_extended` (
+  `id` int(11) NOT NULL,
+  `klara_article_id` varchar(50) NOT NULL COMMENT 'ID des Klara-Artikels',
+  `image_url` varchar(500) DEFAULT NULL COMMENT 'Bild-URL',
+  `producer` varchar(255) DEFAULT NULL COMMENT 'Produzent',
+  `vintage` int(4) DEFAULT NULL COMMENT 'Jahrgang',
+  `region` varchar(255) DEFAULT NULL COMMENT 'Region',
+  `alcohol_content` decimal(4,2) DEFAULT NULL COMMENT 'Alkoholgehalt %',
+  `description` text DEFAULT NULL COMMENT 'Erweiterte Beschreibung',
+  `short_description` text DEFAULT NULL,
+  `extended_description` text DEFAULT NULL,
+  `is_featured` tinyint(1) DEFAULT 0 COMMENT 'Als Neuheit markiert',
+  `featured_bg_color` varchar(20) DEFAULT '#722c2c',
+  `featured_text_color` varchar(20) DEFAULT '#ffffff',
+  `custom_price` decimal(10,2) DEFAULT NULL COMMENT 'Überschreibt Klara-Preis falls gesetzt',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Daten für Tabelle `klara_products_extended`
+--
+
+INSERT INTO `klara_products_extended` (`id`, `klara_article_id`, `image_url`, `producer`, `vintage`, `region`, `alcohol_content`, `description`, `short_description`, `extended_description`, `is_featured`, `featured_bg_color`, `featured_text_color`, `custom_price`, `created_at`, `updated_at`) VALUES
+(1, '12', '', '', 0, '', 0.00, NULL, 'Unterschiedliche Geschenksachen', 'Das ist die Lange bescheebung \n\nhahahahahaha\nah\nahah\na\nhah\nahaha\nhahah\na\nhaa\nhahah\nah\n\nh', 0, '#722c2c', '#ffffff', NULL, '2025-11-01 21:49:47', '2025-11-02 11:38:34'),
+(2, '1', '', '', 0, '', 0.00, NULL, 'AOC Graubünden\n\nAus bestem Traubengut der Einzellage Uris gekeltert. Der zwölf monatige Ausbau in französischen Barriques, von denen die eine Hälfte neu und die andere Hälfte bereits im Einsatz gestanden sind, verleiht dem Wein Würzigkeit und eine dezent rauchige Note. Eine zurückhaltende Filtration führt zu einem dichtgewobenen, eleganten Gaumen, der von Waldbeeren, Mocca, Nougat und Röstaromen geprägt ist.\n\nGeniessen 2024–2034 (14˚–16˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:02:47', '2025-11-02 00:25:37'),
+(3, '109', '', '', 0, '', 0.00, NULL, 'AOC Graubünden\n\nHellroter, frischer und fruchtiger Schiller aus Pinot Noir, Pinot Blanc und Pinot Gris gekeltert.\n\nGeniessen 2024–2028 (10˚–12˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:03:30', '2025-11-02 11:38:34'),
+(4, '39', '', '', 0, '', 0.00, NULL, 'Infos\nVollreife Riesling-Sylvaner-Trauben werden im Herbst während 3 bis 4 Wochen getrocknet und anschliessend gepresst. Daraus entsteht ein konzentrierter Traubenmost mit 150°Oechsle und einer geballten Ladung Frucht-und Reifearomen.\n\nNach der Gärung präsentieren sich Süsse, Säure und Alkohol in einem harmonischen Gleichgewicht. Ein Geheimtipp für alle Fans von Dessertweinen.\n\n \n\nAlkoholgehalt: 13.7 vol. %\nLagerfähigkeit: bis 3 Jahre\nServiertemperatur: 8 bis 10 ˚C\nServiervorschlag\nZu Blauschimmelkäse, Desserts etc.', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:08:05', '2025-11-02 11:38:34'),
+(5, '3', '', '', 0, '', 0.00, NULL, 'AOC Graubünden\n\nHellroter, frischer und fruchtiger Rosé aus Pinot Noir gekeltert.\n\nGeniessen 2024–2028 (10˚–12˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:08:31', '2025-11-02 00:08:31'),
+(6, '4', '', '', 0, '', 0.00, NULL, 'Traubensorten: Maréchal Foch und Pinot Noir.\nIn der Nase: Zwetschgen, Cassis, würzig. Im Gaumen: komplex, reich, voll.\nLagerfähigkeit: bis 8 Jahre', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:08:49', '2025-11-02 00:26:45'),
+(7, '2', '', '', 1999, '', 0.00, NULL, 'AOC Graubünden\n\nAus bestem Traubengut der Einzellage Uris gekeltert. Der zwölf monatige Ausbau in französischen Barriques, von denen die eine Hälfte neu und die andere Hälfte bereits im Einsatz gestanden sind, verleiht dem Wein Würzigkeit und eine dezent rauchige Note. Eine zurückhaltende Filtration führt zu einem dichtgewobenen, eleganten Gaumen, der von Waldbeeren, Mocca, Nougat und Röstaromen geprägt ist.\n\nGeniessen 2024–2034 (14˚–16˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:27:10', '2025-11-02 11:38:34'),
+(8, '6', '', 'Test Produzent', 2020, 'Test Region', 13.50, NULL, 'Test Beschreibung', 'Erweiterte Test Beschreibung', 0, '#ff0000', '#ffffff', 25.50, '2025-11-02 07:55:54', '2025-11-02 11:41:38'),
+(9, '5', '', '', 2023, '', 0.00, NULL, 'AOC Graubünden\n\nHellroter, frischer und fruchtiger Rosé aus Pinot Noir gekeltert.\n\nGeniessen 2024–2028 (10˚–12˚C)', '', 0, '#ffb10a', '#ffffff', NULL, '2025-11-02 08:23:34', '2025-11-02 08:32:37'),
+(10, '8', '', '', 2024, '', 0.00, NULL, 'Traubensorten: Maréchal Foch und Pinot Noir.\nIn der Nase: Zwetschgen, Cassis, würzig. Im Gaumen: komplex, reich, voll.\nLagerfähigkeit: bis 8 Jahre', '', 0, '#d2b919', '#ffffff', NULL, '2025-11-02 08:32:21', '2025-11-02 08:32:21'),
+(11, '121', '', '', 2004, '', 0.00, NULL, 'Die traditionelle Flaschengärung verleiht diesem Schaumwein seine natürliche Perlage. Diese trägt die Fruchtigkeit der Pinot Traube wie aber auch diese typisch klassischen Hefearomen vielversprechend in den Gaumen.', '', 1, '#ded81b', '#ffffff', NULL, '2025-11-02 11:39:59', '2025-11-02 11:39:59');
 
 -- --------------------------------------------------------
 
@@ -225,6 +289,8 @@ CREATE TABLE `news_items` (
   `reference_id` int(11) DEFAULT NULL COMMENT 'ID des Weins oder Events',
   `is_active` tinyint(1) DEFAULT 1,
   `display_order` int(11) DEFAULT 0,
+  `bg_color` varchar(7) DEFAULT '#722c2c' COMMENT 'Hintergrundfarbe (Hex)',
+  `text_color` varchar(7) DEFAULT '#ffffff' COMMENT 'Textfarbe (Hex)',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -233,10 +299,10 @@ CREATE TABLE `news_items` (
 -- Daten für Tabelle `news_items`
 --
 
-INSERT INTO `news_items` (`id`, `title`, `content`, `type`, `image_url`, `link_url`, `reference_id`, `is_active`, `display_order`, `created_at`, `updated_at`) VALUES
-(1, 'Neue Rotweine eingetroffen!', 'Entdecken Sie unsere neuesten Rotweine aus dem Wallis. Limitierte Auflage!', 'general', 'assets/images/news/neue-rotweine.jpg', '?page=shop&category=1', NULL, 1, 1, '2025-10-21 06:20:13', '2025-10-21 06:20:13'),
-(2, 'Weinverkostung am 15. November', 'Jetzt Tickets sichern für unsere exklusive Rotwein-Verkostung!', 'event', 'assets/images/events/weinverkostung-rotwein.jpg', '?page=events', NULL, 1, 2, '2025-10-21 06:20:13', '2025-10-21 06:20:13'),
-(3, '20% Rabatt auf Weißweine', 'Nur diese Woche: Alle Weißweine mit 20% Rabatt!', 'general', 'assets/images/news/weisswein-aktion.jpg', '?page=shop&category=2', NULL, 1, 3, '2025-10-21 06:20:13', '2025-10-21 06:20:13');
+INSERT INTO `news_items` (`id`, `title`, `content`, `type`, `image_url`, `link_url`, `reference_id`, `is_active`, `display_order`, `bg_color`, `text_color`, `created_at`, `updated_at`) VALUES
+(1, 'Neue Rotweine eingetroffen!', 'Entdecken Sie unsere neuesten Rotweine aus dem Wallis. Limitierte Auflage!', 'general', 'assets/images/news/neue-rotweine.jpg', '?page=shop&category=1', NULL, 1, 1, '#722c2c', '#ffffff', '2025-10-21 06:20:13', '2025-10-21 06:20:13'),
+(2, 'Weinverkostung am 15. November', 'Jetzt Tickets sichern für unsere exklusive Rotwein-Verkostung!', 'event', 'assets/images/events/weinverkostung-rotwein.jpg', '?page=events', NULL, 1, 2, '#722c2c', '#ffffff', '2025-10-21 06:20:13', '2025-10-21 06:20:13'),
+(3, '20% Rabatt auf Weißweine', 'Nur diese Woche: Alle Weißweine mit 20% Rabatt!', 'general', 'assets/images/news/weisswein-aktion.jpg', '?page=shop&category=2', NULL, 1, 3, '#722c2c', '#ffffff', '2025-10-21 06:20:13', '2025-10-21 06:20:13');
 
 -- --------------------------------------------------------
 
@@ -283,7 +349,10 @@ INSERT INTO `orders` (`id`, `order_number`, `user_id`, `guest_email`, `delivery_
 (5, 'VK-20251021-0005', NULL, 'tim@gmail.com', 'pickup', 'tim', 'tim', '', '', '', '0764804215', 'tim@gmail.com', 'cash', 'pending', NULL, 45.00, 0.00, 0.00, 45.00, NULL, 'pending', NULL, '2025-10-21 11:45:36', '2025-10-21 11:45:36'),
 (6, 'VK-20251021-0006', 8, NULL, 'pickup', 'Joel', 'Hediger', '', '', '', '0764804216', 'regideh221@gmail.com', 'cash', 'pending', NULL, 83.00, 0.00, 0.00, 83.00, NULL, 'pending', NULL, '2025-10-21 11:50:36', '2025-10-21 11:50:36'),
 (7, 'VK-20251021-0007', 8, NULL, 'pickup', 'Joel', 'Hediger', '', '', '', '0764804216', 'regideh221@gmail.com', 'cash', 'pending', NULL, 183.00, 0.00, 0.00, 183.00, NULL, 'processing', NULL, '2025-10-21 12:13:12', '2025-10-21 15:48:28'),
-(8, 'VK-20251021-0008', 8, NULL, 'pickup', 'Test', 'Test', '', '', '', '0768905467', 'regideh221@gmail.com', 'card', 'pending', NULL, 91.00, 0.00, 0.00, 91.00, NULL, 'pending', NULL, '2025-10-21 15:56:09', '2025-10-21 15:56:09');
+(8, 'VK-20251021-0008', 8, NULL, 'pickup', 'Test', 'Test', '', '', '', '0768905467', 'regideh221@gmail.com', 'card', 'pending', NULL, 91.00, 0.00, 0.00, 91.00, NULL, 'cancelled', NULL, '2025-10-21 15:56:09', '2025-11-02 00:38:15'),
+(9, 'VK-20251102-0001', 8, NULL, 'pickup', 'Test', 'Test', '', '', '', '0768905467', 'regideh221@gmail.com', 'cash', 'pending', NULL, 51.00, 0.00, 0.00, 51.00, NULL, 'pending', NULL, '2025-11-02 07:42:20', '2025-11-02 07:42:20'),
+(10, 'VK-20251102-0002', 8, NULL, 'pickup', 'joel', 'Hediger', '', '', '', '0764804216', 'regideh221@gmail.com', 'cash', 'pending', NULL, 51.00, 0.00, 0.00, 51.00, NULL, 'pending', NULL, '2025-11-02 07:42:26', '2025-11-02 07:42:26'),
+(11, 'VK-20251102-0003', 8, NULL, 'pickup', 'joel', 'Hediger', '', '', '', '0764804216', 'regideh221@gmail.com', 'cash', 'pending', NULL, 51.00, 0.00, 0.00, 51.00, NULL, 'pending', NULL, '2025-11-02 07:42:35', '2025-11-02 07:42:35');
 
 -- --------------------------------------------------------
 
@@ -349,7 +418,24 @@ CREATE TABLE `order_sequence` (
 --
 
 INSERT INTO `order_sequence` (`id`, `date`, `last_sequence`) VALUES
-(1, '2025-10-21', 8);
+(1, '2025-10-21', 8),
+(2, '2025-11-02', 3);
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `password_reset_tokens`
+--
+
+CREATE TABLE `password_reset_tokens` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `used` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1862,7 +1948,7 @@ INSERT INTO `wines` (`id`, `name`, `category_id`, `description`, `price`, `curre
 (7, 'Petite Arvine Moelleux 2021', 5, 'Ein süffiger Dessertwein mit Honignoten', 35.00, 'CHF', 12, NULL, 2021, 'Valais', 'Vins du Valais', 11.5, 750, 'PARVINE-MOEL-21', '2025-10-18 12:05:13', '2025-10-18 12:05:13', 0, NULL, 0),
 (8, 'Alkoholfrei Weißwein', 6, 'Genießen Sie Wein ohne Alkohol - gleicher Geschmack!', 15.00, 'CHF', 30, 'https://stibe.me/vierkorken-claude/assets/images/wines/FAS-weisswein-albarino-trocken.jpg', 2023, 'Schweiz', 'Swiss Non-Alcoholic', 0.5, 750, 'ALKFREI-WW', '2025-10-18 12:05:13', '2025-10-21 15:39:49', 0, 4.0, 1),
 (9, 'Geschenk-Gutschein 50 CHF', 7, 'Der perfekte Geschenk - 50 CHF zum Einlösen', 50.00, 'CHF', 100, NULL, 2024, 'Online', 'Vier Korken', 0.0, 0, 'GUTSCHEIN-50', '2025-10-18 12:05:13', '2025-10-21 15:45:02', 1, NULL, 0),
-(10, 'Geschenk-Gutschein 100 CHF', 7, 'Der perfekte Geschenk - 100 CHF zum Einlösen', 100.00, 'CHF', 100, NULL, 2024, 'Online', 'Vier Korken', 0.0, 0, 'GUTSCHEIN-100', '2025-10-18 12:05:13', '2025-10-18 12:05:13', 0, NULL, 0),
+(10, 'Geschenk-Gutschein 100 CHF', 7, 'Der perfekte Geschenk - 100 CHF zum Einlösen', 100.00, 'CHF', 100, NULL, 2024, 'Online', 'Vier Korken', 0.0, 0, 'GUTSCHEIN-100', '2025-10-18 12:05:13', '2025-11-01 23:12:11', 1, NULL, 0),
 (11, 'Weinglas Set (6er)', 8, 'Premium Weingläser Set - perfekt für Ihre Weinverkostung', 89.00, 'CHF', 8, NULL, 2024, 'Schweiz', 'Riedel', 0.0, 0, 'GLAS-SET-6', '2025-10-18 12:05:13', '2025-10-20 12:25:00', 1, NULL, 0);
 
 -- --------------------------------------------------------
@@ -1874,6 +1960,7 @@ INSERT INTO `wines` (`id`, `name`, `category_id`, `description`, `price`, `curre
 CREATE TABLE `wine_ratings` (
   `id` int(11) NOT NULL,
   `wine_id` int(11) NOT NULL,
+  `wine_id_new` varchar(50) DEFAULT NULL,
   `user_id` int(11) NOT NULL,
   `rating` tinyint(1) NOT NULL CHECK (`rating` >= 1 and `rating` <= 5),
   `review_text` text DEFAULT NULL,
@@ -1886,8 +1973,9 @@ CREATE TABLE `wine_ratings` (
 -- Daten für Tabelle `wine_ratings`
 --
 
-INSERT INTO `wine_ratings` (`id`, `wine_id`, `user_id`, `rating`, `review_text`, `helpful_count`, `created_at`, `updated_at`) VALUES
-(5, 8, 8, 4, 'Hallo', 0, '2025-10-21 15:34:34', '2025-10-21 15:34:34');
+INSERT INTO `wine_ratings` (`id`, `wine_id`, `wine_id_new`, `user_id`, `rating`, `review_text`, `helpful_count`, `created_at`, `updated_at`) VALUES
+(5, 8, '8', 8, 4, 'Hallo', 0, '2025-10-21 15:34:34', '2025-11-01 23:17:39'),
+(9, 19, NULL, 7, 3, 'mega', 0, '2025-11-01 23:25:27', '2025-11-01 23:25:27');
 
 -- --------------------------------------------------------
 
@@ -1964,13 +2052,21 @@ ALTER TABLE `coupon_usage`
   ADD KEY `idx_user_coupon` (`user_id`,`coupon_id`);
 
 --
+-- Indizes für die Tabelle `custom_news`
+--
+ALTER TABLE `custom_news`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_featured` (`is_featured`,`active`);
+
+--
 -- Indizes für die Tabelle `events`
 --
 ALTER TABLE `events`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_active` (`is_active`),
   ADD KEY `idx_event_date` (`event_date`),
-  ADD KEY `fk_events_category` (`category_id`);
+  ADD KEY `fk_events_category` (`category_id`),
+  ADD KEY `idx_featured` (`is_featured`);
 
 --
 -- Indizes für die Tabelle `event_bookings`
@@ -1981,6 +2077,14 @@ ALTER TABLE `event_bookings`
   ADD KEY `idx_user` (`user_id`),
   ADD KEY `idx_status` (`status`),
   ADD KEY `fk_bookings_order` (`order_id`);
+
+--
+-- Indizes für die Tabelle `klara_products_extended`
+--
+ALTER TABLE `klara_products_extended`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `klara_article_id` (`klara_article_id`),
+  ADD KEY `idx_is_featured` (`is_featured`);
 
 --
 -- Indizes für die Tabelle `newsletter_subscribers`
@@ -2023,6 +2127,15 @@ ALTER TABLE `order_items`
 ALTER TABLE `order_sequence`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `date` (`date`);
+
+--
+-- Indizes für die Tabelle `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `token` (`token`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `expires_at` (`expires_at`);
 
 --
 -- Indizes für die Tabelle `produkte`
@@ -2153,6 +2266,12 @@ ALTER TABLE `coupon_usage`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT für Tabelle `custom_news`
+--
+ALTER TABLE `custom_news`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT für Tabelle `events`
 --
 ALTER TABLE `events`
@@ -2163,6 +2282,12 @@ ALTER TABLE `events`
 --
 ALTER TABLE `event_bookings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `klara_products_extended`
+--
+ALTER TABLE `klara_products_extended`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT für Tabelle `newsletter_subscribers`
@@ -2180,19 +2305,25 @@ ALTER TABLE `news_items`
 -- AUTO_INCREMENT für Tabelle `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT für Tabelle `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT für Tabelle `order_sequence`
 --
 ALTER TABLE `order_sequence`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT für Tabelle `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT für Tabelle `produkte`
@@ -2252,7 +2383,7 @@ ALTER TABLE `wines`
 -- AUTO_INCREMENT für Tabelle `wine_ratings`
 --
 ALTER TABLE `wine_ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT für Tabelle `wishlist`
@@ -2354,7 +2485,6 @@ ALTER TABLE `wines`
 -- Constraints der Tabelle `wine_ratings`
 --
 ALTER TABLE `wine_ratings`
-  ADD CONSTRAINT `wine_ratings_ibfk_1` FOREIGN KEY (`wine_id`) REFERENCES `wines` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `wine_ratings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --

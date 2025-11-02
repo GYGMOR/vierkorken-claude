@@ -632,35 +632,68 @@ function update_klara_extended_data($klara_article_id, $data) {
     // Check if exists
     $existing = get_klara_extended_data($klara_article_id);
 
-    $image_url = $db->real_escape_string($data['image_url'] ?? '');
-    $producer = $db->real_escape_string($data['producer'] ?? '');
-    $vintage = isset($data['vintage']) ? (int)$data['vintage'] : 'NULL';
-    $region = $db->real_escape_string($data['region'] ?? '');
-    $alcohol_content = isset($data['alcohol_content']) ? (float)$data['alcohol_content'] : 'NULL';
-    $short_description = $db->real_escape_string($data['short_description'] ?? '');
-    $extended_description = $db->real_escape_string($data['extended_description'] ?? '');
-    $is_featured = isset($data['is_featured']) ? (int)$data['is_featured'] : 0;
-    $custom_price = isset($data['custom_price']) && $data['custom_price'] !== '' ? (float)$data['custom_price'] : 'NULL';
-    $featured_bg_color = $db->real_escape_string($data['featured_bg_color'] ?? '#722c2c');
-    $featured_text_color = $db->real_escape_string($data['featured_text_color'] ?? '#ffffff');
-
     if ($existing) {
-        // Update
-        $sql = "UPDATE klara_products_extended SET
-                image_url = '$image_url',
-                producer = '$producer',
-                vintage = $vintage,
-                region = '$region',
-                alcohol_content = $alcohol_content,
-                short_description = '$short_description',
-                extended_description = '$extended_description',
-                is_featured = $is_featured,
-                custom_price = $custom_price,
-                featured_bg_color = '$featured_bg_color',
-                featured_text_color = '$featured_text_color'
-                WHERE klara_article_id = '$klara_article_id'";
+        // UPDATE: Nur die Felder aktualisieren, die tatsächlich mitgeschickt wurden
+        $updates = [];
+
+        if (isset($data['image_url'])) {
+            $updates[] = "image_url = '" . $db->real_escape_string($data['image_url']) . "'";
+        }
+        if (isset($data['producer'])) {
+            $updates[] = "producer = '" . $db->real_escape_string($data['producer']) . "'";
+        }
+        if (isset($data['vintage'])) {
+            $updates[] = "vintage = " . (int)$data['vintage'];
+        }
+        if (isset($data['region'])) {
+            $updates[] = "region = '" . $db->real_escape_string($data['region']) . "'";
+        }
+        if (isset($data['alcohol_content'])) {
+            $updates[] = "alcohol_content = " . (float)$data['alcohol_content'];
+        }
+        if (isset($data['short_description'])) {
+            $updates[] = "short_description = '" . $db->real_escape_string($data['short_description']) . "'";
+        }
+        if (isset($data['extended_description'])) {
+            $updates[] = "extended_description = '" . $db->real_escape_string($data['extended_description']) . "'";
+        }
+        if (isset($data['is_featured'])) {
+            $updates[] = "is_featured = " . (int)$data['is_featured'];
+        }
+        if (isset($data['custom_price'])) {
+            if ($data['custom_price'] !== '' && $data['custom_price'] !== null) {
+                $updates[] = "custom_price = " . (float)$data['custom_price'];
+            } else {
+                $updates[] = "custom_price = NULL";
+            }
+        }
+        if (isset($data['featured_bg_color'])) {
+            $updates[] = "featured_bg_color = '" . $db->real_escape_string($data['featured_bg_color']) . "'";
+        }
+        if (isset($data['featured_text_color'])) {
+            $updates[] = "featured_text_color = '" . $db->real_escape_string($data['featured_text_color']) . "'";
+        }
+
+        if (empty($updates)) {
+            return true; // Keine Änderungen
+        }
+
+        $sql = "UPDATE klara_products_extended SET " . implode(', ', $updates) . " WHERE klara_article_id = '$klara_article_id'";
+
     } else {
-        // Insert
+        // INSERT: Neue Zeile mit Standardwerten für fehlende Felder
+        $image_url = $db->real_escape_string($data['image_url'] ?? '');
+        $producer = $db->real_escape_string($data['producer'] ?? '');
+        $vintage = isset($data['vintage']) ? (int)$data['vintage'] : 'NULL';
+        $region = $db->real_escape_string($data['region'] ?? '');
+        $alcohol_content = isset($data['alcohol_content']) ? (float)$data['alcohol_content'] : 'NULL';
+        $short_description = $db->real_escape_string($data['short_description'] ?? '');
+        $extended_description = $db->real_escape_string($data['extended_description'] ?? '');
+        $is_featured = isset($data['is_featured']) ? (int)$data['is_featured'] : 0;
+        $custom_price = isset($data['custom_price']) && $data['custom_price'] !== '' ? (float)$data['custom_price'] : 'NULL';
+        $featured_bg_color = $db->real_escape_string($data['featured_bg_color'] ?? '#722c2c');
+        $featured_text_color = $db->real_escape_string($data['featured_text_color'] ?? '#ffffff');
+
         $sql = "INSERT INTO klara_products_extended
                 (klara_article_id, image_url, producer, vintage, region, alcohol_content, short_description, extended_description, is_featured, custom_price, featured_bg_color, featured_text_color)
                 VALUES ('$klara_article_id', '$image_url', '$producer', $vintage, '$region', $alcohol_content, '$short_description', '$extended_description', $is_featured, $custom_price, '$featured_bg_color', '$featured_text_color')";
@@ -668,7 +701,6 @@ function update_klara_extended_data($klara_article_id, $data) {
 
     $result = $db->query($sql);
 
-    // DEBUG: Log bei Fehler
     if (!$result) {
         error_log("SQL ERROR in update_klara_extended_data: " . $db->error);
         error_log("SQL: " . $sql);

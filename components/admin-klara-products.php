@@ -394,22 +394,57 @@ function saveKlaraProduct(event) {
     event.preventDefault();
 
     const form = document.getElementById('klara-product-form');
-    const formData = new FormData(form);
     const data = {};
 
-    formData.forEach((value, key) => {
-        if (key === 'is_featured') {
-            data[key] = 1;
-        } else {
-            data[key] = value;
-        }
-    });
+    // Klara Article ID (erforderlich)
+    data.klara_article_id = document.getElementById('klara-product-id')?.value;
 
-    if (!document.getElementById('klara-product-featured').checked) {
-        data.is_featured = 0;
+    // Producer - nur wenn ausgefüllt
+    const producer = document.getElementById('klara-product-producer')?.value?.trim();
+    if (producer) {
+        data.producer = producer;
     }
 
-    // Stelle sicher, dass Farben immer mitgeschickt werden
+    // Vintage - nur wenn ausgefüllt, als Zahl
+    const vintage = document.getElementById('klara-product-vintage')?.value?.trim();
+    if (vintage) {
+        data.vintage = parseInt(vintage);
+    }
+
+    // Region - nur wenn ausgefüllt
+    const region = document.getElementById('klara-product-region')?.value?.trim();
+    if (region) {
+        data.region = region;
+    }
+
+    // Alkoholgehalt - nur wenn ausgefüllt, als Zahl
+    const alcohol = document.getElementById('klara-product-alcohol')?.value?.trim();
+    if (alcohol) {
+        data.alcohol_content = parseFloat(alcohol);
+    }
+
+    // Kurzbeschreibung - nur wenn ausgefüllt
+    const shortDesc = document.getElementById('klara-product-short-desc')?.value?.trim();
+    if (shortDesc) {
+        data.short_description = shortDesc;
+    }
+
+    // Erweiterte Beschreibung - nur wenn ausgefüllt
+    const extDesc = document.getElementById('klara-product-extended-desc')?.value?.trim();
+    if (extDesc) {
+        data.extended_description = extDesc;
+    }
+
+    // Custom Price - nur wenn ausgefüllt, als Zahl
+    const customPrice = document.getElementById('klara-product-custom-price')?.value?.trim();
+    if (customPrice) {
+        data.custom_price = parseFloat(customPrice);
+    }
+
+    // Featured - immer senden (0 oder 1)
+    data.is_featured = document.getElementById('klara-product-featured')?.checked ? 1 : 0;
+
+    // Farben - immer senden (mit Standardwerten falls leer)
     data.featured_bg_color = document.getElementById('klara-product-bg-color')?.value || '#722c2c';
     data.featured_text_color = document.getElementById('klara-product-text-color')?.value || '#ffffff';
 

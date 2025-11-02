@@ -2174,28 +2174,39 @@ textarea.form-control {
 <script>
 // Remove Featured Item
 function removeFeatured(type, id) {
+    console.log('removeFeatured called with type:', type, 'id:', id);
+
     if (!confirm('Möchtest du diesen Eintrag wirklich von den Neuheiten entfernen?')) {
+        console.log('User cancelled removal');
         return;
     }
+
+    const body = `type=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}`;
+    console.log('Sending to API:', body);
 
     fetch('api/remove-featured.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: `type=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}`
+        body: body
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             showNotification('Erfolgreich entfernt', 'success');
             setTimeout(() => location.reload(), 500);
         } else {
             showNotification('Fehler: ' + (data.error || 'Unbekannter Fehler'), 'error');
+            console.error('API error:', data.error, 'DB error:', data.db_error);
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Fetch error:', error);
         showNotification('Fehler beim Entfernen', 'error');
     });
 }
