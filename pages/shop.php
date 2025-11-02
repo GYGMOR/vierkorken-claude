@@ -736,6 +736,16 @@ if ($category_id !== '') {
 @media (max-width: 480px) {
     .btn-add-cart-mobile-top {
         display: flex !important;
+        padding: 0.5rem 0.7rem !important;
+        font-size: 0.75rem !important;
+        gap: 0.25rem !important;
+        flex: 0 1 auto !important;
+        white-space: nowrap;
+    }
+
+    .btn-add-cart-mobile-top svg {
+        width: 14px !important;
+        height: 14px !important;
     }
 
     .btn-add-cart-bottom {
