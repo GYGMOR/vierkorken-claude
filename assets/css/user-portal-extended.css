@@ -185,23 +185,24 @@
     object-fit: cover;
 }
 
-/* Kantonswappen Badge - überlappt Weinbild unten rechts */
+/* Kantonswappen Badge - überlappt Weinbild unten rechts OHNE Abstand */
 .kanton-wappen-badge {
     position: absolute;
-    bottom: 8px;
-    right: 8px;
+    bottom: 0;
+    right: 0;
     background: rgba(255, 255, 255, 0.95);
-    border-radius: 4px;
-    padding: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 0;
+    padding: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     z-index: 100;
     pointer-events: none;
+    border-top-left-radius: 4px;
 }
 
 .kanton-wappen-badge img {
     display: block;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
 }
 
