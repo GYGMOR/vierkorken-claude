@@ -21,12 +21,18 @@ try {
             $articles = klara_get_articles();
 
             // Erweiterte Daten aus Datenbank mergen
+            // WICHTIG: Merge-Reihenfolge - Extended-Daten überschreiben Klara-Daten!
             foreach ($articles as &$article) {
                 $extended = get_klara_extended_data($article['id']);
                 if ($extended) {
+                    // Merge: Klara-Daten zuerst, dann Extended-Daten drüber (überschreiben)
                     $article = array_merge($article, $extended);
+
+                    // ABER: Klara 'id' muss erhalten bleiben (nicht durch DB 'id' überschreiben)
+                    $article['id'] = $extended['klara_article_id'];
                 }
             }
+            unset($article); // Referenz aufbrechen
 
             echo json_encode(['success' => true, 'data' => $articles]);
             break;
@@ -58,7 +64,10 @@ try {
             // Erweiterte Daten mergen
             $extended = get_klara_extended_data($klara_id);
             if ($extended) {
+                // Merge: Klara-Daten zuerst, dann Extended-Daten drüber (überschreiben)
                 $article = array_merge($article, $extended);
+                // Klara 'id' muss erhalten bleiben
+                $article['id'] = $extended['klara_article_id'];
             }
 
             echo json_encode(['success' => true, 'data' => $article]);
