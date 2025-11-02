@@ -68,17 +68,27 @@ try {
             $data = json_decode(file_get_contents('php://input'), true);
             $klara_id = $data['klara_article_id'] ?? '';
 
+            // DEBUG LOG
+            error_log("klara-products-extended.php UPDATE: klara_id=$klara_id");
+            error_log("klara-products-extended.php UPDATE: data=" . json_encode($data));
+
             if (empty($klara_id)) {
+                error_log("klara-products-extended.php UPDATE: Klara-ID fehlt!");
                 http_response_code(400);
                 echo json_encode(['success' => false, 'error' => 'Klara-ID fehlt']);
                 break;
             }
 
-            if (update_klara_extended_data($klara_id, $data)) {
+            $result = update_klara_extended_data($klara_id, $data);
+            error_log("klara-products-extended.php UPDATE: result=" . ($result ? 'true' : 'false'));
+
+            if ($result) {
                 echo json_encode(['success' => true, 'message' => 'Daten aktualisiert']);
             } else {
+                global $db;
+                error_log("klara-products-extended.php UPDATE: DB error: " . $db->error);
                 http_response_code(500);
-                echo json_encode(['success' => false, 'error' => 'Fehler beim Aktualisieren']);
+                echo json_encode(['success' => false, 'error' => 'Fehler beim Aktualisieren', 'db_error' => $db->error]);
             }
             break;
 

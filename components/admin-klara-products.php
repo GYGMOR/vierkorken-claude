@@ -408,12 +408,14 @@ function closeKlaraProductModal() {
 
 function saveKlaraProduct(event) {
     event.preventDefault();
+    console.log('saveKlaraProduct() called');
 
     const form = document.getElementById('klara-product-form');
     const data = {};
 
     // Klara Article ID (erforderlich)
     data.klara_article_id = document.getElementById('klara-product-id')?.value;
+    console.log('klara_article_id:', data.klara_article_id);
 
     // Producer - nur wenn ausgefüllt
     const producer = document.getElementById('klara-product-producer')?.value?.trim();
@@ -464,23 +466,30 @@ function saveKlaraProduct(event) {
     data.featured_bg_color = document.getElementById('klara-product-bg-color')?.value || '#722c2c';
     data.featured_text_color = document.getElementById('klara-product-text-color')?.value || '#ffffff';
 
+    console.log('Sending data to API:', data);
+
     fetch('api/klara-products-extended.php?action=update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     })
-    .then(r => r.json())
+    .then(r => {
+        console.log('API Response status:', r.status);
+        return r.json();
+    })
     .then(result => {
+        console.log('API Response:', result);
         if (result.success) {
             alert('Produkt aktualisiert!');
             closeKlaraProductModal();
             loadKlaraProducts();
         } else {
             alert('Fehler: ' + result.error);
+            console.error('API error:', result.error, 'DB error:', result.db_error);
         }
     })
     .catch(e => {
-        console.error('Error:', e);
+        console.error('Fetch error:', e);
         alert('Fehler beim Speichern');
     });
 }
