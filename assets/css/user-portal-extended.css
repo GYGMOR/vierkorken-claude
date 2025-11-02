@@ -176,12 +176,25 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative; /* Für absolute Positionierung des Wappens */
 }
 
 .wine-image-container img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* Kantonswappen Badge - unten rechts */
+.kanton-wappen-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 4px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 10;
 }
 
 .wine-info {

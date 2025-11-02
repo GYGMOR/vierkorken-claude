@@ -170,6 +170,15 @@ if ($category_id !== '') {
                                 <?php if ($wine['stock'] <= 5): ?>
                                     <div class="stock-badge"><?php echo get_icon('warning', 16); ?> Nur noch <?php echo $wine['stock']; ?></div>
                                 <?php endif; ?>
+                                <?php
+                                // Kantonswappen anzeigen (unten rechts)
+                                if (!empty($wine['kanton'])):
+                                    require_once 'includes/kantone.php';
+                                ?>
+                                    <div class="kanton-wappen-badge">
+                                        <?php echo render_kanton_wappen($wine['kanton'], 30); ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Wein Info -->

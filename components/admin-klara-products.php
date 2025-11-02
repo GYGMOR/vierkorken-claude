@@ -87,8 +87,28 @@
                         <input type="text" id="klara-product-region" name="region" class="form-control">
                     </div>
                     <div class="form-group">
+                        <label for="klara-product-kanton">Kanton</label>
+                        <select id="klara-product-kanton" name="kanton" class="form-control">
+                            <option value="">-- Kein Kanton --</option>
+                            <?php
+                            require_once __DIR__ . '/../includes/kantone.php';
+                            $kantone = get_schweizer_kantone();
+                            foreach ($kantone as $code => $name) {
+                                echo "<option value=\"$code\">$name</option>";
+                            }
+                            ?>
+                        </select>
+                        <small class="form-hint">Wappen wird auf Produktseite angezeigt</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="klara-product-alcohol">Alkoholgehalt (%)</label>
                         <input type="number" id="klara-product-alcohol" name="alcohol_content" class="form-control" step="0.1" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <!-- Leer lassen für Layout -->
                     </div>
                 </div>
 
@@ -403,6 +423,7 @@ function openKlaraProductModal(product) {
     document.getElementById('klara-product-producer').value = product.producer || '';
     document.getElementById('klara-product-vintage').value = product.vintage || '';
     document.getElementById('klara-product-region').value = product.region || '';
+    document.getElementById('klara-product-kanton').value = product.kanton || '';
     document.getElementById('klara-product-alcohol').value = product.alcohol_content || '';
     document.getElementById('klara-product-short-desc').value = product.short_description || product.description || '';
     document.getElementById('klara-product-extended-desc').value = product.extended_description || '';
@@ -453,6 +474,12 @@ function saveKlaraProduct(event) {
     const region = document.getElementById('klara-product-region')?.value?.trim();
     if (region) {
         data.region = region;
+    }
+
+    // Kanton - nur wenn ausgefüllt
+    const kanton = document.getElementById('klara-product-kanton')?.value?.trim();
+    if (kanton) {
+        data.kanton = kanton;
     }
 
     // Alkoholgehalt - nur wenn ausgefüllt, als Zahl

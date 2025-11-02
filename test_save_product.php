@@ -1,11 +1,11 @@
 <?php
-// TEST: Produkt 6 speichern und laden
+// TEST: Produkt 6 speichern und laden + Bild-URL testen
 
 require_once 'config/database.php';
 require_once 'includes/functions.php';
 
-echo "<h1>Test: Produkt 6 Speichern</h1>";
-echo "<style>body{font-family:Arial;padding:20px;} .success{color:green;} .error{color:red;}</style>";
+echo "<h1>Test: Produkt 6 - Bild-URL Check</h1>";
+echo "<style>body{font-family:Arial;padding:20px;} .success{color:green;} .error{color:red;} img{max-width:200px;border:2px solid #ccc;}</style>";
 
 // Test 1: Prüfen ob Produkt 6 existiert
 echo "<h2>Test 1: Existiert Produkt 6 in DB?</h2>";
@@ -74,6 +74,17 @@ if ($raw_result && $raw_result->num_rows > 0) {
     $row = $raw_result->fetch_assoc();
     echo "<p class='success'>✓ Eintrag in DB gefunden</p>";
     echo "<pre>" . print_r($row, true) . "</pre>";
+
+    // Test 5: Bild-URL anzeigen
+    if (!empty($row['image_url'])) {
+        echo "<h2>Test 5: Bild-URL Anzeige</h2>";
+        echo "<p><strong>URL:</strong> " . htmlspecialchars($row['image_url']) . "</p>";
+        echo "<p>Lade Bild:</p>";
+        echo "<img src='" . htmlspecialchars($row['image_url']) . "' alt='Produkt-Bild' onerror=\"this.style.border='3px solid red'; this.alt='❌ FEHLER: Bild konnte nicht geladen werden'\">";
+    } else {
+        echo "<h2>Test 5: Bild-URL</h2>";
+        echo "<p class='error'>✗ Keine image_url in DB gespeichert!</p>";
+    }
 } else {
     echo "<p class='error'>✗ Kein Eintrag in DB!</p>";
 }
