@@ -574,7 +574,7 @@ $settings = get_all_settings();
                 // Klara-Produkte
                 foreach ($featured_products as $product) {
                     $all_featured[] = [
-                        'id' => $product['id'],
+                        'id' => $product['klara_article_id'], // WICHTIG: Verwende klara_article_id für das Entfernen!
                         'type' => 'product',
                         'title' => $product['name'],
                         'subtitle' => $product['producer'] ?? '',

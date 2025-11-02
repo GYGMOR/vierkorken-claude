@@ -738,12 +738,18 @@ function get_klara_featured_products($limit = 6) {
 
     foreach ($all_articles as $article) {
         if (in_array($article['id'], $featured_ids)) {
+            // Speichere die Klara-ID VORHER
+            $klara_id = $article['id'];
+
             // Erweiterte Daten mergen (enthält Farben!)
-            $extended = get_klara_extended_data($article['id']);
+            $extended = get_klara_extended_data($klara_id);
             if ($extended) {
                 // Merge extended data, extended values take precedence
                 $article = array_merge($article, $extended);
             }
+
+            // WICHTIG: Stelle sicher dass klara_article_id korrekt ist (für Entfernen-Funktion)
+            $article['klara_article_id'] = $klara_id;
 
             // Stelle sicher, dass Farben gesetzt sind (Fallback)
             if (!isset($article['featured_bg_color']) || empty($article['featured_bg_color'])) {
