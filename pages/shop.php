@@ -23,8 +23,12 @@ foreach ($wines as &$wine) {
     $klara_id = $wine['id']; // Klara-ID sichern
     $extended = get_klara_extended_data($klara_id);
     if ($extended) {
-        // Merge: Klara-Daten zuerst, dann Extended-Daten drüber (überschreiben)
-        $wine = array_merge($wine, $extended);
+        // Nur nicht-leere Extended-Werte übernehmen (Klara-Daten nicht mit leeren Werten überschreiben)
+        foreach ($extended as $key => $value) {
+            if ($key !== 'id' && !empty($value)) {
+                $wine[$key] = $value;
+            }
+        }
         // Klara-ID wiederherstellen (nicht DB-ID verwenden)
         $wine['id'] = $klara_id;
     }

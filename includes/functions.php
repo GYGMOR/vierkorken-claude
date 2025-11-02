@@ -748,8 +748,12 @@ function get_klara_featured_products($limit = 6) {
             // Erweiterte Daten mergen (enthält Farben!)
             $extended = get_klara_extended_data($klara_id);
             if ($extended) {
-                // Merge extended data, extended values take precedence
-                $article = array_merge($article, $extended);
+                // Nur nicht-leere Extended-Werte übernehmen (Klara-Daten nicht mit leeren Werten überschreiben)
+                foreach ($extended as $key => $value) {
+                    if ($key !== 'id' && !empty($value)) {
+                        $article[$key] = $value;
+                    }
+                }
             }
 
             // WICHTIG: Stelle sicher dass klara_article_id korrekt ist (für Entfernen-Funktion)
