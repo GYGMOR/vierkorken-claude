@@ -681,18 +681,15 @@ function get_klara_featured_products($limit = 6) {
     global $db;
     $limit = (int)$limit;
 
-    $result = $db->query("SELECT klara_article_id, featured_bg_color, featured_text_color FROM klara_products_extended WHERE is_featured = 1 ORDER BY updated_at DESC LIMIT $limit");
+    $result = $db->query("SELECT klara_article_id FROM klara_products_extended WHERE is_featured = 1 ORDER BY updated_at DESC LIMIT $limit");
 
     if (!$result) {
         return [];
     }
 
-    $featured_data = [];
+    $featured_ids = [];
     while ($row = $result->fetch_assoc()) {
-        $featured_data[$row['klara_article_id']] = [
-            'bg_color' => $row['featured_bg_color'] ?? '#722c2c',
-            'text_color' => $row['featured_text_color'] ?? '#ffffff'
-        ];
+        $featured_ids[] = $row['klara_article_id'];
     }
 
     // Klara-Artikel holen
@@ -700,20 +697,21 @@ function get_klara_featured_products($limit = 6) {
     $featured = [];
 
     foreach ($all_articles as $article) {
-        if (isset($featured_data[$article['id']])) {
-            // Farben zuerst speichern (bevor sie durch merge überschrieben werden)
-            $bg_color = $featured_data[$article['id']]['bg_color'] ?? '#722c2c';
-            $text_color = $featured_data[$article['id']]['text_color'] ?? '#ffffff';
-
-            // Erweiterte Daten mergen
+        if (in_array($article['id'], $featured_ids)) {
+            // Erweiterte Daten mergen (enthält Farben!)
             $extended = get_klara_extended_data($article['id']);
             if ($extended) {
+                // Merge extended data, extended values take precedence
                 $article = array_merge($article, $extended);
             }
 
-            // Farben wieder setzen (falls sie durch merge überschrieben wurden)
-            $article['featured_bg_color'] = $bg_color;
-            $article['featured_text_color'] = $text_color;
+            // Stelle sicher, dass Farben gesetzt sind (Fallback)
+            if (!isset($article['featured_bg_color']) || empty($article['featured_bg_color'])) {
+                $article['featured_bg_color'] = '#722c2c';
+            }
+            if (!isset($article['featured_text_color']) || empty($article['featured_text_color'])) {
+                $article['featured_text_color'] = '#ffffff';
+            }
 
             $featured[] = $article;
         }

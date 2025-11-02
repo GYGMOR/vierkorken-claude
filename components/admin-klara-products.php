@@ -408,8 +408,6 @@ function saveKlaraProduct(event) {
     data.featured_bg_color = document.getElementById('klara-product-bg-color')?.value || '#722c2c';
     data.featured_text_color = document.getElementById('klara-product-text-color')?.value || '#ffffff';
 
-    console.log('Speichere Daten:', data); // DEBUG
-
     fetch('api/klara-products-extended.php?action=update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -417,7 +415,6 @@ function saveKlaraProduct(event) {
     })
     .then(r => r.json())
     .then(result => {
-        console.log('Server Antwort:', result); // DEBUG
         if (result.success) {
             alert('Produkt aktualisiert!');
             closeKlaraProductModal();
