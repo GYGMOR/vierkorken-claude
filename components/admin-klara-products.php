@@ -268,8 +268,13 @@ function setupColorPickers() {
     const bgColorText = document.getElementById('klara-product-bg-color-text');
 
     if (bgColorPicker) {
-        bgColorPicker.addEventListener('input', function() {
-            if (bgColorText) bgColorText.value = this.value;
+        // Entferne alte Event Listener durch Klonen
+        const newBgPicker = bgColorPicker.cloneNode(true);
+        bgColorPicker.parentNode.replaceChild(newBgPicker, bgColorPicker);
+
+        newBgPicker.addEventListener('input', function() {
+            const textField = document.getElementById('klara-product-bg-color-text');
+            if (textField) textField.value = this.value;
             updateColorPreview();
         });
     }
@@ -279,8 +284,13 @@ function setupColorPickers() {
     const textColorText = document.getElementById('klara-product-text-color-text');
 
     if (textColorPicker) {
-        textColorPicker.addEventListener('input', function() {
-            if (textColorText) textColorText.value = this.value;
+        // Entferne alte Event Listener durch Klonen
+        const newTextPicker = textColorPicker.cloneNode(true);
+        textColorPicker.parentNode.replaceChild(newTextPicker, textColorPicker);
+
+        newTextPicker.addEventListener('input', function() {
+            const textField = document.getElementById('klara-product-text-color-text');
+            if (textField) textField.value = this.value;
             updateColorPreview();
         });
     }
@@ -429,18 +439,21 @@ function openKlaraProductModal(product) {
     // Farben setzen
     const bgColor = product.featured_bg_color || '#722c2c';
     const textColor = product.featured_text_color || '#ffffff';
-    document.getElementById('klara-product-bg-color').value = bgColor;
-    document.getElementById('klara-product-text-color').value = textColor;
 
-    // Text-Felder und Vorschau aktualisieren
-    const bgColorText = document.getElementById('klara-product-bg-color-text');
-    const textColorText = document.getElementById('klara-product-text-color-text');
-    if (bgColorText) bgColorText.value = bgColor;
-    if (textColorText) textColorText.value = textColor;
+    // Warte kurz, dann setze die Werte (damit die Felder existieren)
+    setTimeout(function() {
+        const bgPicker = document.getElementById('klara-product-bg-color');
+        const textPicker = document.getElementById('klara-product-text-color');
+        const bgText = document.getElementById('klara-product-bg-color-text');
+        const textText = document.getElementById('klara-product-text-color-text');
 
-    // Farb-Picker neu initialisieren und Vorschau aktualisieren
-    setupColorPickers();
-    updateColorPreview();
+        if (bgPicker) bgPicker.value = bgColor;
+        if (textPicker) textPicker.value = textColor;
+        if (bgText) bgText.value = bgColor;
+        if (textText) textText.value = textColor;
+
+        updateColorPreview();
+    }, 100);
 
     modal.style.display = 'flex';
 }
