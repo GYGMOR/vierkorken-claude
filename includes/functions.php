@@ -706,9 +706,9 @@ function get_klara_featured_products($limit = 6) {
             if ($extended) {
                 $article = array_merge($article, $extended);
             }
-            // Farben hinzufügen
-            $article['featured_bg_color'] = $featured_data[$article['id']]['bg_color'];
-            $article['featured_text_color'] = $featured_data[$article['id']]['text_color'];
+            // Farben hinzufügen (mit Fallback)
+            $article['featured_bg_color'] = $featured_data[$article['id']]['bg_color'] ?? '#722c2c';
+            $article['featured_text_color'] = $featured_data[$article['id']]['text_color'] ?? '#ffffff';
             $featured[] = $article;
         }
     }
