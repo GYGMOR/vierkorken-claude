@@ -246,19 +246,26 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadKlaraProducts() {
+    console.log('loadKlaraProducts() called');
     fetch('api/klara-products-extended.php?action=get_all')
-        .then(r => r.json())
+        .then(r => {
+            console.log('API Response status:', r.status);
+            return r.json();
+        })
         .then(data => {
+            console.log('API Response data:', data);
             if (data.success) {
                 klaraProductsData = data.data;
+                console.log('Loaded products count:', klaraProductsData.length);
                 renderKlaraProducts(klaraProductsData);
             } else {
+                console.error('API returned error:', data.error);
                 document.getElementById('klara-products-list').innerHTML = '<p>Fehler beim Laden: ' + data.error + '</p>';
             }
         })
         .catch(e => {
-            console.error('Error:', e);
-            document.getElementById('klara-products-list').innerHTML = '<p>Fehler beim Laden</p>';
+            console.error('Fetch error:', e);
+            document.getElementById('klara-products-list').innerHTML = '<p>Fehler beim Laden der Produkte. Siehe Konsole für Details.</p>';
         });
 }
 
@@ -301,16 +308,25 @@ function filterKlaraProducts() {
 }
 
 function renderKlaraProducts(products) {
+    console.log('renderKlaraProducts() called with', products.length, 'products');
     const container = document.getElementById('klara-products-list');
 
+    if (!container) {
+        console.error('Container #klara-products-list not found!');
+        return;
+    }
+
     if (products.length === 0) {
+        console.warn('No products to render');
         container.innerHTML = '<p>Keine Produkte gefunden.</p>';
         return;
     }
 
+    console.log('First product:', products[0]);
+
     const html = products.map(product => {
         const hasExtended = product.image_url || product.producer || product.description;
-        const price = product.custom_price || product.price || 0;
+        const price = parseFloat(product.custom_price || product.price || 0);
 
         return `
             <div class="klara-product-card">
