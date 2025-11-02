@@ -648,6 +648,9 @@ function update_klara_extended_data($klara_article_id, $data) {
         if (isset($data['region'])) {
             $updates[] = "region = '" . $db->real_escape_string($data['region']) . "'";
         }
+        if (isset($data['kanton'])) {
+            $updates[] = "kanton = '" . $db->real_escape_string($data['kanton']) . "'";
+        }
         if (isset($data['alcohol_content'])) {
             $updates[] = "alcohol_content = " . (float)$data['alcohol_content'];
         }
@@ -686,6 +689,7 @@ function update_klara_extended_data($klara_article_id, $data) {
         $producer = $db->real_escape_string($data['producer'] ?? '');
         $vintage = isset($data['vintage']) ? (int)$data['vintage'] : 'NULL';
         $region = $db->real_escape_string($data['region'] ?? '');
+        $kanton = $db->real_escape_string($data['kanton'] ?? '');
         $alcohol_content = isset($data['alcohol_content']) ? (float)$data['alcohol_content'] : 'NULL';
         $short_description = $db->real_escape_string($data['short_description'] ?? '');
         $extended_description = $db->real_escape_string($data['extended_description'] ?? '');
@@ -695,8 +699,8 @@ function update_klara_extended_data($klara_article_id, $data) {
         $featured_text_color = $db->real_escape_string($data['featured_text_color'] ?? '#ffffff');
 
         $sql = "INSERT INTO klara_products_extended
-                (klara_article_id, image_url, producer, vintage, region, alcohol_content, short_description, extended_description, is_featured, custom_price, featured_bg_color, featured_text_color)
-                VALUES ('$klara_article_id', '$image_url', '$producer', $vintage, '$region', $alcohol_content, '$short_description', '$extended_description', $is_featured, $custom_price, '$featured_bg_color', '$featured_text_color')";
+                (klara_article_id, image_url, producer, vintage, region, kanton, alcohol_content, short_description, extended_description, is_featured, custom_price, featured_bg_color, featured_text_color)
+                VALUES ('$klara_article_id', '$image_url', '$producer', $vintage, '$region', '$kanton', $alcohol_content, '$short_description', '$extended_description', $is_featured, $custom_price, '$featured_bg_color', '$featured_text_color')";
     }
 
     $result = $db->query($sql);
