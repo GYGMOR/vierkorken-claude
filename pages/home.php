@@ -46,7 +46,7 @@ foreach ($featured_events as $event) {
     $news_items[] = [
         'id' => $event['id'],
         'type' => 'event',
-        'title' => $event['title'],
+        'title' => $event['name'] ?? $event['title'] ?? 'Event',
         'content' => $event['description'] ?? '',
         'image_url' => $event['image_url'] ?? 'assets/images/placeholder-event.jpg',
         'link_url' => '?page=event&id=' . $event['id'],
