@@ -194,7 +194,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'price' => $_POST['price'],
             'image_url' => $_POST['image_url'] ?? '',
             'max_participants' => $_POST['max_participants'] ?? 0,
-            'available_tickets' => $_POST['available_tickets'] ?? 0
+            'available_tickets' => $_POST['available_tickets'] ?? 0,
+            'featured_bg_color' => $_POST['featured_bg_color'] ?? '#2c5282',
+            'featured_text_color' => $_POST['featured_text_color'] ?? '#ffffff'
         ];
 
         if (create_event($data)) {
@@ -217,7 +219,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image_url' => $_POST['image_url'] ?? '',
             'max_participants' => $_POST['max_participants'] ?? 0,
             'available_tickets' => $_POST['available_tickets'] ?? 0,
-            'is_active' => isset($_POST['is_active']) ? 1 : 0
+            'is_active' => isset($_POST['is_active']) ? 1 : 0,
+            'featured_bg_color' => $_POST['featured_bg_color'] ?? '#2c5282',
+            'featured_text_color' => $_POST['featured_text_color'] ?? '#ffffff'
         ];
 
         if (update_event($event_id, $data)) {
@@ -298,8 +302,8 @@ $settings = get_all_settings();
         <?php if ($tab === 'overview'): ?>
             <div class="stats-grid-admin">
                 <div class="stat-card-admin">
-                    <div class="stat-number"><?php echo $db->query("SELECT COUNT(*) as c FROM wines")->fetch_assoc()['c']; ?></div>
-                    <div class="stat-label">Weine</div>
+                    <div class="stat-number"><?php echo count(klara_get_articles()); ?></div>
+                    <div class="stat-label">Klara-Produkte</div>
                 </div>
                 <div class="stat-card-admin">
                     <div class="stat-number"><?php echo $db->query("SELECT COUNT(*) as c FROM orders")->fetch_assoc()['c']; ?></div>
@@ -308,6 +312,10 @@ $settings = get_all_settings();
                 <div class="stat-card-admin">
                     <div class="stat-number"><?php echo $db->query("SELECT COUNT(*) as c FROM users")->fetch_assoc()['c']; ?></div>
                     <div class="stat-label">Benutzer</div>
+                </div>
+                <div class="stat-card-admin">
+                    <div class="stat-number"><?php echo count(get_all_events(false, false)); ?></div>
+                    <div class="stat-label">Events</div>
                 </div>
             </div>
 
@@ -1174,6 +1182,21 @@ $settings = get_all_settings();
                     </div>
                 </div>
 
+                <div class="form-section-mega">
+                    <h3>Neuheiten-Farben</h3>
+                    <p class="form-hint">Farben für die Anzeige auf der Startseite (nur wenn als Neuheit markiert)</p>
+                    <div class="form-grid-2col">
+                        <div class="form-group-mega">
+                            <label>Hintergrundfarbe</label>
+                            <input type="color" name="featured_bg_color" value="#2c5282">
+                        </div>
+                        <div class="form-group-mega">
+                            <label>Textfarbe</label>
+                            <input type="color" name="featured_text_color" value="#ffffff">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-actions-mega">
                     <button type="submit" class="btn btn-primary btn-lg">Event erstellen</button>
                     <a href="?page=admin-dashboard&tab=events" class="btn btn-secondary btn-lg">Zurück</a>
@@ -1249,6 +1272,21 @@ $settings = get_all_settings();
                     <div class="form-group-mega">
                         <label>Beschreibung</label>
                         <textarea name="description" rows="5"><?php echo safe_output($event['description']); ?></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section-mega">
+                    <h3>Neuheiten-Farben</h3>
+                    <p class="form-hint">Farben für die Anzeige auf der Startseite (nur wenn als Neuheit markiert)</p>
+                    <div class="form-grid-2col">
+                        <div class="form-group-mega">
+                            <label>Hintergrundfarbe</label>
+                            <input type="color" name="featured_bg_color" value="<?php echo safe_output($event['featured_bg_color'] ?? '#2c5282'); ?>">
+                        </div>
+                        <div class="form-group-mega">
+                            <label>Textfarbe</label>
+                            <input type="color" name="featured_text_color" value="<?php echo safe_output($event['featured_text_color'] ?? '#ffffff'); ?>">
+                        </div>
                     </div>
                 </div>
 

@@ -35,8 +35,8 @@ foreach ($featured_products as $product) {
         'image_url' => $product['image_url'] ?? 'assets/images/placeholder-wine.jpg',
         'link_url' => '?page=product&id=' . $product['id'],
         'price' => $product['price'],
-        'bg_color' => '#722c2c',
-        'text_color' => '#ffffff',
+        'bg_color' => $product['featured_bg_color'] ?? '#722c2c',
+        'text_color' => $product['featured_text_color'] ?? '#ffffff',
         'wine_data' => $product
     ];
 }
@@ -51,8 +51,8 @@ foreach ($featured_events as $event) {
         'image_url' => $event['image_url'] ?? 'assets/images/placeholder-event.jpg',
         'link_url' => '?page=event&id=' . $event['id'],
         'price' => $event['price'],
-        'bg_color' => '#2c5282',
-        'text_color' => '#ffffff',
+        'bg_color' => $event['featured_bg_color'] ?? '#2c5282',
+        'text_color' => $event['featured_text_color'] ?? '#ffffff',
         'event_data' => $event
     ];
 }
@@ -67,8 +67,8 @@ foreach ($custom_news as $news) {
         'image_url' => $news['image_url'] ?? 'assets/images/placeholder-news.jpg',
         'link_url' => '#',
         'price' => null,
-        'bg_color' => '#c27c0e',
-        'text_color' => '#ffffff'
+        'bg_color' => $news['featured_bg_color'] ?? '#c27c0e',
+        'text_color' => $news['featured_text_color'] ?? '#ffffff'
     ];
 }
 

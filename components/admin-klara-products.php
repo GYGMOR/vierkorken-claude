@@ -130,6 +130,24 @@
                     </div>
                 </div>
 
+                <div class="form-section-divider">
+                    <h4>Neuheiten-Farben</h4>
+                    <p class="form-hint">Farben für die Anzeige auf der Startseite (nur wenn als Neuheit markiert)</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="klara-product-bg-color">Hintergrundfarbe</label>
+                        <input type="color" id="klara-product-bg-color" name="featured_bg_color" class="form-control" value="#722c2c">
+                        <small class="form-hint">Füllfarbe der Neuheiten-Karte</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="klara-product-text-color">Textfarbe</label>
+                        <input type="color" id="klara-product-text-color" name="featured_text_color" class="form-control" value="#ffffff">
+                        <small class="form-hint">Farbe des Texts auf der Karte</small>
+                    </div>
+                </div>
+
                 <div class="modal-footer">
                     <button type="button" onclick="closeKlaraProductModal()" class="btn btn-secondary">Abbrechen</button>
                     <button type="submit" class="btn btn-primary">Speichern</button>
@@ -345,7 +363,7 @@ function openKlaraProductModal(product) {
     document.getElementById('klara-product-price-display').value = 'CHF ' + (product.price || 0).toFixed(2);
     document.getElementById('klara-product-categories').value = (product.categories || []).join(', ');
 
-    // Erweiterte Daten (edit able)
+    // Erweiterte Daten (editable)
     document.getElementById('klara-product-image').value = product.image_url || '';
     document.getElementById('klara-product-producer').value = product.producer || '';
     document.getElementById('klara-product-vintage').value = product.vintage || '';
@@ -355,6 +373,8 @@ function openKlaraProductModal(product) {
     document.getElementById('klara-product-extended-desc').value = product.extended_description || '';
     document.getElementById('klara-product-custom-price').value = product.custom_price || '';
     document.getElementById('klara-product-featured').checked = product.is_featured == 1;
+    document.getElementById('klara-product-bg-color').value = product.featured_bg_color || '#722c2c';
+    document.getElementById('klara-product-text-color').value = product.featured_text_color || '#ffffff';
 
     modal.style.display = 'flex';
 }

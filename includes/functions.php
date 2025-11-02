@@ -366,9 +366,11 @@ function create_event($data) {
     $max_participants = (int)($data['max_participants'] ?? 0);
     $available_tickets = (int)($data['available_tickets'] ?? 0);
     $category_id = isset($data['category_id']) ? (int)$data['category_id'] : 9;
+    $featured_bg_color = $db->real_escape_string($data['featured_bg_color'] ?? '#2c5282');
+    $featured_text_color = $db->real_escape_string($data['featured_text_color'] ?? '#ffffff');
 
-    $sql = "INSERT INTO events (name, description, event_date, location, price, image_url, max_participants, available_tickets, category_id)
-            VALUES ('$name', '$description', '$event_date', '$location', $price, '$image_url', $max_participants, $available_tickets, $category_id)";
+    $sql = "INSERT INTO events (name, description, event_date, location, price, image_url, max_participants, available_tickets, category_id, featured_bg_color, featured_text_color)
+            VALUES ('$name', '$description', '$event_date', '$location', $price, '$image_url', $max_participants, $available_tickets, $category_id, '$featured_bg_color', '$featured_text_color')";
 
     return $db->query($sql);
 }
@@ -385,6 +387,8 @@ function update_event($id, $data) {
     $max_participants = (int)($data['max_participants'] ?? 0);
     $available_tickets = (int)($data['available_tickets'] ?? 0);
     $is_active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+    $featured_bg_color = $db->real_escape_string($data['featured_bg_color'] ?? '#2c5282');
+    $featured_text_color = $db->real_escape_string($data['featured_text_color'] ?? '#ffffff');
 
     $sql = "UPDATE events SET
             name = '$name',
@@ -395,7 +399,9 @@ function update_event($id, $data) {
             image_url = '$image_url',
             max_participants = $max_participants,
             available_tickets = $available_tickets,
-            is_active = $is_active
+            is_active = $is_active,
+            featured_bg_color = '$featured_bg_color',
+            featured_text_color = '$featured_text_color'
             WHERE id = $id";
 
     return $db->query($sql);
@@ -635,6 +641,8 @@ function update_klara_extended_data($klara_article_id, $data) {
     $extended_description = $db->real_escape_string($data['extended_description'] ?? '');
     $is_featured = isset($data['is_featured']) ? (int)$data['is_featured'] : 0;
     $custom_price = isset($data['custom_price']) && $data['custom_price'] !== '' ? (float)$data['custom_price'] : 'NULL';
+    $featured_bg_color = $db->real_escape_string($data['featured_bg_color'] ?? '#722c2c');
+    $featured_text_color = $db->real_escape_string($data['featured_text_color'] ?? '#ffffff');
 
     if ($existing) {
         // Update
@@ -647,13 +655,15 @@ function update_klara_extended_data($klara_article_id, $data) {
                 short_description = '$short_description',
                 extended_description = '$extended_description',
                 is_featured = $is_featured,
-                custom_price = $custom_price
+                custom_price = $custom_price,
+                featured_bg_color = '$featured_bg_color',
+                featured_text_color = '$featured_text_color'
                 WHERE klara_article_id = '$klara_article_id'";
     } else {
         // Insert
         $sql = "INSERT INTO klara_products_extended
-                (klara_article_id, image_url, producer, vintage, region, alcohol_content, short_description, extended_description, is_featured, custom_price)
-                VALUES ('$klara_article_id', '$image_url', '$producer', $vintage, '$region', $alcohol_content, '$short_description', '$extended_description', $is_featured, $custom_price)";
+                (klara_article_id, image_url, producer, vintage, region, alcohol_content, short_description, extended_description, is_featured, custom_price, featured_bg_color, featured_text_color)
+                VALUES ('$klara_article_id', '$image_url', '$producer', $vintage, '$region', $alcohol_content, '$short_description', '$extended_description', $is_featured, $custom_price, '$featured_bg_color', '$featured_text_color')";
     }
 
     return $db->query($sql);
@@ -671,15 +681,18 @@ function get_klara_featured_products($limit = 6) {
     global $db;
     $limit = (int)$limit;
 
-    $result = $db->query("SELECT klara_article_id FROM klara_products_extended WHERE is_featured = 1 ORDER BY updated_at DESC LIMIT $limit");
+    $result = $db->query("SELECT klara_article_id, featured_bg_color, featured_text_color FROM klara_products_extended WHERE is_featured = 1 ORDER BY updated_at DESC LIMIT $limit");
 
     if (!$result) {
         return [];
     }
 
-    $featured_ids = [];
+    $featured_data = [];
     while ($row = $result->fetch_assoc()) {
-        $featured_ids[] = $row['klara_article_id'];
+        $featured_data[$row['klara_article_id']] = [
+            'bg_color' => $row['featured_bg_color'] ?? '#722c2c',
+            'text_color' => $row['featured_text_color'] ?? '#ffffff'
+        ];
     }
 
     // Klara-Artikel holen
@@ -687,12 +700,15 @@ function get_klara_featured_products($limit = 6) {
     $featured = [];
 
     foreach ($all_articles as $article) {
-        if (in_array($article['id'], $featured_ids)) {
+        if (isset($featured_data[$article['id']])) {
             // Erweiterte Daten mergen
             $extended = get_klara_extended_data($article['id']);
             if ($extended) {
                 $article = array_merge($article, $extended);
             }
+            // Farben hinzufügen
+            $article['featured_bg_color'] = $featured_data[$article['id']]['bg_color'];
+            $article['featured_text_color'] = $featured_data[$article['id']]['text_color'];
             $featured[] = $article;
         }
     }
@@ -760,7 +776,7 @@ function get_custom_news_by_id($id) {
 }
 
 // Create or update custom news
-function save_custom_news($id, $title, $content, $image_url, $is_featured, $active) {
+function save_custom_news($id, $title, $content, $image_url, $is_featured, $active, $featured_bg_color = '#c27c0e', $featured_text_color = '#ffffff') {
     global $db;
 
     $title = $db->real_escape_string($title);
@@ -768,6 +784,8 @@ function save_custom_news($id, $title, $content, $image_url, $is_featured, $acti
     $image_url = $db->real_escape_string($image_url);
     $is_featured = $is_featured ? 1 : 0;
     $active = $active ? 1 : 0;
+    $featured_bg_color = $db->real_escape_string($featured_bg_color);
+    $featured_text_color = $db->real_escape_string($featured_text_color);
 
     if ($id > 0) {
         // Update
@@ -777,12 +795,14 @@ function save_custom_news($id, $title, $content, $image_url, $is_featured, $acti
                 content = '$content',
                 image_url = '$image_url',
                 is_featured = $is_featured,
-                active = $active
+                active = $active,
+                featured_bg_color = '$featured_bg_color',
+                featured_text_color = '$featured_text_color'
                 WHERE id = $id";
     } else {
         // Insert
-        $sql = "INSERT INTO custom_news (title, content, image_url, is_featured, active)
-                VALUES ('$title', '$content', '$image_url', $is_featured, $active)";
+        $sql = "INSERT INTO custom_news (title, content, image_url, is_featured, active, featured_bg_color, featured_text_color)
+                VALUES ('$title', '$content', '$image_url', $is_featured, $active, '$featured_bg_color', '$featured_text_color')";
     }
 
     return $db->query($sql);
