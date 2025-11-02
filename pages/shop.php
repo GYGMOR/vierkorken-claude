@@ -17,6 +17,29 @@ if ($debug_mode) {
 
 // Artikel von Klara API (mit Filter)
 $wines = klara_get_articles($category_id, $search);
+
+// WICHTIG: Erweiterte Daten (Custom-Bilder etc.) mergen
+foreach ($wines as &$wine) {
+    $extended = get_klara_extended_data($wine['id']);
+    if ($extended) {
+        // Nur image_url überschreiben wenn Custom-Bild gesetzt ist
+        if (!empty($extended['image_url'])) {
+            $wine['image_url'] = $extended['image_url'];
+        }
+        // Andere Extended-Daten auch mergen
+        if (!empty($extended['producer'])) {
+            $wine['producer'] = $extended['producer'];
+        }
+        if (!empty($extended['vintage'])) {
+            $wine['vintage'] = $extended['vintage'];
+        }
+        if (!empty($extended['short_description'])) {
+            $wine['description'] = $extended['short_description'];
+        }
+    }
+}
+unset($wine); // Referenz aufbrechen
+
 if ($debug_mode) {
     echo "<!-- DEBUG: Artikel gefunden: " . count($wines) . " -->\n";
 }

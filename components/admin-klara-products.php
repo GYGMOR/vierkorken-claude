@@ -417,6 +417,12 @@ function saveKlaraProduct(event) {
     data.klara_article_id = document.getElementById('klara-product-id')?.value;
     console.log('klara_article_id:', data.klara_article_id);
 
+    // Bild-URL - nur wenn ausgefüllt
+    const imageUrl = document.getElementById('klara-product-image')?.value?.trim();
+    if (imageUrl) {
+        data.image_url = imageUrl;
+    }
+
     // Producer - nur wenn ausgefüllt
     const producer = document.getElementById('klara-product-producer')?.value?.trim();
     if (producer) {
