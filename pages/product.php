@@ -23,6 +23,8 @@ foreach ($all_articles as $article) {
         $extended = get_klara_extended_data($wine_id);
         if ($extended) {
             $wine = array_merge($wine, $extended);
+            // Klara-ID wiederherstellen (nicht DB-ID verwenden)
+            $wine['id'] = $wine_id;
             // Custom-Preis überschreibt Klara-Preis
             if (isset($extended['custom_price']) && $extended['custom_price']) {
                 $wine['price'] = $extended['custom_price'];

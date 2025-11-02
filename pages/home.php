@@ -757,6 +757,7 @@ $news_items = array_slice($news_items, 0, 6);
     height: 280px;
     overflow: hidden;
     background: linear-gradient(135deg, var(--bg-light) 0%, #f5f5f5 100%);
+    position: relative; /* Für Wappen-Badge */
 }
 
 .news-image img {
