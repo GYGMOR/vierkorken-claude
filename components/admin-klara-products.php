@@ -356,6 +356,11 @@ function editKlaraProduct(id) {
 function openKlaraProductModal(product) {
     const modal = document.getElementById('klara-product-modal');
 
+    console.log('Opening modal with product:', product);
+    console.log('is_featured:', product.is_featured);
+    console.log('vintage:', product.vintage);
+    console.log('featured_bg_color:', product.featured_bg_color);
+
     // Basis-Daten (read-only)
     document.getElementById('klara-product-id').value = product.id;
     document.getElementById('klara-product-name').value = product.name || '';
