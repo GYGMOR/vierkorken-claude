@@ -139,7 +139,7 @@
                     <div class="form-group">
                         <label for="klara-product-bg-color">Hintergrundfarbe</label>
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="color" id="klara-product-bg-color" name="featured_bg_color" value="#722c2c" style="width: 80px; height: 40px; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;">
+                            <input type="color" id="klara-product-bg-color" name="featured_bg_color" value="#722c2c" onchange="updateColorPreview()" oninput="updateColorPreview()" style="width: 80px; height: 40px; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;">
                             <input type="text" id="klara-product-bg-color-text" readonly value="#722c2c" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #f5f5f5; font-family: monospace;">
                         </div>
                         <small class="form-hint">Füllfarbe der Neuheiten-Karte</small>
@@ -147,7 +147,7 @@
                     <div class="form-group">
                         <label for="klara-product-text-color">Textfarbe</label>
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="color" id="klara-product-text-color" name="featured_text_color" value="#ffffff" style="width: 80px; height: 40px; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;">
+                            <input type="color" id="klara-product-text-color" name="featured_text_color" value="#ffffff" onchange="updateColorPreview()" oninput="updateColorPreview()" style="width: 80px; height: 40px; border: 2px solid #ccc; border-radius: 4px; cursor: pointer;">
                             <input type="text" id="klara-product-text-color-text" readonly value="#ffffff" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #f5f5f5; font-family: monospace;">
                         </div>
                         <small class="form-hint">Farbe des Texts auf der Karte</small>
@@ -257,54 +257,21 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('klara-product-search')?.addEventListener('input', filterKlaraProducts);
         document.getElementById('klara-category-filter')?.addEventListener('change', filterKlaraProducts);
     }
-
-    // Farb-Picker Event Listeners
-    setupColorPickers();
 });
-
-function setupColorPickers() {
-    // Hintergrundfarbe
-    const bgColorPicker = document.getElementById('klara-product-bg-color');
-    const bgColorText = document.getElementById('klara-product-bg-color-text');
-
-    if (bgColorPicker) {
-        // Entferne alte Event Listener durch Klonen
-        const newBgPicker = bgColorPicker.cloneNode(true);
-        bgColorPicker.parentNode.replaceChild(newBgPicker, bgColorPicker);
-
-        newBgPicker.addEventListener('input', function() {
-            const textField = document.getElementById('klara-product-bg-color-text');
-            if (textField) textField.value = this.value;
-            updateColorPreview();
-        });
-    }
-
-    // Textfarbe
-    const textColorPicker = document.getElementById('klara-product-text-color');
-    const textColorText = document.getElementById('klara-product-text-color-text');
-
-    if (textColorPicker) {
-        // Entferne alte Event Listener durch Klonen
-        const newTextPicker = textColorPicker.cloneNode(true);
-        textColorPicker.parentNode.replaceChild(newTextPicker, textColorPicker);
-
-        newTextPicker.addEventListener('input', function() {
-            const textField = document.getElementById('klara-product-text-color-text');
-            if (textField) textField.value = this.value;
-            updateColorPreview();
-        });
-    }
-}
 
 function updateColorPreview() {
     const preview = document.getElementById('klara-color-preview');
     const bgColor = document.getElementById('klara-product-bg-color')?.value || '#722c2c';
     const textColor = document.getElementById('klara-product-text-color')?.value || '#ffffff';
+    const bgText = document.getElementById('klara-product-bg-color-text');
+    const textText = document.getElementById('klara-product-text-color-text');
 
     if (preview) {
         preview.style.backgroundColor = bgColor;
         preview.style.color = textColor;
     }
+    if (bgText) bgText.value = bgColor;
+    if (textText) textText.value = textColor;
 }
 
 function loadKlaraProducts() {
