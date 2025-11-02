@@ -330,7 +330,10 @@ function renderKlaraProducts(products) {
 
         return `
             <div class="klara-product-card">
-                <img src="${product.image_url || 'assets/images/placeholder.jpg'}" alt="${escapeHtml(product.name)}" class="klara-product-image" onerror="this.src='assets/images/placeholder.jpg'">
+                ${product.image_url ?
+                    `<img src="${product.image_url}" alt="${escapeHtml(product.name)}" class="klara-product-image" onerror="this.style.display='none'">` :
+                    `<div class="klara-product-image wine-image-placeholder" style="display:flex;align-items:center;justify-content:center;background:#f5f5f5;">${'🍷'}</div>`
+                }
 
                 <div class="klara-product-info">
                     <h4>${escapeHtml(product.name)}</h4>
