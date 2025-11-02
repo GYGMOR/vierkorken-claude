@@ -2199,7 +2199,10 @@ function removeFeatured(type, id) {
         console.log('Response data:', data);
         if (data.success) {
             showNotification('Erfolgreich entfernt', 'success');
-            setTimeout(() => location.reload(), 500);
+            // Force reload ohne Cache
+            setTimeout(() => {
+                window.location.href = window.location.href.split('?')[0] + '?page=admin-dashboard&tab=featured-wines&nocache=' + Date.now();
+            }, 500);
         } else {
             showNotification('Fehler: ' + (data.error || 'Unbekannter Fehler'), 'error');
             console.error('API error:', data.error, 'DB error:', data.db_error);
