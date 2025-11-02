@@ -261,15 +261,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function updateColorPreview() {
     const preview = document.getElementById('klara-color-preview');
-    const bgColor = document.getElementById('klara-product-bg-color')?.value || '#722c2c';
-    const textColor = document.getElementById('klara-product-text-color')?.value || '#ffffff';
+    const bgPicker = document.getElementById('klara-product-bg-color');
+    const textPicker = document.getElementById('klara-product-text-color');
     const bgText = document.getElementById('klara-product-bg-color-text');
     const textText = document.getElementById('klara-product-text-color-text');
 
-    if (preview) {
-        preview.style.backgroundColor = bgColor;
-        preview.style.color = textColor;
+    // Nur fortfahren wenn alle Elemente existieren (Modal ist offen)
+    if (!preview || !bgPicker || !textPicker) {
+        return;
     }
+
+    const bgColor = bgPicker.value || '#722c2c';
+    const textColor = textPicker.value || '#ffffff';
+
+    preview.style.backgroundColor = bgColor;
+    preview.style.color = textColor;
     if (bgText) bgText.value = bgColor;
     if (textText) textText.value = textColor;
 }
