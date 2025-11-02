@@ -548,51 +548,134 @@ $settings = get_all_settings();
 
         <?php elseif ($tab === 'featured-wines'): ?>
             <div class="admin-info-box">
-                Diese Produkte werden auf der Startseite unter "News / Neuheiten" angezeigt. Wähle Klara-Produkte aus und markiere sie als Neuheit.
+                <span class="icon-text"><?php echo get_icon('info', 20, 'icon-primary'); ?> Diese Inhalte werden auf der Startseite unter "News / Neuheiten" angezeigt.</span>
             </div>
 
+            <!-- ALLE NEUHEITEN VERWALTEN -->
             <div class="admin-form-mega">
-                <h3>Produkt als Neuheit hinzufügen</h3>
-                <p>Klicke auf "Bearbeiten" bei einem Klara-Produkt im Tab "Klara-Produkte" und aktiviere "Als Neuheit markieren".</p>
-                <a href="?page=admin-dashboard&tab=klara-products" class="btn btn-primary">Zu Klara-Produkten</a>
-            </div>
+                <h3><?php echo get_icon('star', 24, 'icon-primary'); ?> Alle Neuheiten</h3>
 
-            <div class="admin-form-mega">
-                <h3>Aktuelle Neuheiten</h3>
                 <?php
-                $featured_wines = get_klara_featured_products();
-                $count = count($featured_wines);
+                // Lade alle Featured Items (Klara-Produkte, Events, Custom News)
+                $featured_products = get_klara_featured_products(20);
+                $featured_events = get_featured_events(20);
+                $custom_news = get_custom_news(20);
+
+                $all_featured = [];
+
+                // Klara-Produkte
+                foreach ($featured_products as $product) {
+                    $all_featured[] = [
+                        'id' => $product['id'],
+                        'type' => 'product',
+                        'title' => $product['name'],
+                        'subtitle' => $product['producer'] ?? '',
+                        'price' => $product['price'],
+                        'image' => $product['image_url'],
+                        'edit_url' => '?page=admin-dashboard&tab=klara-products&search=' . urlencode($product['name'])
+                    ];
+                }
+
+                // Events
+                foreach ($featured_events as $event) {
+                    $all_featured[] = [
+                        'id' => $event['id'],
+                        'type' => 'event',
+                        'title' => $event['title'],
+                        'subtitle' => date('d.m.Y', strtotime($event['event_date'])),
+                        'price' => $event['price'],
+                        'image' => $event['image_url'],
+                        'edit_url' => '?page=admin-dashboard&tab=events&event_id=' . $event['id']
+                    ];
+                }
+
+                // Custom News
+                foreach ($custom_news as $news) {
+                    $all_featured[] = [
+                        'id' => $news['id'],
+                        'type' => 'news',
+                        'title' => $news['title'],
+                        'subtitle' => substr($news['content'], 0, 50) . '...',
+                        'price' => null,
+                        'image' => $news['image_url'],
+                        'edit_url' => '?page=admin-dashboard&tab=news&news_id=' . $news['id']
+                    ];
+                }
                 ?>
 
-                <?php if ($count > 0): ?>
-                    <p>Anzahl: <?php echo $count; ?> Produkt<?php echo $count !== 1 ? 'e' : ''; ?></p>
+                <?php if (count($all_featured) > 0): ?>
+                    <p>Anzahl: <?php echo count($all_featured); ?> Eintr<?php echo count($all_featured) !== 1 ? 'äge' : 'ag'; ?></p>
+
                     <table class="admin-table-mega">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Produzent</th>
-                                <th>Kategorien</th>
+                                <th>Typ</th>
+                                <th>Titel</th>
+                                <th>Details</th>
                                 <th>Preis</th>
-                                <th>Aktion</th>
+                                <th>Aktionen</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($featured_wines as $wine): ?>
+                            <?php foreach ($all_featured as $item): ?>
                                 <tr>
-                                    <td><strong><?php echo safe_output($wine['name']); ?></strong></td>
-                                    <td><?php echo safe_output($wine['producer'] ?? '-'); ?></td>
-                                    <td><?php echo safe_output(implode(', ', $wine['categories'] ?? [])); ?></td>
-                                    <td>CHF <?php echo number_format($wine['price'], 2); ?></td>
                                     <td>
-                                        <a href="?page=admin-dashboard&tab=klara-products" class="btn-small-admin">Bearbeiten</a>
+                                        <?php if ($item['type'] === 'product'): ?>
+                                            <?php echo get_icon('wine', 18, 'icon-primary'); ?> Produkt
+                                        <?php elseif ($item['type'] === 'event'): ?>
+                                            <?php echo get_icon('calendar', 18, 'icon-primary'); ?> Event
+                                        <?php else: ?>
+                                            <?php echo get_icon('newspaper', 18, 'icon-primary'); ?> News
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><strong><?php echo safe_output($item['title']); ?></strong></td>
+                                    <td><?php echo safe_output($item['subtitle']); ?></td>
+                                    <td><?php echo $item['price'] ? 'CHF ' . number_format($item['price'], 2) : '-'; ?></td>
+                                    <td>
+                                        <a href="<?php echo $item['edit_url']; ?>" class="btn-small-admin">
+                                            <?php echo get_icon('edit', 14); ?> Bearbeiten
+                                        </a>
+                                        <button onclick="removeFeatured('<?php echo $item['type']; ?>', '<?php echo $item['id']; ?>')"
+                                                class="btn-small-admin btn-danger">
+                                            <?php echo get_icon('trash', 14); ?> Entfernen
+                                        </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <div class="alert alert-warning">Keine Neuheiten hinzugefügt.</div>
+                    <div class="alert alert-warning">
+                        <?php echo get_icon('alert-triangle', 20); ?> Noch keine Neuheiten hinzugefügt.
+                    </div>
                 <?php endif; ?>
+            </div>
+
+            <!-- SCHNELLZUGRIFF -->
+            <div class="admin-grid-2">
+                <div class="admin-form-mega">
+                    <h3><?php echo get_icon('wine', 24, 'icon-primary'); ?> Klara-Produkt hinzufügen</h3>
+                    <p>Markiere ein Klara-Produkt als Neuheit</p>
+                    <a href="?page=admin-dashboard&tab=klara-products" class="btn btn-primary">
+                        Zu Klara-Produkten
+                    </a>
+                </div>
+
+                <div class="admin-form-mega">
+                    <h3><?php echo get_icon('calendar', 24, 'icon-primary'); ?> Event hinzufügen</h3>
+                    <p>Markiere ein Event als Neuheit</p>
+                    <a href="?page=admin-dashboard&tab=events" class="btn btn-primary">
+                        Zu Events
+                    </a>
+                </div>
+
+                <div class="admin-form-mega">
+                    <h3><?php echo get_icon('plus-circle', 24, 'icon-primary'); ?> Custom News erstellen</h3>
+                    <p>Erstelle eine eigene News/Aktion (z.B. "30% Rabatt")</p>
+                    <a href="?page=admin-dashboard&tab=news&action=create" class="btn btn-primary">
+                        News erstellen
+                    </a>
+                </div>
             </div>
 
         <?php elseif ($tab === 'images'): ?>
@@ -1649,12 +1732,20 @@ $settings = get_all_settings();
     text-decoration: none;
 }
 
-.btn-small-admin.danger {
-    background: #ff6b6b;
+.btn-small-admin.danger,
+.btn-small-admin.btn-danger {
+    background: #dc3545;
 }
 
 .btn-small-admin:hover {
     opacity: 0.8;
+}
+
+.admin-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
 }
 
 .image-preview {
@@ -2028,6 +2119,34 @@ textarea.form-control {
 </style>
 
 <script>
+// Remove Featured Item
+function removeFeatured(type, id) {
+    if (!confirm('Möchtest du diesen Eintrag wirklich von den Neuheiten entfernen?')) {
+        return;
+    }
+
+    fetch('api/remove-featured.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `type=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Erfolgreich entfernt', 'success');
+            setTimeout(() => location.reload(), 500);
+        } else {
+            showNotification('Fehler: ' + (data.error || 'Unbekannter Fehler'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Fehler beim Entfernen', 'error');
+    });
+}
+
 // Admin Mobile Menu Toggle
 document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('admin-menu-toggle');

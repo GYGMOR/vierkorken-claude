@@ -17,12 +17,16 @@ $about_image = get_setting('about_section_image', '');
 $about_text = get_setting('about_section_text', 'Willkommen bei Vier Korken, Ihrem Zugang zu den erlesenen Weinen der Schweiz.');
 $about_shop_link = get_setting('about_shop_link', '?page=shop');
 
-// Neuheiten laden - KLARA Featured Products
-$featured_klara_products = get_klara_featured_products(6);
+// Neuheiten laden - Alle Featured Items (Klara-Produkte, Events, Custom News)
+$featured_products = get_klara_featured_products(10);
+$featured_events = get_featured_events(10);
+$custom_news = get_custom_news(10);
 
-// Konvertiere Klara-Produkte in News-Item Format (als 'wine' type für bestehende Anzeige)
+// Konvertiere alle in News-Item Format
 $news_items = [];
-foreach ($featured_klara_products as $product) {
+
+// Klara-Produkte
+foreach ($featured_products as $product) {
     $news_items[] = [
         'id' => $product['id'],
         'type' => 'wine',
@@ -36,6 +40,40 @@ foreach ($featured_klara_products as $product) {
         'wine_data' => $product
     ];
 }
+
+// Events
+foreach ($featured_events as $event) {
+    $news_items[] = [
+        'id' => $event['id'],
+        'type' => 'event',
+        'title' => $event['title'],
+        'content' => $event['description'] ?? '',
+        'image_url' => $event['image_url'] ?? 'assets/images/placeholder-event.jpg',
+        'link_url' => '?page=event&id=' . $event['id'],
+        'price' => $event['price'],
+        'bg_color' => '#2c5282',
+        'text_color' => '#ffffff',
+        'event_data' => $event
+    ];
+}
+
+// Custom News/Aktionen
+foreach ($custom_news as $news) {
+    $news_items[] = [
+        'id' => $news['id'],
+        'type' => 'news',
+        'title' => $news['title'],
+        'content' => $news['content'],
+        'image_url' => $news['image_url'] ?? 'assets/images/placeholder-news.jpg',
+        'link_url' => '#',
+        'price' => null,
+        'bg_color' => '#c27c0e',
+        'text_color' => '#ffffff'
+    ];
+}
+
+// Begrenze auf 6 Items für die Anzeige
+$news_items = array_slice($news_items, 0, 6);
 ?>
 
 <!-- HEADER BANNER -->

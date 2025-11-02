@@ -700,4 +700,100 @@ function get_klara_featured_products($limit = 6) {
     return $featured;
 }
 
+// ============================================
+// FEATURED EVENTS FUNCTIONS
+// ============================================
+
+// Get featured events
+function get_featured_events($limit = 6) {
+    global $db;
+    $limit = (int)$limit;
+
+    $result = $db->query("SELECT * FROM events WHERE is_featured = 1 AND active = 1 ORDER BY event_date DESC LIMIT $limit");
+
+    if (!$result) {
+        return [];
+    }
+
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+// Mark event as featured
+function set_event_featured($event_id, $is_featured) {
+    global $db;
+    $event_id = (int)$event_id;
+    $is_featured = $is_featured ? 1 : 0;
+
+    return $db->query("UPDATE events SET is_featured = $is_featured WHERE id = $event_id");
+}
+
+// ============================================
+// CUSTOM NEWS FUNCTIONS
+// ============================================
+
+// Get custom news
+function get_custom_news($limit = 6) {
+    global $db;
+    $limit = (int)$limit;
+
+    $result = $db->query("SELECT * FROM custom_news WHERE is_featured = 1 AND active = 1 ORDER BY created_at DESC LIMIT $limit");
+
+    if (!$result) {
+        return [];
+    }
+
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+// Get single news by ID
+function get_custom_news_by_id($id) {
+    global $db;
+    $id = (int)$id;
+
+    $result = $db->query("SELECT * FROM custom_news WHERE id = $id");
+
+    if ($result && $result->num_rows > 0) {
+        return $result->fetch_assoc();
+    }
+
+    return null;
+}
+
+// Create or update custom news
+function save_custom_news($id, $title, $content, $image_url, $is_featured, $active) {
+    global $db;
+
+    $title = $db->real_escape_string($title);
+    $content = $db->real_escape_string($content);
+    $image_url = $db->real_escape_string($image_url);
+    $is_featured = $is_featured ? 1 : 0;
+    $active = $active ? 1 : 0;
+
+    if ($id > 0) {
+        // Update
+        $id = (int)$id;
+        $sql = "UPDATE custom_news SET
+                title = '$title',
+                content = '$content',
+                image_url = '$image_url',
+                is_featured = $is_featured,
+                active = $active
+                WHERE id = $id";
+    } else {
+        // Insert
+        $sql = "INSERT INTO custom_news (title, content, image_url, is_featured, active)
+                VALUES ('$title', '$content', '$image_url', $is_featured, $active)";
+    }
+
+    return $db->query($sql);
+}
+
+// Delete custom news
+function delete_custom_news($id) {
+    global $db;
+    $id = (int)$id;
+
+    return $db->query("DELETE FROM custom_news WHERE id = $id");
+}
+
 ?>
