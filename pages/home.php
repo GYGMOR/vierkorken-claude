@@ -405,17 +405,25 @@ $news_items = array_slice($news_items, 0, 6);
                     return get_icon('wine', 48, 'icon-primary');
                 }
 
-                // Wein-Keywords für Kategorisierung
-                $wine_keywords = ['wein', 'rosé', 'champagner', 'prosecco'];
+                // Wein-Keywords für Kategorisierung (inkl. Alkoholfrei)
+                $wine_keywords = ['wein', 'rosé', 'champagner', 'prosecco', 'alkoholfrei'];
 
-                // Kategorien gruppieren
+                // Kategorien gruppieren (NUR mit Produkten!)
                 $wine_cats = [];
                 $other_cats = [];
 
                 foreach ($klara_categories as $cat) {
                     if (!$cat['active']) continue;
 
+                    $cat_id = $cat['id'];
                     $cat_name = $cat['name'];
+                    $product_count = $category_counts[$cat_id] ?? 0;
+
+                    // NUR Kategorien mit mindestens 1 Produkt anzeigen
+                    if ($product_count <= 0) {
+                        continue;
+                    }
+
                     $is_wine = false;
 
                     foreach ($wine_keywords as $keyword) {
