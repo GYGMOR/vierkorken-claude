@@ -75,6 +75,16 @@ if ($is_klara_product && !empty($wine['categories'])) {
                 <?php else: ?>
                     <div class="product-image-placeholder"><?php echo get_icon('wine', 120, 'icon-secondary'); ?></div>
                 <?php endif; ?>
+
+                <?php
+                // Kantonswappen anzeigen (unten rechts)
+                if (!empty($wine['kanton'])):
+                    require_once 'includes/kantone.php';
+                ?>
+                    <div class="kanton-wappen-badge">
+                        <?php echo render_kanton_wappen($wine['kanton'], 40); ?>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <!-- RATING STERNE (kurz) -->
@@ -322,6 +332,7 @@ if ($is_klara_product && !empty($wine['categories'])) {
     border-radius: 10px;
     overflow: hidden;
     background: linear-gradient(135deg, var(--bg-light) 0%, #f5f5f5 100%);
+    position: relative; /* Für Wappen-Badge */
 }
 
 .product-image {

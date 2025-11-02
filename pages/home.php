@@ -158,6 +158,16 @@ $news_items = array_slice($news_items, 0, 6);
                                     ?>
                                 </div>
                             <?php endif; ?>
+
+                            <?php
+                            // Kantonswappen anzeigen (nur bei Weinen)
+                            if ($item['type'] === 'wine' && !empty($item['wine_data']['kanton'])):
+                                require_once 'includes/kantone.php';
+                            ?>
+                                <div class="kanton-wappen-badge">
+                                    <?php echo render_kanton_wappen($item['wine_data']['kanton'], 30); ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="news-info">
