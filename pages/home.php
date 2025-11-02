@@ -166,18 +166,28 @@ $news_items = array_slice($news_items, 0, 6);
                             <?php if ($item['type'] === 'wine' && isset($item['wine_data'])): ?>
                                 <!-- WEIN-SPEZIFISCHE INFORMATIONEN -->
                                 <?php $wine = $item['wine_data']; ?>
-                                <p class="wine-producer"><?php echo safe_output($wine['producer'] ?? ''); ?></p>
+
+                                <?php if (!empty($wine['producer'])): ?>
+                                    <p class="wine-producer"><?php echo safe_output($wine['producer']); ?></p>
+                                <?php endif; ?>
+
+                                <?php if (!empty($wine['short_description'])): ?>
+                                    <p class="wine-description"><?php echo safe_output(substr($wine['short_description'], 0, 100)); ?><?php echo strlen($wine['short_description']) > 100 ? '...' : ''; ?></p>
+                                <?php endif; ?>
 
                                 <div class="wine-details">
                                     <?php if (!empty($wine['vintage'])): ?>
-                                        <span class="detail-item">Jahrgang: <?php echo intval($wine['vintage']); ?></span>
+                                        <span class="detail-item"><?php echo get_icon('calendar', 14); ?> <?php echo intval($wine['vintage']); ?></span>
                                     <?php endif; ?>
                                     <?php if (!empty($wine['region'])): ?>
-                                        <span class="detail-item">Region: <?php echo safe_output($wine['region']); ?></span>
+                                        <span class="detail-item"><?php echo get_icon('map-pin', 14); ?> <?php echo safe_output($wine['region']); ?></span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($wine['alcohol_content'])): ?>
+                                        <span class="detail-item"><?php echo get_icon('droplet', 14); ?> <?php echo number_format($wine['alcohol_content'], 1); ?>%</span>
                                     <?php endif; ?>
                                 </div>
 
-                                <p class="wine-price"><?php echo format_price($wine['price']); ?></p>
+                                <p class="wine-price"><strong><?php echo format_price($wine['price']); ?></strong></p>
 
                             <?php elseif ($item['type'] === 'event' && isset($item['event_data'])): ?>
                                 <!-- EVENT-SPEZIFISCHE INFORMATIONEN -->

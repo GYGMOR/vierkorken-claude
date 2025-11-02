@@ -589,17 +589,19 @@ $settings = get_all_settings();
                     ];
                 }
 
-                // Custom News
+                // Custom News (nur wenn Titel vorhanden)
                 foreach ($custom_news as $news) {
-                    $all_featured[] = [
-                        'id' => $news['id'],
-                        'type' => 'news',
-                        'title' => $news['title'],
-                        'subtitle' => substr($news['content'], 0, 50) . '...',
-                        'price' => null,
-                        'image' => $news['image_url'],
-                        'edit_url' => '?page=admin-dashboard&tab=news&news_id=' . $news['id']
-                    ];
+                    if (!empty($news['title'])) {
+                        $all_featured[] = [
+                            'id' => $news['id'],
+                            'type' => 'news',
+                            'title' => $news['title'],
+                            'subtitle' => substr($news['content'] ?? '', 0, 50) . '...',
+                            'price' => null,
+                            'image' => $news['image_url'],
+                            'edit_url' => '?page=admin-dashboard&tab=news&news_id=' . $news['id']
+                        ];
+                    }
                 }
                 ?>
 
@@ -1076,6 +1078,7 @@ $settings = get_all_settings();
                         <th>Preis</th>
                         <th>Tickets</th>
                         <th>Status</th>
+                        <th>Neuheit</th>
                         <th>Aktionen</th>
                     </tr>
                 </thead>
@@ -1093,8 +1096,20 @@ $settings = get_all_settings();
                                 </span>
                             </td>
                             <td>
-                                <a href="?page=admin-dashboard&tab=edit-event&event_id=<?php echo $event['id']; ?>" class="btn-small-admin">Bearbeiten</a>
-                                <button onclick="deleteEvent(<?php echo $event['id']; ?>)" class="btn-small-admin danger">Löschen</button>
+                                <label class="featured-toggle">
+                                    <input type="checkbox"
+                                           <?php echo ($event['is_featured'] ?? 0) ? 'checked' : ''; ?>
+                                           onchange="toggleEventFeatured(<?php echo $event['id']; ?>, this.checked)">
+                                    <span><?php echo ($event['is_featured'] ?? 0) ? get_icon('star', 18, 'icon-gold') : get_icon('star', 18, 'icon-secondary'); ?></span>
+                                </label>
+                            </td>
+                            <td>
+                                <a href="?page=admin-dashboard&tab=edit-event&event_id=<?php echo $event['id']; ?>" class="btn-small-admin">
+                                    <?php echo get_icon('edit', 14); ?> Bearbeiten
+                                </a>
+                                <button onclick="deleteEvent(<?php echo $event['id']; ?>)" class="btn-small-admin danger">
+                                    <?php echo get_icon('trash', 14); ?> Löschen
+                                </button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -2144,6 +2159,30 @@ function removeFeatured(type, id) {
     .catch(error => {
         console.error('Error:', error);
         showNotification('Fehler beim Entfernen', 'error');
+    });
+}
+
+// Toggle Event Featured Status
+function toggleEventFeatured(eventId, isFeatured) {
+    fetch('api/toggle-event-featured.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `event_id=${eventId}&is_featured=${isFeatured ? 1 : 0}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(isFeatured ? 'Als Neuheit markiert' : 'Von Neuheiten entfernt', 'success');
+            setTimeout(() => location.reload(), 500);
+        } else {
+            showNotification('Fehler: ' + (data.error || 'Unbekannter Fehler'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Fehler beim Aktualisieren', 'error');
     });
 }
 
