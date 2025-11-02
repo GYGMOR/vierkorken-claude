@@ -666,7 +666,15 @@ function update_klara_extended_data($klara_article_id, $data) {
                 VALUES ('$klara_article_id', '$image_url', '$producer', $vintage, '$region', $alcohol_content, '$short_description', '$extended_description', $is_featured, $custom_price, '$featured_bg_color', '$featured_text_color')";
     }
 
-    return $db->query($sql);
+    $result = $db->query($sql);
+
+    // DEBUG: Log bei Fehler
+    if (!$result) {
+        error_log("SQL ERROR in update_klara_extended_data: " . $db->error);
+        error_log("SQL: " . $sql);
+    }
+
+    return $result;
 }
 
 // Delete erweiterte Daten
