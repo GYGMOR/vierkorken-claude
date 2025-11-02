@@ -709,7 +709,7 @@ function get_featured_events($limit = 6) {
     global $db;
     $limit = (int)$limit;
 
-    $result = $db->query("SELECT * FROM events WHERE is_featured = 1 AND active = 1 ORDER BY event_date DESC LIMIT $limit");
+    $result = $db->query("SELECT * FROM events WHERE is_featured = 1 ORDER BY event_date DESC LIMIT $limit");
 
     if (!$result) {
         return [];
@@ -736,7 +736,7 @@ function get_custom_news($limit = 6) {
     global $db;
     $limit = (int)$limit;
 
-    $result = $db->query("SELECT * FROM custom_news WHERE is_featured = 1 AND active = 1 ORDER BY created_at DESC LIMIT $limit");
+    $result = $db->query("SELECT * FROM custom_news WHERE is_featured = 1 ORDER BY created_at DESC LIMIT $limit");
 
     if (!$result) {
         return [];
