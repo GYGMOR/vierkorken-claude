@@ -20,22 +20,13 @@ $wines = klara_get_articles($category_id, $search);
 
 // WICHTIG: Erweiterte Daten (Custom-Bilder etc.) mergen
 foreach ($wines as &$wine) {
-    $extended = get_klara_extended_data($wine['id']);
+    $klara_id = $wine['id']; // Klara-ID sichern
+    $extended = get_klara_extended_data($klara_id);
     if ($extended) {
-        // Nur image_url überschreiben wenn Custom-Bild gesetzt ist
-        if (!empty($extended['image_url'])) {
-            $wine['image_url'] = $extended['image_url'];
-        }
-        // Andere Extended-Daten auch mergen
-        if (!empty($extended['producer'])) {
-            $wine['producer'] = $extended['producer'];
-        }
-        if (!empty($extended['vintage'])) {
-            $wine['vintage'] = $extended['vintage'];
-        }
-        if (!empty($extended['short_description'])) {
-            $wine['description'] = $extended['short_description'];
-        }
+        // Merge: Klara-Daten zuerst, dann Extended-Daten drüber (überschreiben)
+        $wine = array_merge($wine, $extended);
+        // Klara-ID wiederherstellen (nicht DB-ID verwenden)
+        $wine['id'] = $klara_id;
     }
 }
 unset($wine); // Referenz aufbrechen

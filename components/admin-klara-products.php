@@ -188,6 +188,17 @@
     object-fit: cover;
     border-radius: 6px;
     background: #f3f4f6;
+    flex-shrink: 0; /* Verhindert dass Bild kleiner wird */
+}
+
+/* Icon-Placeholder für Produkte ohne Bild */
+.wine-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    width: 80px;
+    height: 80px;
 }
 
 .klara-product-info h4 {
