@@ -27,6 +27,9 @@ $news_items = [];
 
 // Klara-Produkte
 foreach ($featured_products as $product) {
+    // DEBUG: Ausgabe der Farben
+    error_log("Product ID: " . $product['id'] . " | BG: " . ($product['featured_bg_color'] ?? 'NICHT GESETZT') . " | Text: " . ($product['featured_text_color'] ?? 'NICHT GESETZT'));
+
     $news_items[] = [
         'id' => $product['id'],
         'type' => 'wine',

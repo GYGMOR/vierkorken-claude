@@ -701,14 +701,20 @@ function get_klara_featured_products($limit = 6) {
 
     foreach ($all_articles as $article) {
         if (isset($featured_data[$article['id']])) {
+            // Farben zuerst speichern (bevor sie durch merge überschrieben werden)
+            $bg_color = $featured_data[$article['id']]['bg_color'] ?? '#722c2c';
+            $text_color = $featured_data[$article['id']]['text_color'] ?? '#ffffff';
+
             // Erweiterte Daten mergen
             $extended = get_klara_extended_data($article['id']);
             if ($extended) {
                 $article = array_merge($article, $extended);
             }
-            // Farben hinzufügen (mit Fallback)
-            $article['featured_bg_color'] = $featured_data[$article['id']]['bg_color'] ?? '#722c2c';
-            $article['featured_text_color'] = $featured_data[$article['id']]['text_color'] ?? '#ffffff';
+
+            // Farben wieder setzen (falls sie durch merge überschrieben wurden)
+            $article['featured_bg_color'] = $bg_color;
+            $article['featured_text_color'] = $text_color;
+
             $featured[] = $article;
         }
     }
