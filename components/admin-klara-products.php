@@ -476,9 +476,9 @@ function saveKlaraProduct(event) {
         data.region = region;
     }
 
-    // Kanton - nur wenn ausgefüllt
+    // Kanton - nur wenn ausgefüllt (nicht "")
     const kanton = document.getElementById('klara-product-kanton')?.value?.trim();
-    if (kanton) {
+    if (kanton && kanton !== '') {
         data.kanton = kanton;
     }
 
