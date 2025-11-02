@@ -17,30 +17,25 @@ $about_image = get_setting('about_section_image', '');
 $about_text = get_setting('about_section_text', 'Willkommen bei Vier Korken, Ihrem Zugang zu den erlesenen Weinen der Schweiz.');
 $about_shop_link = get_setting('about_shop_link', '?page=shop');
 
-// Neuheiten laden - kann Weine, Events oder allgemeine News sein
-$news_items = get_all_news_items(6, true);
+// Neuheiten laden - KLARA Featured Products
+$featured_klara_products = get_klara_featured_products(6);
 
-// Ergänze die News-Items mit zusätzlichen Daten (Wein- oder Event-Details)
-foreach ($news_items as &$item) {
-    if ($item['type'] === 'wine' && $item['reference_id']) {
-        $wine = get_wine_by_id($item['reference_id']);
-        if ($wine) {
-            $item['wine_data'] = $wine;
-            // Fallback: Nutze Wein-Daten wenn News-Item keine eigenen hat
-            if (empty($item['image_url'])) $item['image_url'] = $wine['image_url'];
-            if (empty($item['link_url'])) $item['link_url'] = '?page=product&id=' . $wine['id'];
-        }
-    } elseif ($item['type'] === 'event' && $item['reference_id']) {
-        $event = get_event_by_id($item['reference_id']);
-        if ($event) {
-            $item['event_data'] = $event;
-            // Fallback: Nutze Event-Daten wenn News-Item keine eigenen hat
-            if (empty($item['image_url'])) $item['image_url'] = $event['image_url'];
-            if (empty($item['link_url'])) $item['link_url'] = '?page=event&id=' . $event['id'];
-        }
-    }
+// Konvertiere Klara-Produkte in News-Item Format (als 'wine' type für bestehende Anzeige)
+$news_items = [];
+foreach ($featured_klara_products as $product) {
+    $news_items[] = [
+        'id' => $product['id'],
+        'type' => 'wine',
+        'title' => $product['name'],
+        'description' => $product['short_description'] ?? '',
+        'image_url' => $product['image_url'] ?? 'assets/images/placeholder-wine.jpg',
+        'link_url' => '?page=product&id=' . $product['id'],
+        'price' => $product['price'],
+        'bg_color' => '#722c2c',
+        'text_color' => '#ffffff',
+        'wine_data' => $product
+    ];
 }
-unset($item); // Break reference
 ?>
 
 <!-- HEADER BANNER -->

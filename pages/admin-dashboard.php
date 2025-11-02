@@ -560,7 +560,7 @@ $settings = get_all_settings();
             <div class="admin-form-mega">
                 <h3>Aktuelle Neuheiten</h3>
                 <?php
-                $featured_wines = klara_get_featured_products();
+                $featured_wines = get_klara_featured_products();
                 $count = count($featured_wines);
                 ?>
 
