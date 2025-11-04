@@ -1,28 +1,61 @@
+# ==========================================
+# VIERKORKEN - GIT IGNORE
+# ==========================================
+
+# SENSIBLE KONFIGURATION - NIEMALS COMMITTEN!
+config/database.php
+config/keys.php
+
+# Test & Debug Dateien
+test-*.php
+debug-*.php
+*-test.php
+generate-hash.php
+toggle-edit.php
+download_kantone_wappen.php
+
+# Datenbank Dumps - NIEMALS COMMITTEN!
+*.sql
+DB/*.sql
+database/*.sql
+
 # Dependencies
 node_modules/
-klara-shop-starter/node_modules/
+klara-shop-starter/
 
 # Environment files
 .env
 .env.local
 .env.production
-klara-shop-starter/.env.local
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS Files
 .DS_Store
 Thumbs.db
+desktop.ini
+nul
 
 # Logs
 *.log
 npm-debug.log*
+error_log
 
-# Build outputs
-klara-shop-starter/.next/
-klara-shop-starter/out/
+# Cache & Temp
+cache/
+*.tmp
+*.temp
+*.bak
+*.backup
 
-# Database (optional - nur wenn du DB-Dumps nicht committen willst)
-# DB/
+# Uploads
+uploads/
+user-uploads/
+
+# Claude Code Settings
+.claude/settings.local.json

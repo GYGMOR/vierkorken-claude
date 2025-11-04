@@ -3,9 +3,10 @@
 
 header('Content-Type: application/json');
 
-// Klara API Credentials
-$KLARA_API_BASEURL = 'https://api.klara.ch';
-$KLARA_API_KEY = '01c11c3e-c484-4ce7-bca0-3f52eb3772af';
+// Load Klara API Credentials from config
+$keys = require_once '../config/keys.php';
+$KLARA_API_BASEURL = $keys['klara_api_baseurl'] ?? 'https://api.klara.ch';
+$KLARA_API_KEY = $keys['klara_api_key'] ?? '';
 
 if (!$KLARA_API_KEY) {
     http_response_code(502);

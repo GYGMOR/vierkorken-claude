@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Erstellungszeit: 02. Nov 2025 um 15:02
+-- Erstellungszeit: 04. Nov 2025 um 10:27
 -- Server-Version: 10.11.10-MariaDB-cll-lve-log
 -- PHP-Version: 8.4.11
 
@@ -186,9 +186,9 @@ CREATE TABLE `events` (
 --
 
 INSERT INTO `events` (`id`, `name`, `description`, `event_date`, `location`, `price`, `image_url`, `max_participants`, `available_tickets`, `category_id`, `is_active`, `created_at`, `updated_at`, `is_featured`, `featured_bg_color`, `featured_text_color`) VALUES
-(1, 'Weinverkostung: Schweizer Rotweine', 'Entdecken Sie die Vielfalt der Schweizer Rotweine bei unserer exklusiven Verkostung. Ein erfahrener Sommelier führt Sie durch 6 ausgewählte Weine.', '2025-11-15 18:00:00', 'Vier Korken Weinlounge, Zürich', 45.00, 'assets/images/events/weinverkostung-rotwein.jpg', 20, 20, 9, 1, '2025-10-21 06:20:13', '2025-11-02 11:38:34', 0, '#c9a113', '#ffffff'),
-(2, 'Käse & Wein Pairing Workshop', 'Lernen Sie die perfekte Kombination von Schweizer Käse und Wein kennen. Ein unvergessliches kulinarisches Erlebnis.', '2025-11-22 19:00:00', 'Vier Korken Weinlounge, Zürich', 65.00, 'assets/images/events/kaese-wein-pairing.jpg', 15, 15, 9, 1, '2025-10-21 06:20:13', '2025-11-02 11:38:34', 0, '#c69f30', '#ffffff'),
-(3, 'Weihnachts-Weindegustation', 'Besondere Weine für die Festtage. Finden Sie den perfekten Begleiter für Ihr Weihnachtsmenü.', '2025-12-10 17:00:00', 'Vier Korken Weinlounge, Zürich', 55.00, 'assets/images/events/weihnachts-degustation.jpg', 25, 25, 9, 1, '2025-10-21 06:20:13', '2025-11-02 11:38:34', 0, '#c59f30', '#ffffff');
+(1, 'Weinverkostung: Schweizer Rotweine', 'Entdecken Sie die Vielfalt der Schweizer Rotweine bei unserer exklusiven Verkostung. Ein erfahrener Sommelier führt Sie durch 6 ausgewählte Weine.', '2025-11-15 18:00:00', 'Vier Korken Weinlounge, Zürich', 45.00, 'assets/images/events/weinverkostung-rotwein.jpg', 20, 20, 9, 1, '2025-10-21 06:20:13', '2025-11-02 14:30:29', 0, '#c9a113', '#ffffff'),
+(2, 'Käse & Wein Pairing Workshop', 'Lernen Sie die perfekte Kombination von Schweizer Käse und Wein kennen. Ein unvergessliches kulinarisches Erlebnis.', '2025-11-22 19:00:00', 'Vier Korken Weinlounge, Zürich', 65.00, 'assets/images/events/kaese-wein-pairing.jpg', 15, 15, 9, 1, '2025-10-21 06:20:13', '2025-11-02 14:30:26', 0, '#c69f30', '#ffffff'),
+(3, 'Weihnachts-Weindegustation', 'Besondere Weine für die Festtage. Finden Sie den perfekten Begleiter für Ihr Weihnachtsmenü.', '2025-12-10 17:00:00', 'Vier Korken Weinlounge, Zürich', 55.00, 'assets/images/events/weihnachts-degustation.jpg', 25, 25, 9, 1, '2025-10-21 06:20:13', '2025-11-02 14:30:24', 0, '#c59f30', '#ffffff');
 
 -- --------------------------------------------------------
 
@@ -223,6 +223,7 @@ CREATE TABLE `klara_products_extended` (
   `producer` varchar(255) DEFAULT NULL COMMENT 'Produzent',
   `vintage` int(4) DEFAULT NULL COMMENT 'Jahrgang',
   `region` varchar(255) DEFAULT NULL COMMENT 'Region',
+  `kanton` varchar(2) DEFAULT NULL COMMENT 'Schweizer Kanton (2-Buchstaben Kürzel)',
   `alcohol_content` decimal(4,2) DEFAULT NULL COMMENT 'Alkoholgehalt %',
   `description` text DEFAULT NULL COMMENT 'Erweiterte Beschreibung',
   `short_description` text DEFAULT NULL,
@@ -239,18 +240,19 @@ CREATE TABLE `klara_products_extended` (
 -- Daten für Tabelle `klara_products_extended`
 --
 
-INSERT INTO `klara_products_extended` (`id`, `klara_article_id`, `image_url`, `producer`, `vintage`, `region`, `alcohol_content`, `description`, `short_description`, `extended_description`, `is_featured`, `featured_bg_color`, `featured_text_color`, `custom_price`, `created_at`, `updated_at`) VALUES
-(1, '12', '', '', 0, '', 0.00, NULL, 'Unterschiedliche Geschenksachen', 'Das ist die Lange bescheebung \n\nhahahahahaha\nah\nahah\na\nhah\nahaha\nhahah\na\nhaa\nhahah\nah\n\nh', 0, '#722c2c', '#ffffff', NULL, '2025-11-01 21:49:47', '2025-11-02 11:38:34'),
-(2, '1', '', '', 0, '', 0.00, NULL, 'AOC Graubünden\n\nAus bestem Traubengut der Einzellage Uris gekeltert. Der zwölf monatige Ausbau in französischen Barriques, von denen die eine Hälfte neu und die andere Hälfte bereits im Einsatz gestanden sind, verleiht dem Wein Würzigkeit und eine dezent rauchige Note. Eine zurückhaltende Filtration führt zu einem dichtgewobenen, eleganten Gaumen, der von Waldbeeren, Mocca, Nougat und Röstaromen geprägt ist.\n\nGeniessen 2024–2034 (14˚–16˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:02:47', '2025-11-02 00:25:37'),
-(3, '109', '', '', 0, '', 0.00, NULL, 'AOC Graubünden\n\nHellroter, frischer und fruchtiger Schiller aus Pinot Noir, Pinot Blanc und Pinot Gris gekeltert.\n\nGeniessen 2024–2028 (10˚–12˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:03:30', '2025-11-02 11:38:34'),
-(4, '39', '', '', 0, '', 0.00, NULL, 'Infos\nVollreife Riesling-Sylvaner-Trauben werden im Herbst während 3 bis 4 Wochen getrocknet und anschliessend gepresst. Daraus entsteht ein konzentrierter Traubenmost mit 150°Oechsle und einer geballten Ladung Frucht-und Reifearomen.\n\nNach der Gärung präsentieren sich Süsse, Säure und Alkohol in einem harmonischen Gleichgewicht. Ein Geheimtipp für alle Fans von Dessertweinen.\n\n \n\nAlkoholgehalt: 13.7 vol. %\nLagerfähigkeit: bis 3 Jahre\nServiertemperatur: 8 bis 10 ˚C\nServiervorschlag\nZu Blauschimmelkäse, Desserts etc.', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:08:05', '2025-11-02 11:38:34'),
-(5, '3', '', '', 0, '', 0.00, NULL, 'AOC Graubünden\n\nHellroter, frischer und fruchtiger Rosé aus Pinot Noir gekeltert.\n\nGeniessen 2024–2028 (10˚–12˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:08:31', '2025-11-02 00:08:31'),
-(6, '4', '', '', 0, '', 0.00, NULL, 'Traubensorten: Maréchal Foch und Pinot Noir.\nIn der Nase: Zwetschgen, Cassis, würzig. Im Gaumen: komplex, reich, voll.\nLagerfähigkeit: bis 8 Jahre', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:08:49', '2025-11-02 00:26:45'),
-(7, '2', '', '', 1999, '', 0.00, NULL, 'AOC Graubünden\n\nAus bestem Traubengut der Einzellage Uris gekeltert. Der zwölf monatige Ausbau in französischen Barriques, von denen die eine Hälfte neu und die andere Hälfte bereits im Einsatz gestanden sind, verleiht dem Wein Würzigkeit und eine dezent rauchige Note. Eine zurückhaltende Filtration führt zu einem dichtgewobenen, eleganten Gaumen, der von Waldbeeren, Mocca, Nougat und Röstaromen geprägt ist.\n\nGeniessen 2024–2034 (14˚–16˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:27:10', '2025-11-02 11:38:34'),
-(8, '6', '', 'Test Produzent', 2020, 'Test Region', 13.50, NULL, 'Test Beschreibung', 'Erweiterte Test Beschreibung', 0, '#ff0000', '#ffffff', 25.50, '2025-11-02 07:55:54', '2025-11-02 11:41:38'),
-(9, '5', '', '', 2023, '', 0.00, NULL, 'AOC Graubünden\n\nHellroter, frischer und fruchtiger Rosé aus Pinot Noir gekeltert.\n\nGeniessen 2024–2028 (10˚–12˚C)', '', 0, '#ffb10a', '#ffffff', NULL, '2025-11-02 08:23:34', '2025-11-02 08:32:37'),
-(10, '8', '', '', 2024, '', 0.00, NULL, 'Traubensorten: Maréchal Foch und Pinot Noir.\nIn der Nase: Zwetschgen, Cassis, würzig. Im Gaumen: komplex, reich, voll.\nLagerfähigkeit: bis 8 Jahre', '', 0, '#d2b919', '#ffffff', NULL, '2025-11-02 08:32:21', '2025-11-02 08:32:21'),
-(11, '121', '', '', 2004, '', 0.00, NULL, 'Die traditionelle Flaschengärung verleiht diesem Schaumwein seine natürliche Perlage. Diese trägt die Fruchtigkeit der Pinot Traube wie aber auch diese typisch klassischen Hefearomen vielversprechend in den Gaumen.', '', 1, '#ded81b', '#ffffff', NULL, '2025-11-02 11:39:59', '2025-11-02 11:39:59');
+INSERT INTO `klara_products_extended` (`id`, `klara_article_id`, `image_url`, `producer`, `vintage`, `region`, `kanton`, `alcohol_content`, `description`, `short_description`, `extended_description`, `is_featured`, `featured_bg_color`, `featured_text_color`, `custom_price`, `created_at`, `updated_at`) VALUES
+(1, '12', '', '', 2024, '', NULL, 0.00, NULL, 'Unterschiedliche Geschenksachen', 'Das ist die Lange bescheebung \n\nhahahahahaha\nah\nahah\na\nhah\nahaha\nhahah\na\nhaa\nhahah\nah\n\nh', 1, '#722c2c', '#ffffff', NULL, '2025-11-01 21:49:47', '2025-11-02 14:35:14'),
+(2, '1', '', '', 0, '', NULL, 0.00, NULL, 'AOC Graubünden\n\nAus bestem Traubengut der Einzellage Uris gekeltert. Der zwölf monatige Ausbau in französischen Barriques, von denen die eine Hälfte neu und die andere Hälfte bereits im Einsatz gestanden sind, verleiht dem Wein Würzigkeit und eine dezent rauchige Note. Eine zurückhaltende Filtration führt zu einem dichtgewobenen, eleganten Gaumen, der von Waldbeeren, Mocca, Nougat und Röstaromen geprägt ist.\n\nGeniessen 2024–2034 (14˚–16˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:02:47', '2025-11-02 00:25:37'),
+(3, '109', '', '', 0, '', NULL, 0.00, NULL, 'AOC Graubünden\n\nHellroter, frischer und fruchtiger Schiller aus Pinot Noir, Pinot Blanc und Pinot Gris gekeltert.\n\nGeniessen 2024–2028 (10˚–12˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:03:30', '2025-11-02 11:38:34'),
+(4, '39', '', '', 0, '', NULL, 0.00, NULL, 'Infos\nVollreife Riesling-Sylvaner-Trauben werden im Herbst während 3 bis 4 Wochen getrocknet und anschliessend gepresst. Daraus entsteht ein konzentrierter Traubenmost mit 150°Oechsle und einer geballten Ladung Frucht-und Reifearomen.\n\nNach der Gärung präsentieren sich Süsse, Säure und Alkohol in einem harmonischen Gleichgewicht. Ein Geheimtipp für alle Fans von Dessertweinen.\n\n \n\nAlkoholgehalt: 13.7 vol. %\nLagerfähigkeit: bis 3 Jahre\nServiertemperatur: 8 bis 10 ˚C\nServiervorschlag\nZu Blauschimmelkäse, Desserts etc.', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:08:05', '2025-11-02 11:38:34'),
+(5, '3', '', '', 0, '', NULL, 0.00, NULL, 'AOC Graubünden\n\nHellroter, frischer und fruchtiger Rosé aus Pinot Noir gekeltert.\n\nGeniessen 2024–2028 (10˚–12˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:08:31', '2025-11-02 00:08:31'),
+(6, '4', '', '', 0, '', NULL, 0.00, NULL, 'Traubensorten: Maréchal Foch und Pinot Noir.\nIn der Nase: Zwetschgen, Cassis, würzig. Im Gaumen: komplex, reich, voll.\nLagerfähigkeit: bis 8 Jahre', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:08:49', '2025-11-02 00:26:45'),
+(7, '2', '', '', 2004, '', NULL, 0.00, NULL, 'AOC Graubünden\n\nAus bestem Traubengut der Einzellage Uris gekeltert. Der zwölf monatige Ausbau in französischen Barriques, von denen die eine Hälfte neu und die andere Hälfte bereits im Einsatz gestanden sind, verleiht dem Wein Würzigkeit und eine dezent rauchige Note. Eine zurückhaltende Filtration führt zu einem dichtgewobenen, eleganten Gaumen, der von Waldbeeren, Mocca, Nougat und Röstaromen geprägt ist.\n\nGeniessen 2024–2034 (14˚–16˚C)', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 00:27:10', '2025-11-02 14:19:54'),
+(8, '6', '', 'Test Produzent', 2004, 'Test Region', NULL, 0.00, NULL, 'Traubensorten: Maréchal Foch und Pinot Noir.\nIn der Nase: Zwetschgen, Cassis, würzig. Im Gaumen: komplex, reich, voll.\nLagerfähigkeit: bis 8 Jahre', 'Erweiterte Test Beschreibung', 1, '#db0606', '#ffffff', 25.50, '2025-11-02 07:55:54', '2025-11-02 14:42:46'),
+(9, '5', '', '', 2023, '', NULL, 0.00, NULL, 'AOC Graubünden\n\nHellroter, frischer und fruchtiger Rosé aus Pinot Noir gekeltert.\n\nGeniessen 2024–2028 (10˚–12˚C)', '', 0, '#ffb10a', '#ffffff', NULL, '2025-11-02 08:23:34', '2025-11-02 08:32:37'),
+(10, '8', '', '', 2024, '', NULL, 0.00, NULL, 'Traubensorten: Maréchal Foch und Pinot Noir.\nIn der Nase: Zwetschgen, Cassis, würzig. Im Gaumen: komplex, reich, voll.\nLagerfähigkeit: bis 8 Jahre', '', 0, '#d2b919', '#ffffff', NULL, '2025-11-02 08:32:21', '2025-11-02 08:32:21'),
+(11, '121', 'https://stibe.me/vierkorken-claude/assets/images/wines/FAS-weisswein-albarino-trocken.jpg', '', 2004, '', 'AG', 0.00, NULL, 'Die traditionelle Flaschengärung verleiht diesem Schaumwein seine natürliche Perlage. Diese trägt die Fruchtigkeit der Pinot Traube wie aber auch diese typisch klassischen Hefearomen vielversprechend in den Gaumen.', '', 1, '#ded81b', '#ffffff', NULL, '2025-11-02 11:39:59', '2025-11-02 15:46:13'),
+(12, '11', '', '', 2024, '', NULL, NULL, NULL, '', '', 0, '#722c2c', '#ffffff', NULL, '2025-11-02 14:30:02', '2025-11-02 14:30:21');
 
 -- --------------------------------------------------------
 
@@ -1946,7 +1948,7 @@ INSERT INTO `wines` (`id`, `name`, `category_id`, `description`, `price`, `curre
 (5, 'Humagne Rouge 2020', 4, 'Ein kraftvoller Rotwein mit Kirsch- und Pfeffernoten', 38.50, 'CHF', 22, NULL, 2020, 'Valais', 'Domaines Cornérés', 13.0, 750, 'HUM-ROUGE-20', '2025-10-18 12:05:13', '2025-10-20 12:24:52', 1, NULL, 0),
 (6, 'Cornalin 2019', 4, 'Eine Schweizer Spezialität mit feinen Tanninen', 42.00, 'CHF', 16, NULL, 2019, 'Valais', 'Marie-Thérèse Chappaz', 13.5, 750, 'CORN-19', '2025-10-18 12:05:13', '2025-10-20 17:45:12', 1, NULL, 0),
 (7, 'Petite Arvine Moelleux 2021', 5, 'Ein süffiger Dessertwein mit Honignoten', 35.00, 'CHF', 12, NULL, 2021, 'Valais', 'Vins du Valais', 11.5, 750, 'PARVINE-MOEL-21', '2025-10-18 12:05:13', '2025-10-18 12:05:13', 0, NULL, 0),
-(8, 'Alkoholfrei Weißwein', 6, 'Genießen Sie Wein ohne Alkohol - gleicher Geschmack!', 15.00, 'CHF', 30, 'https://stibe.me/vierkorken-claude/assets/images/wines/FAS-weisswein-albarino-trocken.jpg', 2023, 'Schweiz', 'Swiss Non-Alcoholic', 0.5, 750, 'ALKFREI-WW', '2025-10-18 12:05:13', '2025-10-21 15:39:49', 0, 4.0, 1),
+(8, 'Alkoholfrei Weißwein', 6, 'Genießen Sie Wein ohne Alkohol - gleicher Geschmack!', 15.00, 'CHF', 30, 'https://stibe.me/vierkorken-claude/assets/images/wines/FAS-weisswein-albarino-trocken.jpg', 2023, 'Schweiz', 'Swiss Non-Alcoholic', 0.5, 750, 'ALKFREI-WW', '2025-10-18 12:05:13', '2025-11-04 06:51:22', 0, NULL, 0),
 (9, 'Geschenk-Gutschein 50 CHF', 7, 'Der perfekte Geschenk - 50 CHF zum Einlösen', 50.00, 'CHF', 100, NULL, 2024, 'Online', 'Vier Korken', 0.0, 0, 'GUTSCHEIN-50', '2025-10-18 12:05:13', '2025-10-21 15:45:02', 1, NULL, 0),
 (10, 'Geschenk-Gutschein 100 CHF', 7, 'Der perfekte Geschenk - 100 CHF zum Einlösen', 100.00, 'CHF', 100, NULL, 2024, 'Online', 'Vier Korken', 0.0, 0, 'GUTSCHEIN-100', '2025-10-18 12:05:13', '2025-11-01 23:12:11', 1, NULL, 0),
 (11, 'Weinglas Set (6er)', 8, 'Premium Weingläser Set - perfekt für Ihre Weinverkostung', 89.00, 'CHF', 8, NULL, 2024, 'Schweiz', 'Riedel', 0.0, 0, 'GLAS-SET-6', '2025-10-18 12:05:13', '2025-10-20 12:25:00', 1, NULL, 0);
@@ -1974,8 +1976,8 @@ CREATE TABLE `wine_ratings` (
 --
 
 INSERT INTO `wine_ratings` (`id`, `wine_id`, `wine_id_new`, `user_id`, `rating`, `review_text`, `helpful_count`, `created_at`, `updated_at`) VALUES
-(5, 8, '8', 8, 4, 'Hallo', 0, '2025-10-21 15:34:34', '2025-11-01 23:17:39'),
-(9, 19, NULL, 7, 3, 'mega', 0, '2025-11-01 23:25:27', '2025-11-01 23:25:27');
+(9, 19, NULL, 7, 3, 'mega', 0, '2025-11-01 23:25:27', '2025-11-01 23:25:27'),
+(10, 121, NULL, 8, 4, 'Nice :)', 0, '2025-11-04 06:51:45', '2025-11-04 06:51:45');
 
 -- --------------------------------------------------------
 
@@ -2287,7 +2289,7 @@ ALTER TABLE `event_bookings`
 -- AUTO_INCREMENT für Tabelle `klara_products_extended`
 --
 ALTER TABLE `klara_products_extended`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT für Tabelle `newsletter_subscribers`
@@ -2383,7 +2385,7 @@ ALTER TABLE `wines`
 -- AUTO_INCREMENT für Tabelle `wine_ratings`
 --
 ALTER TABLE `wine_ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT für Tabelle `wishlist`

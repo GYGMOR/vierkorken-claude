@@ -60,10 +60,10 @@ async function apiCall(endpoint, method = 'GET', data = null) {
 // ============================================
 
 function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cart = JSON.parse(localStorage.getItem('vier_korken_cart') || '[]');
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
     const cartBadge = document.getElementById('cart-count');
-    
+
     if (cartBadge) {
         cartBadge.innerText = count;
         cartBadge.style.display = count > 0 ? 'flex' : 'none';

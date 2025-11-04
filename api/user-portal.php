@@ -5,14 +5,8 @@ header('Content-Type: application/json; charset=utf-8');
 session_start();
 
 require_once '../config/database.php';
+require_once '../config/security.php';
 require_once '../includes/functions.php';
-
-function require_login() {
-    if (!isset($_SESSION['user_id'])) {
-        http_response_code(401);
-        die(json_encode(['success' => false, 'error' => 'Authentifizierung erforderlich']));
-    }
-}
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 $user_id = $_SESSION['user_id'] ?? 0;

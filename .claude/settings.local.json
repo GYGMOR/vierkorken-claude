@@ -4,7 +4,13 @@
       "Bash(dir /b /s \"C:\\Users\\joel.hediger\\OneDrive - SONNENBERG (1)\\Desktop\\vierkorken\")",
       "Bash(python analyze_excel.py:*)",
       "Bash(wc:*)",
-      "Bash(php -r:*)"
+      "Bash(php -r:*)",
+      "Bash(powershell -Command \"Get-ChildItem -Path ''klara-shop-starter'' -Force | Select-Object -First 15 | Format-Table Name, PSIsContainer\")",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(test:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
