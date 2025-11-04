@@ -36,15 +36,29 @@ Database credentials are stored in `config/database.php`:
 ### Directory Structure
 
 ```
-├── api/              # JSON API endpoints
+├── api/                    # JSON API endpoints
 ├── assets/
-│   ├── css/         # Stylesheets (including dynamic PHP-generated CSS)
-│   └── js/          # Client-side JavaScript
-├── components/      # Reusable PHP components
-├── config/          # Database and configuration
-├── includes/        # Shared PHP includes (header, footer, functions)
-├── pages/           # Page templates loaded by index.php
-└── index.php        # Main entry point
+│   ├── css/               # Stylesheets (including dynamic PHP-generated CSS)
+│   ├── images/            # Images, wines, banners, kantone
+│   └── js/                # Client-side JavaScript
+├── components/            # Reusable PHP components
+├── config/                # Database and configuration
+│   ├── database.php       # DB connection (gitignored)
+│   ├── keys.php           # API keys (gitignored)
+│   └── security.php       # Security functions
+├── database/              # Database files
+│   └── migrations-archive/ # Archived SQL migrations
+├── DB/                    # Database dumps (gitignored)
+├── docs/                  # Documentation
+│   ├── guides/            # Integration guides, security docs
+│   └── reports/           # Status reports, debugging logs
+├── includes/              # Shared PHP includes (header, footer, functions)
+├── pages/                 # Page templates loaded by index.php
+├── utils/                 # Utilities
+│   └── scripts/           # Utility scripts (gitignored)
+├── index.php              # Main entry point
+├── CLAUDE.md              # Project documentation for Claude Code
+└── CLEANUP_REPORT.md      # Latest cleanup documentation
 ```
 
 ### Key Files
@@ -78,7 +92,7 @@ The `includes/editable.php` file provides helper functions for inline content ed
 - `editable($key, $content, $tag, $class)`: Outputs editable text
 - `editable_textarea()`, `editable_link()`, `editable_button()`: Specialized variants
 - Content stored in database `settings` table with key-value pairs
-- Edit mode toggled via `toggle-edit.php` (sets `$_SESSION['edit_mode']`)
+- Edit mode toggled via `utils/scripts/toggle-edit.php` (sets `$_SESSION['edit_mode']`)
 - API endpoint: `api/edit-content.php` handles saves
 
 ## Shopping Cart
@@ -220,26 +234,33 @@ This appears to be a direct-deployment PHP application. To run locally:
 3. Update database credentials in `config/database.php`
 4. Access via `http://localhost/vierkorken/`
 
-### Database Testing
+### Utility Scripts
 
-Test database connection:
+Located in `utils/scripts/` (gitignored):
+
+**Generate password hash:**
 ```bash
-php test-db.php
+php utils/scripts/generate-hash.php
 ```
 
-### Password Hashing
-
-Generate admin password hash:
+**Download Kanton wappen:**
 ```bash
-php generate-hash.php
+php utils/scripts/download_kantone_wappen.php
+```
+
+**Toggle edit mode (for development):**
+```bash
+php utils/scripts/toggle-edit.php
 ```
 
 ## Important Notes
 
-- **No version control**: This directory is not a git repository
+- **Version control**: Git repository with .gitignore for sensitive files
 - **No package manager**: No npm/composer dependencies
-- **Direct database credentials**: Stored in config/database.php (line 11)
+- **Direct database credentials**: Stored in config/database.php (gitignored)
+- **API keys**: Stored in config/keys.php (gitignored)
 - **Session-based auth**: Admin authentication uses PHP sessions
 - **No REST API**: Uses traditional form submissions and custom API endpoints
-- **Inline styles**: Some components have embedded `<style>` tags (e.g., admin-dashboard.php:828)
+- **Inline styles**: Some components have embedded `<style>` tags (e.g., admin-dashboard.php)
 - **Dynamic CSS**: `assets/css/dynamic-colors.php` generates CSS from database settings
+- **Documentation**: All docs in `docs/` folder (guides and reports separated)

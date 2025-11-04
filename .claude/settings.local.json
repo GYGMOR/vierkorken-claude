@@ -10,7 +10,8 @@
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(test:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

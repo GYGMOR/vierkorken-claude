@@ -10,9 +10,12 @@ config/keys.php
 test-*.php
 debug-*.php
 *-test.php
-generate-hash.php
-toggle-edit.php
-download_kantone_wappen.php
+
+# Utility Scripts (sensibel)
+utils/scripts/generate-hash.php
+utils/scripts/toggle-edit.php
+utils/scripts/download_kantone_wappen.php
+utils/scripts/analyze_excel.py
 
 # Datenbank Dumps - NIEMALS COMMITTEN!
 *.sql
